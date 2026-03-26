@@ -715,6 +715,7 @@
     }
 
     function drawPlayer() {
+      if (!running && confetti.length > 0) return;
       const pulse = 1 + Math.sin(player.pulse) * 0.03;
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * 2.8);
       glow.addColorStop(0, '#ffffff');
