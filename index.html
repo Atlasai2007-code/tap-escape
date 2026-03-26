@@ -614,71 +614,74 @@
     }
 
     function update(dt) {
-      if (!running || paused) return;
-      elapsed += dt;
-      score += dt * 7 + clamp(elapsed / 20, 0, 4) * dt * 3;
-      syncScore();
-      threatValue.textContent = threatLabel();
-      if (Math.floor(score) >= best) updateBest();
-
-      const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
-      spawnTimer -= dt;
-      if (spawnTimer <= 0) {
-        spawnPattern();
-        spawnTimer = spawnRate;
-      }
-
-      if (player.cooldown > 0) player.cooldown -= dt;
-      if (player.dashT < 1) {
-        player.dashT = Math.min(1, player.dashT + dt / DASH_TIME);
-        const t = 1 - Math.pow(1 - player.dashT, 3);
-        player.x = lerp(player.fromX, player.toX, t);
-        player.y = lerp(player.fromY, player.toY, t);
-      }
-      player.pulse += dt * 5;
-
-      obstacles = obstacles.filter(ob => {
-        ob.x += ob.vx * dt;
-        ob.y += ob.vy * dt;
-        const d = dist(player.x, player.y, ob.x, ob.y);
-        ob.danger = d < ob.size + PLAYER_R + 140;
-        const near = d < ob.size + PLAYER_R + 24;
-        if (near && !nearMissMemory.has(ob) && d > ob.size + PLAYER_HIT_R) {
-          nearMissMemory.add(ob);
-          score += 2.5;
+      if (!paused) {
+        if (running) {
+          elapsed += dt;
+          score += dt * 7 + clamp(elapsed / 20, 0, 4) * dt * 3;
           syncScore();
-          nearSound();
-          shake = Math.max(shake, 6);
+          threatValue.textContent = threatLabel();
+          if (Math.floor(score) >= best) updateBest();
+
+          const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
+          spawnTimer -= dt;
+          if (spawnTimer <= 0) {
+            spawnPattern();
+            spawnTimer = spawnRate;
+          }
+
+          if (player.cooldown > 0) player.cooldown -= dt;
+          if (player.dashT < 1) {
+            player.dashT = Math.min(1, player.dashT + dt / DASH_TIME);
+            const t = 1 - Math.pow(1 - player.dashT, 3);
+            player.x = lerp(player.fromX, player.toX, t);
+            player.y = lerp(player.fromY, player.toY, t);
+          }
+          player.pulse += dt * 5;
+
+          obstacles = obstacles.filter(ob => {
+            ob.x += ob.vx * dt;
+            ob.y += ob.vy * dt;
+            const d = dist(player.x, player.y, ob.x, ob.y);
+            ob.danger = d < ob.size + PLAYER_R + 140;
+            const near = d < ob.size + PLAYER_R + 24;
+            if (near && !nearMissMemory.has(ob) && d > ob.size + PLAYER_HIT_R) {
+              nearMissMemory.add(ob);
+              score += 2.5;
+              syncScore();
+              nearSound();
+              shake = Math.max(shake, 6);
+            }
+            if (d < ob.size + PLAYER_HIT_R) die();
+            return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
+          });
+
+          const milestone = Math.floor(score / milestoneStep);
+          if (milestone > 0 && Math.floor((score - dt * 10) / milestoneStep) < milestone) {
+            milestoneSound();
+          }
         }
-        if (d < ob.size + PLAYER_HIT_R) die();
-        return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
-      });
 
-      const milestone = Math.floor(score / milestoneStep);
-      if (milestone > 0 && Math.floor((score - dt * 10) / milestoneStep) < milestone) {
-        milestoneSound();
+        particles = particles.filter(p => {
+          p.age += dt * 60;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.96;
+          p.vy *= 0.96;
+          return p.age < p.life;
+        });
+
+        confetti = confetti.filter(p => {
+          p.age += dt * 60;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.985;
+          p.vy = p.vy * 0.99 + 0.14;
+          p.rot += p.vr;
+          return p.age < p.life;
+        });
+
+        shake *= 0.88;
       }
-
-      particles = particles.filter(p => {
-        p.age += dt * 60;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx *= 0.96;
-        p.vy *= 0.96;
-        return p.age < p.life;
-      });
-
-      confetti = confetti.filter(p => {
-        p.age += dt * 60;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx *= 0.985;
-        p.vy = p.vy * 0.99 + 0.14;
-        p.rot += p.vr;
-        return p.age < p.life;
-      });
-
-      shake *= 0.88;
     }
 
     function drawObstacle(ob) {
