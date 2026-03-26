@@ -385,6 +385,17 @@
     function lerp(a, b, t) { return a + (b - a) * t; }
     function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
     function rand(min, max) { return Math.random() * (max - min) + min; }
+    function pointToSegmentDistance(px, py, ax, ay, bx, by) {
+      const abx = bx - ax;
+      const aby = by - ay;
+      const apx = px - ax;
+      const apy = py - ay;
+      const abLenSq = abx * abx + aby * aby || 1;
+      const t = clamp((apx * abx + apy * aby) / abLenSq, 0, 1);
+      const cx = ax + abx * t;
+      const cy = ay + aby * t;
+      return Math.hypot(px - cx, py - cy);
+    }
 
     function ensureAudio() {
       if (audioCtx) return;
@@ -630,6 +641,8 @@
           }
 
           if (player.cooldown > 0) player.cooldown -= dt;
+          const prevX = player.x;
+          const prevY = player.y;
           if (player.dashT < 1) {
             player.dashT = Math.min(1, player.dashT + dt / DASH_TIME);
             const t = 1 - Math.pow(1 - player.dashT, 3);
@@ -642,16 +655,18 @@
             ob.x += ob.vx * dt;
             ob.y += ob.vy * dt;
             const d = dist(player.x, player.y, ob.x, ob.y);
-            ob.danger = d < ob.size + PLAYER_R + 140;
-            const near = d < ob.size + PLAYER_R + 24;
-            if (near && !nearMissMemory.has(ob) && d > ob.size + PLAYER_HIT_R) {
+            const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
+            const collisionRadius = ob.size + PLAYER_HIT_R;
+            ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
+            const near = Math.min(d, pathD) < ob.size + PLAYER_R + 24;
+            if (near && !nearMissMemory.has(ob) && Math.min(d, pathD) > collisionRadius) {
               nearMissMemory.add(ob);
               score += 2.5;
               syncScore();
               nearSound();
               shake = Math.max(shake, 6);
             }
-            if (d < ob.size + PLAYER_HIT_R) die();
+            if (d < collisionRadius || pathD < collisionRadius) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
 
