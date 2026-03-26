@@ -551,8 +551,10 @@
       if (!running) return startGame();
       if (paused || player.cooldown > 0) return;
 
-      const dx = targetX - player.x;
-      const dy = targetY - player.y;
+      const clampedX = clamp(targetX, 90, W - 90);
+      const clampedY = clamp(targetY, 180, H - 180);
+      const dx = clampedX - player.x;
+      const dy = clampedY - player.y;
       const len = Math.hypot(dx, dy) || 1;
       const dir = { x: dx / len, y: dy / len };
 
@@ -560,8 +562,8 @@
       player.dashT = 0;
       player.fromX = player.x;
       player.fromY = player.y;
-      player.toX = clamp(player.x + dir.x * DASH_DIST, 90, W - 90);
-      player.toY = clamp(player.y + dir.y * DASH_DIST, 180, H - 180);
+      player.toX = clampedX;
+      player.toY = clampedY;
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -615,6 +617,7 @@
         ob.x += ob.vx * dt;
         ob.y += ob.vy * dt;
         const d = dist(player.x, player.y, ob.x, ob.y);
+        ob.danger = d < ob.size + PLAYER_R + 140;
         const near = d < ob.size + PLAYER_R + 24;
         if (near && !nearMissMemory.has(ob) && d > ob.size + PLAYER_HIT_R) {
           nearMissMemory.add(ob);
@@ -645,8 +648,12 @@
     }
 
     function drawObstacle(ob) {
-      const grad = ctx.createRadialGradient(ob.x, ob.y, 2, ob.x, ob.y, ob.size * 2);
-      if (ob.glow === 'cyan') {
+      const grad = ctx.createRadialGradient(ob.x, ob.y, 2, ob.x, ob.y, ob.size * 2.2);
+      if (ob.danger) {
+        grad.addColorStop(0, '#fff0c4');
+        grad.addColorStop(0.38, '#ff7b5f');
+        grad.addColorStop(1, 'rgba(255,123,95,0.12)');
+      } else if (ob.glow === 'cyan') {
         grad.addColorStop(0, '#dbfcff');
         grad.addColorStop(0.45, '#57f0ff');
         grad.addColorStop(1, 'rgba(87,240,255,0.08)');
