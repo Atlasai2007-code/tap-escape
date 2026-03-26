@@ -257,28 +257,23 @@
     }
 
     .controls {
-      padding: 12px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      padding: 14px 14px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
     }
 
-    .dir, .dead {
-      min-height: 72px;
-      border-radius: 22px;
+    .touch-pill {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 10px;
     }
-
-    .dir {
-      border: 1px solid rgba(255,255,255,0.07);
-      background: rgba(255,255,255,0.05);
-      color: white;
-      font-size: 1.2rem;
-      font-weight: 900;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
-    }
-
-    .dir:active { transform: scale(0.985); }
-    .dead { visibility: hidden; }
 
     .footnote {
       text-align: center;
@@ -326,12 +321,7 @@
     </div>
 
     <div class="controls">
-      <div class="dead"></div>
-      <button class="dir" data-dir="up">▲</button>
-      <div class="dead"></div>
-      <button class="dir" data-dir="left">◀</button>
-      <button class="dir" data-dir="down">▼</button>
-      <button class="dir" data-dir="right">▶</button>
+      <div class="touch-pill">Tap anywhere in the arena to dash there</div>
     </div>
 
     <div class="footnote">Thumb-first controls. Instant restart. Built for iPhone Safari.</div>
@@ -554,12 +544,17 @@
       }
     }
 
-    function dash(dir) {
+    function dashToward(targetX, targetY) {
       const now = performance.now();
       if (now - lastInputAt < 24) return;
       lastInputAt = now;
       if (!running) return startGame();
       if (paused || player.cooldown > 0) return;
+
+      const dx = targetX - player.x;
+      const dy = targetY - player.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const dir = { x: dx / len, y: dy / len };
 
       player.cooldown = DASH_COOLDOWN;
       player.dashT = 0;
@@ -733,21 +728,13 @@
       requestAnimationFrame(loop);
     }
 
-    function pressDir(dir, e) {
-      if (e) e.preventDefault();
-      dash(dir);
-    }
-
-    document.querySelectorAll('[data-dir]').forEach(btn => {
-      const dir = btn.dataset.dir;
-      const map = {
-        up: { x: 0, y: -1 },
-        down: { x: 0, y: 1 },
-        left: { x: -1, y: 0 },
-        right: { x: 1, y: 0 }
-      };
-      btn.addEventListener('pointerdown', (e) => pressDir(map[dir], e), { passive: false });
-    });
+    arenaWrap.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (W / rect.width);
+      const y = (e.clientY - rect.top) * (H / rect.height);
+      dashToward(x, y);
+    }, { passive: false });
 
     muteBtn.addEventListener('click', () => {
       muted = !muted;
