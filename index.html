@@ -531,7 +531,8 @@
       } else {
         x = W + 60; y = rand(180, H - 180); vx = -speed; vy = 0;
       }
-      obstacles.push({ x, y, vx, vy, size, born: elapsed, glow: Math.random() < 0.5 ? 'cyan' : 'pink' });
+      const palette = ['cyan', 'pink', 'violet', 'gold', 'danger'];
+      obstacles.push({ x, y, vx, vy, size, born: elapsed, glow: palette[Math.floor(Math.random() * palette.length)] });
     }
 
     function spawnPattern() {
@@ -649,14 +650,23 @@
 
     function drawObstacle(ob) {
       const grad = ctx.createRadialGradient(ob.x, ob.y, 2, ob.x, ob.y, ob.size * 2.2);
-      if (ob.danger) {
+      const style = ob.danger ? 'danger' : ob.glow;
+      if (style === 'danger') {
         grad.addColorStop(0, '#fff0c4');
         grad.addColorStop(0.38, '#ff7b5f');
         grad.addColorStop(1, 'rgba(255,123,95,0.12)');
-      } else if (ob.glow === 'cyan') {
+      } else if (style === 'cyan') {
         grad.addColorStop(0, '#dbfcff');
         grad.addColorStop(0.45, '#57f0ff');
         grad.addColorStop(1, 'rgba(87,240,255,0.08)');
+      } else if (style === 'violet') {
+        grad.addColorStop(0, '#efe9ff');
+        grad.addColorStop(0.45, '#8f7cff');
+        grad.addColorStop(1, 'rgba(143,124,255,0.08)');
+      } else if (style === 'gold') {
+        grad.addColorStop(0, '#fff6c9');
+        grad.addColorStop(0.45, '#ffd86a');
+        grad.addColorStop(1, 'rgba(255,216,106,0.08)');
       } else {
         grad.addColorStop(0, '#ffe0f5');
         grad.addColorStop(0.45, '#ff63cb');
@@ -736,6 +746,7 @@
     }
 
     arenaWrap.addEventListener('pointerdown', (e) => {
+      if (e.target && e.target.closest('button')) return;
       e.preventDefault();
       const rect = canvas.getBoundingClientRect();
       const x = (e.clientX - rect.left) * (W / rect.width);
