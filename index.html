@@ -601,7 +601,7 @@
       const fxColor = level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a';
       playerPop = 1;
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
-      bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor });
+      bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
       particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
         x: player.x,
         y: player.y,
@@ -906,7 +906,6 @@
           if (nextLevel > multiplierLevel) triggerMultiplierLevel(nextLevel);
           multiplierLevel = nextLevel;
           multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
-          backgroundVisual += (multiplierLevel - backgroundVisual) * Math.min(1, dt * 1.65);
           score += dt * 7 * multiplier;
           syncScore();
           threatValue.textContent = `x${multiplier}`;
@@ -1106,40 +1105,55 @@
       ctx.save();
       ctx.translate(sx, sy);
 
-      const bgTop = backgroundVisual >= 2.6 ? '#080b1f' : backgroundVisual >= 1.6 ? '#091027' : '#0a1230';
+      let bgTop = '#0a1230';
+      let overlayTint = 'rgba(0,0,0,0)';
+      if (bgWaveFx.length) {
+        const latest = bgWaveFx[bgWaveFx.length - 1];
+        if (latest.level >= 3) {
+          bgTop = '#080b1f';
+          overlayTint = 'rgba(255,216,106,0.025)';
+        } else if (latest.level >= 2) {
+          bgTop = '#091027';
+          overlayTint = 'rgba(143,124,255,0.03)';
+        } else if (latest.level >= 1) {
+          bgTop = '#0a1230';
+          overlayTint = 'rgba(87,240,255,0.025)';
+        }
+      }
       const bg = ctx.createLinearGradient(0, 0, 0, H);
       bg.addColorStop(0, bgTop);
       bg.addColorStop(1, '#050816');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      if (backgroundVisual > 0.08) {
-        const vignette = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.8);
-        vignette.addColorStop(0, 'rgba(0,0,0,0)');
-        vignette.addColorStop(1, `rgba(0,0,0,${0.08 + (backgroundVisual / 3) * 0.18})`);
-        ctx.fillStyle = vignette;
-        ctx.fillRect(0, 0, W, H);
-
-        const tint = ctx.createLinearGradient(0, 0, W, H);
-        tint.addColorStop(0, backgroundVisual >= 2.6 ? 'rgba(255,216,106,0.025)' : backgroundVisual >= 1.6 ? 'rgba(143,124,255,0.03)' : 'rgba(87,240,255,0.025)');
-        tint.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = tint;
-        ctx.fillRect(0, 0, W, H);
-      }
+      const tint = ctx.createLinearGradient(0, 0, W, H);
+      tint.addColorStop(0, overlayTint);
+      tint.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = tint;
+      ctx.fillRect(0, 0, W, H);
 
       bgWaveFx = bgWaveFx.filter(fx => {
         fx.age += 1;
-        fx.r += 26;
+        fx.r += 24;
         const alpha = 1 - fx.age / fx.life;
-        const wave = ctx.createRadialGradient(fx.x, fx.y, Math.max(10, fx.r * 0.14), fx.x, fx.y, fx.r);
-        const color = fx.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.22})` : fx.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.22})` : `rgba(87,240,255,${alpha * 0.22})`;
-        wave.addColorStop(0, color);
-        wave.addColorStop(0.55, fx.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.12})` : fx.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.12})` : `rgba(87,240,255,${alpha * 0.12})`);
-        wave.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = wave;
+        const fill = ctx.createRadialGradient(fx.x, fx.y, Math.max(8, fx.r * 0.06), fx.x, fx.y, fx.r);
+        const strong = fx.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.24})` : fx.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.24})` : `rgba(87,240,255,${alpha * 0.24})`;
+        const soft = fx.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.10})` : fx.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.10})` : `rgba(87,240,255,${alpha * 0.10})`;
+        fill.addColorStop(0, strong);
+        fill.addColorStop(0.62, soft);
+        fill.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = fill;
         ctx.fillRect(0, 0, W, H);
         return fx.age < fx.life;
       });
+
+      if (multiplierVisual > 0.08) {
+        const vignette = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.8);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, `rgba(0,0,0,${0.08 + (multiplierVisual / 3) * 0.18})`);
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, W, H);
+      }
 
       ctx.strokeStyle = 'rgba(255,255,255,0.03)';
       ctx.lineWidth = 1;
