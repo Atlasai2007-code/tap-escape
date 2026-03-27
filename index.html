@@ -344,15 +344,16 @@
     }
 
     .play-hero {
-      width: min(220px, 72%);
-      min-height: 46px;
-      padding: 10px 18px;
-      border-radius: 18px;
+      width: 180px;
+      min-height: 0;
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 14px;
       background: linear-gradient(135deg, #57f0ff, #8f7cff 55%, #ff63cb);
       color: #07101b;
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 900;
-      box-shadow: 0 14px 36px rgba(87,240,255,0.14), 0 10px 24px rgba(255,99,203,0.12);
+      box-shadow: 0 12px 28px rgba(87,240,255,0.14), 0 8px 18px rgba(255,99,203,0.12);
     }
 
     .best-line {
@@ -371,10 +372,9 @@
     }
 
     @keyframes orbDrop {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      18% { transform: translateY(-18px) scale(1.03); opacity: 1; }
-      58% { transform: translateY(180px) scale(0.95); opacity: 1; }
-      100% { transform: translateY(420px) scale(0.52); opacity: 0; }
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; animation-timing-function: cubic-bezier(.22,.8,.3,1); }
+      16% { transform: translate3d(0, -16px, 0) scale(1.02); opacity: 1; animation-timing-function: cubic-bezier(.18,.7,.2,1); }
+      100% { transform: translate3d(0, 420px, 0) scale(0.5); opacity: 0; }
     }
 
     @keyframes gameReveal {
@@ -601,7 +601,7 @@
       document.getElementById('playBtn').onclick = () => {
         const orb = document.getElementById('homeOrb');
         if (orb) orb.classList.add('drop');
-        setTimeout(() => startGame(), 340);
+        setTimeout(() => startGame(), 210);
       };
     }
 
