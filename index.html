@@ -501,7 +501,7 @@
     const DASH_DIST = 170;
     const DASH_TIME = 0.1;
     const DASH_COOLDOWN = 0.085;
-    const MOMENTUM_MAX = 100;
+    const MOMENTUM_MAX = 1000;
     const START_GRACE = 1.5;
     const BEST_KEY = 'tapEscapeBest';
     const MUTE_KEY = 'tapEscapeMute';
@@ -559,6 +559,17 @@
     function lerp(a, b, t) { return a + (b - a) * t; }
     function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
     function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function momentumThresholdForLevel(level) {
+      if (level <= 1) return 25;
+      return 25 + (level - 1) * 20;
+    }
+
+    function multiplierFromMomentum(value) {
+      let level = 1;
+      while (value >= momentumThresholdForLevel(level)) level += 1;
+      return level;
+    }
     function pointToSegmentDistance(px, py, ax, ay, bx, by) {
       const abx = bx - ax;
       const aby = by - ay;
@@ -931,14 +942,11 @@
           momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
           const barCatchup = momentum < momentumBarVisual ? dt * 9.5 : dt * 2.6;
           momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, barCatchup);
-          let multiplier = 1;
-          let nextLevel = 0;
-          if (momentum >= 75) { multiplier = 3; nextLevel = 3; }
-          else if (momentum >= 50) { multiplier = 2; nextLevel = 2; }
-          else if (momentum >= 25) { multiplier = 1.5; nextLevel = 1; }
-          if (glitchActive) { multiplier = 10; nextLevel = 4; }
+          let multiplier = multiplierFromMomentum(momentum);
+          let nextLevel = multiplier;
+          if (glitchActive) { multiplier = 10; nextLevel = 10; }
           if (nextLevel > multiplierLevel) {
-            if (nextLevel === 4) {
+            if (glitchActive && nextLevel >= 10) {
               playerPop = 1;
               multiplierTopPop = 1;
               scorePulse = Math.max(scorePulse, 1.4);
@@ -949,15 +957,16 @@
             }
           }
           multiplierLevel = nextLevel;
-          multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
+          multiplierVisual += (Math.min(multiplierLevel, 3) - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
           syncScore();
-          const multText = multiplier === 1.5 ? 'x1.5' : `x${multiplier}`;
+          const multText = `x${multiplier}`;
           multiplierTop.textContent = multText;
-          multiplierTop.style.color = multiplierLevel >= 4 ? '#ffffff' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : multiplierLevel >= 1 ? '#6cefff' : '#adb8d2';
-          multiplierTop.style.textShadow = multiplierLevel >= 4 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : multiplierLevel >= 1 ? '0 0 16px rgba(108,239,255,0.22)' : '0 0 14px rgba(173,184,210,0.12)';
+          multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
+          multiplierTop.style.textShadow = multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
-          momentumBar.style.width = `${momentumBarVisual}%`;
+          const barPct = Math.min(100, (momentumBarVisual / momentumThresholdForLevel(multiplierLevel)) * 100);
+          momentumBar.style.width = `${barPct}%`;
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
