@@ -529,7 +529,8 @@
     let lastInputAt = 0;
     let startGrace = 0;
     let openingBallPending = false;
-    let multiplierLevel = 0;
+    let multiplierLevel = 1;
+    let displayedMultiplier = 1;
     let multiplierVisual = 0;
     let backgroundVisual = 0;
     let momentumBarVisual = 0;
@@ -626,16 +627,16 @@
       setTimeout(() => beep('triangle', 1560, 0.09, 0.03), 40);
     }
 
-    function triggerMultiplierLevel(level) {
-      const fxColor = level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a';
+    function triggerMultiplierLevel(level, text) {
+      const fxColor = level >= 5 ? '#ffd86a' : level >= 3 ? '#ffcf7a' : level >= 2 ? '#8f7cff' : '#57f0ff';
       playerPop = 1;
       multiplierTopPop = 1;
       scorePulse = Math.max(scorePulse, 1.2);
       scoreGlow = Math.max(scoreGlow, 0.9);
       multiplierUpgradeSound(level);
-      levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
+      levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
-      particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
+      particles.push(...Array.from({ length: 10 + Math.min(level, 6) * 4 }, (_, i) => ({
         x: player.x,
         y: player.y,
         vx: rand(-2.2, 2.2),
@@ -942,21 +943,29 @@
           momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
           const barCatchup = momentum < momentumBarVisual ? dt * 9.5 : dt * 2.6;
           momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, barCatchup);
-          let multiplier = multiplierFromMomentum(momentum);
-          let nextLevel = multiplier;
-          if (glitchActive) { multiplier = 10; nextLevel = 10; }
-          if (nextLevel > multiplierLevel) {
-            if (glitchActive && nextLevel >= 10) {
+          let multiplier = glitchActive ? 10 : displayedMultiplier;
+          if (glitchActive) {
+            if (displayedMultiplier < 10) {
+              displayedMultiplier = 10;
               playerPop = 1;
               multiplierTopPop = 1;
               scorePulse = Math.max(scorePulse, 1.4);
               scoreGlow = Math.max(scoreGlow, 1.1);
               glitchSound();
+            }
+            multiplierLevel = 10;
+          } else {
+            const nextThreshold = momentumThresholdForLevel(displayedMultiplier);
+            if (momentum >= nextThreshold) {
+              displayedMultiplier += 1;
+              multiplier = displayedMultiplier;
+              multiplierLevel = displayedMultiplier;
+              triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
             } else {
-              triggerMultiplierLevel(nextLevel);
+              multiplierLevel = displayedMultiplier;
             }
           }
-          multiplierLevel = nextLevel;
+          multiplier = glitchActive ? 10 : displayedMultiplier;
           multiplierVisual += (Math.min(multiplierLevel, 3) - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
           syncScore();
@@ -965,9 +974,8 @@
           multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
           multiplierTop.style.textShadow = multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
-          const displayLevel = multiplier;
-          const currentLevelBase = displayLevel <= 1 ? 0 : momentumThresholdForLevel(displayLevel - 1);
-          const nextLevelThreshold = momentumThresholdForLevel(displayLevel);
+          const currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
+          const nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
           const levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
           const barPct = Math.min(100, Math.max(0, ((momentumBarVisual - currentLevelBase) / levelSpan) * 100));
           momentumBar.style.width = `${barPct}%`;
