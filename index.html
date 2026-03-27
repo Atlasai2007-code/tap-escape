@@ -529,6 +529,7 @@
     let openingBallPending = false;
     let multiplierLevel = 0;
     let multiplierVisual = 0;
+    let backgroundVisual = 0;
     let momentumBarVisual = 0;
     let playerPop = 0;
     let playerVisible = true;
@@ -700,6 +701,7 @@
       levelFx = [];
       multiplierLevel = 0;
       multiplierVisual = 0;
+      backgroundVisual = 0;
       momentumBarVisual = 0;
       playerPop = 0;
       playerVisible = true;
@@ -900,6 +902,7 @@
           if (nextLevel > multiplierLevel) triggerMultiplierLevel(nextLevel);
           multiplierLevel = nextLevel;
           multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
+          backgroundVisual += (multiplierLevel - backgroundVisual) * Math.min(1, dt * 1.65);
           score += dt * 7 * multiplier;
           syncScore();
           threatValue.textContent = `x${multiplier}`;
@@ -1099,17 +1102,24 @@
       ctx.save();
       ctx.translate(sx, sy);
 
+      const bgTop = backgroundVisual >= 2.6 ? '#080b1f' : backgroundVisual >= 1.6 ? '#091027' : '#0a1230';
       const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, multiplierVisual >= 2.6 ? '#080b1f' : multiplierVisual >= 1.6 ? '#091027' : '#0a1230');
+      bg.addColorStop(0, bgTop);
       bg.addColorStop(1, '#050816');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      if (multiplierVisual >= 2.6) {
+      if (backgroundVisual > 0.08) {
         const vignette = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.8);
         vignette.addColorStop(0, 'rgba(0,0,0,0)');
-        vignette.addColorStop(1, 'rgba(0,0,0,0.26)');
+        vignette.addColorStop(1, `rgba(0,0,0,${0.08 + (backgroundVisual / 3) * 0.18})`);
         ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, W, H);
+
+        const tint = ctx.createLinearGradient(0, 0, W, H);
+        tint.addColorStop(0, backgroundVisual >= 2.6 ? 'rgba(255,216,106,0.025)' : backgroundVisual >= 1.6 ? 'rgba(143,124,255,0.03)' : 'rgba(87,240,255,0.025)');
+        tint.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = tint;
         ctx.fillRect(0, 0, W, H);
       }
 
