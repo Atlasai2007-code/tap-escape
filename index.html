@@ -118,6 +118,11 @@
       transform-origin: center center;
     }
 
+    .arena-wrap canvas,
+    .arena-wrap .top-ui {
+      transition: opacity 180ms ease;
+    }
+
     canvas {
       width: 100%;
       height: auto;
@@ -347,7 +352,8 @@
     }
 
     .home-orb.drop {
-      animation: orbDrop 560ms cubic-bezier(.2,.8,.2,1) forwards;
+      animation: orbDrop 520ms cubic-bezier(.22,.78,.22,1) forwards;
+      will-change: transform, opacity;
     }
 
     .play-hero {
@@ -619,7 +625,7 @@
         overlayPanel.classList.add('drop-all');
         const orb = document.getElementById('homeOrb');
         if (orb) orb.classList.add('drop');
-        setTimeout(() => startGame(), 240);
+        startGameFromHomeAnimation();
       };
     }
 
@@ -703,6 +709,19 @@
       arenaWrap.classList.add('game-enter');
       setTimeout(() => arenaWrap.classList.remove('game-enter'), 560);
       overlay.classList.add('hidden');
+    }
+
+    function startGameFromHomeAnimation() {
+      ensureAudio();
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      resetGame();
+      arenaWrap.classList.remove('menu-mode');
+      running = false;
+      paused = false;
+      setTimeout(() => {
+        running = true;
+        overlay.classList.add('hidden');
+      }, 430);
     }
 
     function spawnObstacle(forceSide = null, aimed = false) {
