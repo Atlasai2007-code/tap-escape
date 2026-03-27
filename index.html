@@ -556,6 +556,8 @@
     let scoreGlow = 0;
     let scoreShimmer = 0;
     let multiplierTopPop = 0;
+    let glitchTapChain = 0;
+    let glitchActive = false;
 
     const player = {
       x: CENTER.x,
@@ -622,6 +624,11 @@
     function multiplierUpgradeSound(level) {
       const base = level === 1 ? 980 : level === 2 ? 1120 : 1320;
       beep('sine', base, 0.07, 0.028);
+    }
+
+    function glitchSound() {
+      beep('sine', 1220, 0.07, 0.03);
+      setTimeout(() => beep('triangle', 1560, 0.09, 0.03), 40);
     }
 
     function triggerMultiplierLevel(level) {
@@ -750,6 +757,8 @@
       scoreGlow = 0;
       scoreShimmer = 0;
       multiplierTopPop = 0;
+      glitchTapChain = 0;
+      glitchActive = false;
       openingBallPending = true;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
@@ -943,15 +952,26 @@
           if (momentum >= 75) { multiplier = 3; nextLevel = 3; }
           else if (momentum >= 50) { multiplier = 2; nextLevel = 2; }
           else if (momentum >= 25) { multiplier = 1.5; nextLevel = 1; }
-          if (nextLevel > multiplierLevel) triggerMultiplierLevel(nextLevel);
+          if (glitchActive) { multiplier = 10; nextLevel = 4; }
+          if (nextLevel > multiplierLevel) {
+            if (nextLevel === 4) {
+              playerPop = 1;
+              multiplierTopPop = 1;
+              scorePulse = Math.max(scorePulse, 1.4);
+              scoreGlow = Math.max(scoreGlow, 1.1);
+              glitchSound();
+            } else {
+              triggerMultiplierLevel(nextLevel);
+            }
+          }
           multiplierLevel = nextLevel;
           multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
           syncScore();
           const multText = multiplier === 1.5 ? 'x1.5' : `x${multiplier}`;
           multiplierTop.textContent = multText;
-          multiplierTop.style.color = multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : multiplierLevel >= 1 ? '#6cefff' : '#adb8d2';
-          multiplierTop.style.textShadow = multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : multiplierLevel >= 1 ? '0 0 16px rgba(108,239,255,0.22)' : '0 0 14px rgba(173,184,210,0.12)';
+          multiplierTop.style.color = multiplierLevel >= 4 ? '#ffffff' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : multiplierLevel >= 1 ? '#6cefff' : '#adb8d2';
+          multiplierTop.style.textShadow = multiplierLevel >= 4 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : multiplierLevel >= 1 ? '0 0 16px rgba(108,239,255,0.22)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
           momentumBar.style.width = `${momentumBarVisual}%`;
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
@@ -1064,8 +1084,8 @@
       const pulse = 1 + Math.sin(player.pulse) * 0.03;
       const levelT = multiplierVisual / 3;
       const glowBoost = 1 + playerPop * 0.35;
-      const coreColor = multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
-      const outerColor = multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#ff63cb' : '#a7b3cf';
+      const coreColor = multiplierLevel >= 4 ? '#ffffff' : multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
+      const outerColor = multiplierLevel >= 4 ? '#57f0ff' : multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#ff63cb' : '#a7b3cf';
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2) * glowBoost);
       glow.addColorStop(0, '#ffffff');
       glow.addColorStop(0.25, coreColor);
@@ -1152,7 +1172,10 @@
 
       let bgTop = '#0a1230';
       let overlayTint = 'rgba(0,0,0,0)';
-      if (multiplierLevel >= 3) {
+      if (multiplierLevel >= 4) {
+        bgTop = '#060816';
+        overlayTint = 'rgba(87,240,255,0.035)';
+      } else if (multiplierLevel >= 3) {
         bgTop = '#080b1f';
         overlayTint = 'rgba(255,216,106,0.025)';
       } else if (multiplierLevel >= 2) {
@@ -1255,6 +1278,16 @@
       const rect = canvas.getBoundingClientRect();
       const x = (e.clientX - rect.left) * (W / rect.width);
       const y = (e.clientY - rect.top) * (H / rect.height);
+      const tappedPlayer = dist(x, y, player.x, player.y) <= PLAYER_R + 16;
+      if (running && tappedPlayer) {
+        glitchTapChain += 1;
+        if (glitchTapChain >= 10 && !glitchActive) {
+          glitchActive = true;
+          multiplierLevel = Math.max(multiplierLevel, 4);
+        }
+      } else {
+        glitchTapChain = 0;
+      }
       dashToward(x, y);
     }, { passive: false });
 
