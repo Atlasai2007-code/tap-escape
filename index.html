@@ -373,9 +373,13 @@
     let particles = [];
     let scorePopups = [];
     let confetti = [];
+    let levelFx = [];
     let obstacles = [];
     let audioCtx = null;
     let lastInputAt = 0;
+    let multiplierLevel = 0;
+    let multiplierVisual = 0;
+    let playerPop = 0;
 
     const player = {
       x: CENTER.x,
@@ -437,6 +441,21 @@
     function milestoneSound() {
       beep('sine', 640, 0.05, 0.024);
       setTimeout(() => beep('triangle', 860, 0.06, 0.026), 45);
+    }
+
+    function triggerMultiplierLevel(level) {
+      playerPop = 1;
+      levelFx.push({ x: player.x, y: player.y, r: 10, life: 28, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
+      particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
+        x: player.x,
+        y: player.y,
+        vx: rand(-2.2, 2.2),
+        vy: rand(-2.2, 2.2),
+        size: rand(3, 7),
+        life: rand(12, 20),
+        age: 0,
+        color: level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a'
+      })));
     }
 
     function vibe(ms) {
@@ -516,6 +535,10 @@
       particles = [];
       scorePopups = [];
       confetti = [];
+      levelFx = [];
+      multiplierLevel = 0;
+      multiplierVisual = 0;
+      playerPop = 0;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
       player.y = CENTER.y;
@@ -649,13 +672,17 @@
           momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
           momentumVisual += (momentum - momentumVisual) * Math.min(1, dt * 8);
           let multiplier = 1;
-          if (momentum >= 75) multiplier = 3;
-          else if (momentum >= 50) multiplier = 2;
-          else if (momentum >= 25) multiplier = 1.5;
+          let nextLevel = 0;
+          if (momentum >= 75) { multiplier = 3; nextLevel = 3; }
+          else if (momentum >= 50) { multiplier = 2; nextLevel = 2; }
+          else if (momentum >= 25) { multiplier = 1.5; nextLevel = 1; }
+          if (nextLevel > multiplierLevel) triggerMultiplierLevel(nextLevel);
+          multiplierLevel = nextLevel;
+          multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 6);
           score += dt * 7 * multiplier;
           syncScore();
           threatValue.textContent = `x${multiplier}`;
-          momentumBar.style.width = `${momentumVisual}%`;
+          momentumBar.style.width = `${momentumVisual * (100/3)}%`;
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
@@ -755,11 +782,12 @@
 
     function drawPlayer() {
       if (!running && confetti.length > 0) return;
-      const pulse = 1 + Math.sin(player.pulse) * 0.03;
-      const momentumT = momentumVisual / MOMENTUM_MAX;
-      const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + momentumT * 1.2));
+      const popScale = 1 + playerPop * 0.18;
+      const pulse = (1 + Math.sin(player.pulse) * 0.03) * popScale;
+      const levelT = multiplierVisual / 3;
+      const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2));
       glow.addColorStop(0, '#ffffff');
-      glow.addColorStop(0.25, momentumT > 0.66 ? '#ffd86a' : momentumT > 0.33 ? '#8f7cff' : '#57f0ff');
+      glow.addColorStop(0.25, multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff');
       glow.addColorStop(0.72, '#8f7cff');
       glow.addColorStop(1, 'rgba(255,99,203,0.08)');
       ctx.fillStyle = glow;
@@ -769,7 +797,7 @@
 
       ctx.fillStyle = 'rgba(255,255,255,0.35)';
       ctx.beginPath();
-      ctx.arc(player.x - 8, player.y - 8, 8, 0, Math.PI * 2);
+      ctx.arc(player.x - 8, player.y - 8, 8 * popScale, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -782,21 +810,33 @@
         ctx.globalAlpha = 1;
       });
 
-      if (running && momentumVisual > 8) {
-        const alpha = Math.min(0.22, momentumVisual / 550);
-        const ringColor = momentumVisual > 75 ? `rgba(255,216,106,${alpha})` : momentumVisual > 40 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
+      if (running && multiplierVisual >= 1) {
+        const alpha = 0.08 + multiplierVisual * 0.04;
+        const ringColor = multiplierVisual >= 2.6 ? `rgba(255,216,106,${alpha})` : multiplierVisual >= 1.6 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
         ctx.strokeStyle = ringColor;
-        ctx.lineWidth = 6 + momentumVisual / 35;
+        ctx.lineWidth = 4 + multiplierVisual * 3;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, PLAYER_R + 18 + Math.sin(player.pulse * 1.4) * 4, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = ringColor.replace(/0\.[0-9]+\)/, `${Math.min(0.1, alpha * 0.55)})`);
-        ctx.lineWidth = 2 + momentumVisual / 70;
-        ctx.beginPath();
-        ctx.arc(player.x, player.y, PLAYER_R + 34 + Math.sin(player.pulse * 2.1) * 6, 0, Math.PI * 2);
+        ctx.arc(player.x, player.y, PLAYER_R + 16 + Math.sin(player.pulse * 1.4) * 4, 0, Math.PI * 2);
         ctx.stroke();
       }
+
+      levelFx = levelFx.filter(fx => {
+        fx.age += 1;
+        fx.r += 10;
+        const alpha = 1 - fx.age / fx.life;
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = fx.text === 'x3' ? '#ffd86a' : fx.text === 'x2' ? '#8f7cff' : '#57f0ff';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(fx.x, fx.y, fx.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.font = '900 44px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(fx.text, fx.x, fx.y - fx.age * 2);
+        ctx.globalAlpha = 1;
+        return fx.age < fx.life;
+      });
 
       scorePopups.forEach(p => {
         const alpha = 1 - p.age / p.life;
@@ -829,10 +869,18 @@
       ctx.translate(sx, sy);
 
       const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#0a1230');
+      bg.addColorStop(0, multiplierVisual >= 2.6 ? '#080b1f' : multiplierVisual >= 1.6 ? '#091027' : '#0a1230');
       bg.addColorStop(1, '#050816');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
+
+      if (multiplierVisual >= 2.6) {
+        const vignette = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.8);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.26)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, W, H);
+      }
 
       ctx.strokeStyle = 'rgba(255,255,255,0.03)';
       ctx.lineWidth = 1;
