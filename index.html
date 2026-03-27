@@ -1001,10 +1001,12 @@
       const pulse = 1 + Math.sin(player.pulse) * 0.03;
       const levelT = multiplierVisual / 3;
       const glowBoost = 1 + playerPop * 0.35;
+      const coreColor = multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
+      const outerColor = multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#ff63cb';
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2) * glowBoost);
       glow.addColorStop(0, '#ffffff');
-      glow.addColorStop(0.25, '#57f0ff');
-      glow.addColorStop(0.72, multiplierVisual >= 2.4 ? '#ffd86a' : '#8f7cff');
+      glow.addColorStop(0.25, coreColor);
+      glow.addColorStop(0.72, outerColor);
       glow.addColorStop(1, 'rgba(255,99,203,0.08)');
       ctx.fillStyle = glow;
       ctx.beginPath();
