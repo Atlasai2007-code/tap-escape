@@ -767,11 +767,12 @@
       homeOrb.style.opacity = '0';
 
       requestAnimationFrame(() => {
-        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease';
+        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease, filter 520ms ease';
         flyingOrb.style.left = `${targetLeft}px`;
         flyingOrb.style.top = `${targetTop}px`;
         flyingOrb.style.width = `${targetSize}px`;
         flyingOrb.style.height = `${targetSize}px`;
+        flyingOrb.style.filter = 'hue-rotate(-18deg) saturate(1.05) brightness(0.98)';
       });
 
       setTimeout(() => {
