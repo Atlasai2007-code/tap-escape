@@ -379,9 +379,11 @@
     }
 
     @keyframes orbDrop {
-      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; animation-timing-function: cubic-bezier(.22,.8,.3,1); }
-      16% { transform: translate3d(0, -16px, 0) scale(1.02); opacity: 1; animation-timing-function: cubic-bezier(.18,.7,.2,1); }
-      100% { transform: translate3d(0, 420px, 0) scale(0.5); opacity: 0; }
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+      14% { transform: translate3d(0, -20px, 0) scale(1.02); opacity: 1; }
+      36% { transform: translate3d(0, 70px, 0) scale(0.98); opacity: 1; }
+      72% { transform: translate3d(0, 250px, 0) scale(0.82); opacity: 1; }
+      100% { transform: translate3d(0, 420px, 0) scale(0.56); opacity: 0; }
     }
 
     @keyframes homeDrop {
@@ -471,6 +473,7 @@
     const DASH_TIME = 0.1;
     const DASH_COOLDOWN = 0.085;
     const MOMENTUM_MAX = 100;
+    const START_GRACE = 1.6;
     const BEST_KEY = 'tapEscapeBest';
     const MUTE_KEY = 'tapEscapeMute';
 
@@ -494,6 +497,7 @@
     let obstacles = [];
     let audioCtx = null;
     let lastInputAt = 0;
+    let startGrace = 0;
     let multiplierLevel = 0;
     let multiplierVisual = 0;
     let momentumBarVisual = 0;
@@ -681,6 +685,7 @@
       updateBest();
       threatValue.textContent = 'x1';
       pauseBtn.textContent = '⏸';
+      startGrace = START_GRACE;
       const openingSides = ['top', 'bottom', 'left', 'right'];
       const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
       spawnObstacle(openingSide, true);
@@ -822,8 +827,9 @@
           if (Math.floor(score) >= best) updateBest();
 
           const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
+          if (startGrace > 0) startGrace -= dt;
           spawnTimer -= dt;
-          if (spawnTimer <= 0) {
+          if (spawnTimer <= 0 && startGrace <= 0) {
             spawnPattern();
             spawnTimer = spawnRate;
           }
@@ -846,7 +852,7 @@
             const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
             const collisionRadius = ob.size + PLAYER_HIT_R;
             ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
-            if (d < collisionRadius || pathD < collisionRadius) die();
+            if (startGrace <= 0 && (d < collisionRadius || pathD < collisionRadius)) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
 
