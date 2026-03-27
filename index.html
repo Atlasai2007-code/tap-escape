@@ -601,7 +601,7 @@
       const fxColor = level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a';
       playerPop = 1;
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
-      bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 46, age: 0, color: fxColor });
+      bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor });
       particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
         x: player.x,
         y: player.y,
