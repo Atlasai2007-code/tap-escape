@@ -628,6 +628,11 @@
       setTimeout(() => beep('triangle', 1560, 0.09, 0.03), 40);
     }
 
+    function multiplierDownSound(level) {
+      const base = level >= 5 ? 420 : level >= 3 ? 480 : 540;
+      beep('sine', base, 0.06, 0.022);
+    }
+
     function triggerMultiplierLevel(level, text) {
       const fxColor = level >= 5 ? '#ffd86a' : level >= 3 ? '#ffcf7a' : level >= 2 ? '#8f7cff' : '#57f0ff';
       playerPop = 1;
@@ -889,8 +894,8 @@
       player.fromY = player.y;
       player.toX = clampedX;
       player.toY = clampedY;
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.24);
-      momentum = Math.max(0, momentum - 12);
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.18);
+      momentum = Math.max(0, momentum - 8);
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -995,6 +1000,8 @@
           if (!glitchActive && displayedMultiplier > 1 && momentum <= currentLevelBase) {
             displayedMultiplier -= 1;
             multiplierLevel = displayedMultiplier;
+            multiplierTopPop = 0.7;
+            multiplierDownSound(displayedMultiplier);
             currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
             nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
             levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
