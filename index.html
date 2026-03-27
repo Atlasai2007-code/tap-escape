@@ -529,6 +529,7 @@
     let lastInputAt = 0;
     let startGrace = 0;
     let openingBallPending = false;
+    let aimedBallTimer = 5;
     let multiplierLevel = 1;
     let displayedMultiplier = 1;
     let multiplierVisual = 0;
@@ -756,6 +757,7 @@
       glitchTapChain = 0;
       glitchActive = false;
       openingBallPending = true;
+      aimedBallTimer = 5;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
       player.y = CENTER.y;
@@ -988,15 +990,25 @@
           const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
           if (startGrace > 0) startGrace -= dt;
           spawnTimer -= dt;
+          aimedBallTimer -= dt;
           if (startGrace <= 0 && openingBallPending) {
             const openingSides = ['top', 'bottom', 'left', 'right'];
             const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
             spawnObstacle(openingSide, true);
             openingBallPending = false;
+            aimedBallTimer = 5;
             spawnTimer = spawnRate;
-          } else if (spawnTimer <= 0 && startGrace <= 0) {
-            spawnPattern();
-            spawnTimer = spawnRate;
+          } else {
+            if (startGrace <= 0 && aimedBallTimer <= 0) {
+              const aimedSides = ['top', 'bottom', 'left', 'right'];
+              const aimedSide = aimedSides[Math.floor(Math.random() * aimedSides.length)];
+              spawnObstacle(aimedSide, true);
+              aimedBallTimer = 5;
+            }
+            if (spawnTimer <= 0 && startGrace <= 0) {
+              spawnPattern();
+              spawnTimer = spawnRate;
+            }
           }
 
           if (player.cooldown > 0) player.cooldown -= dt;
