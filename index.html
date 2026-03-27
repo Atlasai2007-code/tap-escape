@@ -766,15 +766,15 @@
       document.body.appendChild(flyingOrb);
       homeOrb.style.opacity = '0';
 
+      flyingOrb.style.background = 'radial-gradient(circle at 35% 35%, rgba(255,255,255,1) 0%, rgba(87,240,255,1) 32%, rgba(143,124,255,1) 72%, rgba(255,99,203,0.02) 100%)';
       requestAnimationFrame(() => {
-        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease, filter 520ms ease, box-shadow 520ms ease, background 520ms ease';
+        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease, filter 520ms ease, box-shadow 520ms ease';
         flyingOrb.style.left = `${targetLeft}px`;
         flyingOrb.style.top = `${targetTop}px`;
         flyingOrb.style.width = `${targetSize}px`;
         flyingOrb.style.height = `${targetSize}px`;
-        flyingOrb.style.filter = 'hue-rotate(-12deg) saturate(1.01) brightness(0.99)';
+        flyingOrb.style.filter = 'brightness(0.99)';
         flyingOrb.style.boxShadow = '0 0 0 0 rgba(87,240,255,0), 0 0 22px rgba(143,124,255,0.18), 0 0 36px rgba(87,240,255,0.10)';
-        flyingOrb.style.background = 'radial-gradient(circle at 35% 35%, rgba(255,255,255,1) 0%, rgba(87,240,255,1) 32%, rgba(143,124,255,1) 72%, rgba(255,99,203,0.02) 100%)';
       });
 
       setTimeout(() => {
