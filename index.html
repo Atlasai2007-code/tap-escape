@@ -356,6 +356,16 @@
       will-change: transform, opacity;
     }
 
+    .transition-orb {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #57f0ff 25%, #8f7cff 65%, rgba(255,99,203,0.15) 100%);
+      box-shadow: 0 0 0 10px rgba(87,240,255,0.05), 0 0 40px rgba(143,124,255,0.22), 0 0 80px rgba(87,240,255,0.14);
+      pointer-events: none;
+      z-index: 40;
+      will-change: transform, top, left, width, height, opacity;
+    }
+
     .play-hero {
       width: 150px;
       height: 38px;
@@ -622,8 +632,7 @@
       document.getElementById('playBtn').onclick = () => {
         overlayPanel.classList.add('drop-all');
         const orb = document.getElementById('homeOrb');
-        if (orb) orb.classList.add('drop');
-        startGameFromHomeAnimation();
+        startGameFromHomeAnimation(orb);
       };
     }
 
@@ -709,17 +718,48 @@
       overlay.classList.add('hidden');
     }
 
-    function startGameFromHomeAnimation() {
+    function startGameFromHomeAnimation(homeOrb) {
       ensureAudio();
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
       resetGame();
       arenaWrap.classList.remove('menu-mode');
       running = false;
       paused = false;
-      setTimeout(() => {
+
+      const canvasRect = canvas.getBoundingClientRect();
+      const targetSize = (PLAYER_R * 2) * (canvasRect.width / W);
+      const targetLeft = canvasRect.left + (canvasRect.width / 2) - targetSize / 2;
+      const targetTop = canvasRect.top + (canvasRect.height / 2) - targetSize / 2;
+
+      if (!homeOrb) {
         running = true;
         overlay.classList.add('hidden');
-      }, 220);
+        return;
+      }
+
+      const startRect = homeOrb.getBoundingClientRect();
+      const flyingOrb = document.createElement('div');
+      flyingOrb.className = 'transition-orb';
+      flyingOrb.style.left = `${startRect.left}px`;
+      flyingOrb.style.top = `${startRect.top}px`;
+      flyingOrb.style.width = `${startRect.width}px`;
+      flyingOrb.style.height = `${startRect.height}px`;
+      document.body.appendChild(flyingOrb);
+      homeOrb.style.opacity = '0';
+
+      requestAnimationFrame(() => {
+        flyingOrb.style.transition = 'left 460ms cubic-bezier(.2,.8,.22,1), top 460ms cubic-bezier(.2,.8,.22,1), width 460ms cubic-bezier(.2,.8,.22,1), height 460ms cubic-bezier(.2,.8,.22,1), opacity 460ms ease';
+        flyingOrb.style.left = `${targetLeft}px`;
+        flyingOrb.style.top = `${targetTop}px`;
+        flyingOrb.style.width = `${targetSize}px`;
+        flyingOrb.style.height = `${targetSize}px`;
+      });
+
+      setTimeout(() => {
+        flyingOrb.remove();
+        running = true;
+        overlay.classList.add('hidden');
+      }, 470);
     }
 
     function spawnObstacle(forceSide = null, aimed = false) {
