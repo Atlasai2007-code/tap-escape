@@ -305,8 +305,8 @@
         </div>
         <div style="display:flex; gap:10px; align-items:flex-start; pointer-events:auto;">
           <div class="threat-pill">
-            <span class="label">Threat</span>
-            <div class="value" id="threatValue">Low</div>
+            <span class="label">Momentum</span>
+            <div class="value" id="threatValue">x1</div>
           </div>
           <button class="icon-btn" id="muteBtn" aria-label="Mute">🔊</button>
           <button class="icon-btn" id="pauseBtn" aria-label="Pause">⏸</button>
@@ -349,6 +349,7 @@
     const DASH_DIST = 170;
     const DASH_TIME = 0.1;
     const DASH_COOLDOWN = 0.085;
+    const MOMENTUM_MAX = 100;
     const BEST_KEY = 'tapEscapeBest';
     const MUTE_KEY = 'tapEscapeMute';
 
@@ -362,9 +363,9 @@
     let spawnTimer = 0;
     let milestoneStep = 10;
     let shake = 0;
-    let nearMissMemory = new WeakSet();
-    let nearMissChain = 0;
-    let nearMissTimer = 0;
+    let momentum = 0;
+    let momentumVisual = 0;
+    let dashSpamPenalty = 0;
     let particles = [];
     let scorePopups = [];
     let confetti = [];
@@ -504,8 +505,9 @@
       elapsed = 0;
       spawnTimer = 0;
       shake = 0;
-      nearMissChain = 0;
-      nearMissTimer = 0;
+      momentum = 0;
+      momentumVisual = 0;
+      dashSpamPenalty = 0;
       obstacles = [];
       particles = [];
       scorePopups = [];
@@ -521,7 +523,7 @@
       player.cooldown = 0;
       syncScore();
       updateBest();
-      threatValue.textContent = 'Low';
+      threatValue.textContent = 'x1';
       pauseBtn.textContent = '⏸';
     }
 
@@ -584,6 +586,8 @@
       player.fromY = player.y;
       player.toX = clampedX;
       player.toY = clampedY;
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.24);
+      momentum = Math.max(0, momentum - 12);
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -634,16 +638,16 @@
       if (!paused) {
         if (running) {
           elapsed += dt;
-          if (nearMissTimer > 0) {
-            nearMissTimer -= dt;
-            if (nearMissTimer <= 0) {
-              nearMissTimer = 0;
-              nearMissChain = 0;
-            }
-          }
-          score += dt * 7 + clamp(elapsed / 20, 0, 4) * dt * 3;
+          dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.45);
+          momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
+          momentumVisual += (momentum - momentumVisual) * Math.min(1, dt * 8);
+          let multiplier = 1;
+          if (momentum >= 75) multiplier = 3;
+          else if (momentum >= 50) multiplier = 2;
+          else if (momentum >= 25) multiplier = 1.5;
+          score += dt * multiplier;
           syncScore();
-          threatValue.textContent = threatLabel();
+          threatValue.textContent = `x${multiplier}`;
           if (Math.floor(score) >= best) updateBest();
 
           const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
@@ -671,26 +675,6 @@
             const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
             const collisionRadius = ob.size + PLAYER_HIT_R;
             ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
-            const near = Math.min(d, pathD) < ob.size + PLAYER_R + 24;
-            if (near && !nearMissMemory.has(ob) && Math.min(d, pathD) > collisionRadius) {
-              nearMissMemory.add(ob);
-              if (nearMissTimer <= 0) nearMissChain = 0;
-              nearMissChain += 1;
-              nearMissTimer = 3;
-              const bonus = nearMissChain === 1 ? 50 : nearMissChain === 2 ? 100 : 200;
-              score += bonus;
-              scorePopups.push({
-                x: player.x,
-                y: player.y - 18,
-                text: `+${bonus}`,
-                life: 42,
-                age: 0,
-                color: bonus === 50 ? '#57f0ff' : bonus === 100 ? '#ffd86a' : '#ff63cb'
-              });
-              syncScore();
-              nearSound();
-              shake = Math.max(shake, 6);
-            }
             if (d < collisionRadius || pathD < collisionRadius) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
@@ -763,9 +747,10 @@
     function drawPlayer() {
       if (!running && confetti.length > 0) return;
       const pulse = 1 + Math.sin(player.pulse) * 0.03;
-      const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * 2.8);
+      const momentumT = momentumVisual / MOMENTUM_MAX;
+      const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + momentumT * 1.2));
       glow.addColorStop(0, '#ffffff');
-      glow.addColorStop(0.35, '#57f0ff');
+      glow.addColorStop(0.25, momentumT > 0.66 ? '#ffd86a' : momentumT > 0.33 ? '#8f7cff' : '#57f0ff');
       glow.addColorStop(0.72, '#8f7cff');
       glow.addColorStop(1, 'rgba(255,99,203,0.08)');
       ctx.fillStyle = glow;
@@ -787,6 +772,15 @@
         ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
         ctx.globalAlpha = 1;
       });
+
+      if (running && momentumVisual > 8) {
+        const alpha = Math.min(0.18, momentumVisual / 700);
+        ctx.strokeStyle = momentumVisual > 75 ? `rgba(255,216,106,${alpha})` : momentumVisual > 40 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
+        ctx.lineWidth = 6 + momentumVisual / 35;
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, PLAYER_R + 18 + Math.sin(player.pulse * 1.4) * 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
 
       scorePopups.forEach(p => {
         const alpha = 1 - p.age / p.life;
