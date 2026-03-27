@@ -141,6 +141,22 @@
       pointer-events: none;
     }
 
+    .multiplier-top {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+      min-width: 64px;
+      text-align: center;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: -0.04em;
+      color: #adb8d2;
+      text-shadow: 0 0 14px rgba(173,184,210,0.12);
+      transition: color 180ms ease, text-shadow 180ms ease, transform 180ms ease, opacity 180ms ease;
+      pointer-events: none;
+    }
+
     .score-pill, .threat-pill {
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.05);
@@ -456,6 +472,7 @@
               <div id="momentumBar" style="height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#57f0ff,#8f7cff,#ffd86a);"></div>
             </div>
           </div>
+          <div class="multiplier-top" id="multiplierTop">x1</div>
           <div style="display:flex; gap:8px; align-items:center; pointer-events:auto;">
             <button class="icon-btn" id="muteBtn" aria-label="Mute">🔊</button>
             <button class="icon-btn" id="pauseBtn" aria-label="Pause">⏸</button>
@@ -486,6 +503,7 @@
     const hudBest = document.getElementById('hudBest');
     const gameScore = document.getElementById('gameScore');
     const gameBest = document.getElementById('gameBest');
+    const multiplierTop = document.getElementById('multiplierTop');
     const momentumBar = document.getElementById('momentumBar');
     const muteBtn = document.getElementById('muteBtn');
     const pauseBtn = document.getElementById('pauseBtn');
@@ -535,6 +553,7 @@
     let playerVisible = true;
     let scoreVisual = 0;
     let scorePulse = 0;
+    let multiplierTopPop = 0;
 
     const player = {
       x: CENTER.x,
@@ -601,6 +620,7 @@
     function triggerMultiplierLevel(level) {
       const fxColor = level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a';
       playerPop = 1;
+      multiplierTopPop = 1;
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
       particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
@@ -713,6 +733,7 @@
       playerVisible = true;
       scoreVisual = 0;
       scorePulse = 0;
+      multiplierTopPop = 0;
       openingBallPending = true;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
@@ -911,6 +932,11 @@
           multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
           syncScore();
+          const multText = multiplier === 1.5 ? 'x1.5' : `x${multiplier}`;
+          multiplierTop.textContent = multText;
+          multiplierTop.style.color = multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : multiplierLevel >= 1 ? '#6cefff' : '#adb8d2';
+          multiplierTop.style.textShadow = multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : multiplierLevel >= 1 ? '0 0 16px rgba(108,239,255,0.22)' : '0 0 14px rgba(173,184,210,0.12)';
+          multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
           momentumBar.style.width = `${momentumBarVisual}%`;
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
@@ -983,6 +1009,7 @@
         });
 
         scorePulse *= 0.92;
+        multiplierTopPop *= 0.88;
         shake *= 0.88;
       }
     }
@@ -1040,14 +1067,6 @@
       ctx.arc(player.x - 8, player.y - 8, 8, 0, Math.PI * 2);
       ctx.fill();
 
-      const multiplierText = multiplierLevel === 0 ? 'x1' : multiplierLevel === 1 ? 'x1.5' : multiplierLevel === 2 ? 'x2' : 'x3';
-      const multAlpha = 0.34 + multiplierVisual * 0.12 + Math.sin(player.pulse * 1.6) * 0.04;
-      ctx.globalAlpha = Math.min(0.82, multAlpha);
-      ctx.fillStyle = multiplierLevel >= 3 ? '#ffd86a' : multiplierLevel >= 2 ? '#ff63cb' : multiplierLevel >= 1 ? '#57f0ff' : '#adb8d2';
-      ctx.font = `${28 + multiplierVisual * 4}px Inter, system-ui, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText(multiplierText, player.x, player.y - 52);
-      ctx.globalAlpha = 1;
     }
 
     function drawParticles() {
