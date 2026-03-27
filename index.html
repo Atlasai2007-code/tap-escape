@@ -307,7 +307,9 @@
           <div class="threat-pill">
             <span class="label">Momentum</span>
             <div class="value" id="threatValue">x1</div>
-            <div style="margin-top:8px; width:120px; height:8px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
+            <div style="position:relative; margin-top:8px; width:120px; height:8px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
+              <div style="position:absolute; left:33.333%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
+              <div style="position:absolute; left:66.666%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
               <div id="momentumBar" style="height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#57f0ff,#8f7cff,#ffd86a); box-shadow:0 0 16px rgba(143,124,255,0.35);"></div>
             </div>
           </div>
@@ -678,7 +680,7 @@
           else if (momentum >= 25) { multiplier = 1.5; nextLevel = 1; }
           if (nextLevel > multiplierLevel) triggerMultiplierLevel(nextLevel);
           multiplierLevel = nextLevel;
-          multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 6);
+          multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
           syncScore();
           threatValue.textContent = `x${multiplier}`;
