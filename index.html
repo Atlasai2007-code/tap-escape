@@ -1107,18 +1107,15 @@
 
       let bgTop = '#0a1230';
       let overlayTint = 'rgba(0,0,0,0)';
-      if (bgWaveFx.length) {
-        const latest = bgWaveFx[bgWaveFx.length - 1];
-        if (latest.level >= 3) {
-          bgTop = '#080b1f';
-          overlayTint = 'rgba(255,216,106,0.025)';
-        } else if (latest.level >= 2) {
-          bgTop = '#091027';
-          overlayTint = 'rgba(143,124,255,0.03)';
-        } else if (latest.level >= 1) {
-          bgTop = '#0a1230';
-          overlayTint = 'rgba(87,240,255,0.025)';
-        }
+      if (multiplierLevel >= 3) {
+        bgTop = '#080b1f';
+        overlayTint = 'rgba(255,216,106,0.025)';
+      } else if (multiplierLevel >= 2) {
+        bgTop = '#091027';
+        overlayTint = 'rgba(143,124,255,0.03)';
+      } else if (multiplierLevel >= 1) {
+        bgTop = '#0a1230';
+        overlayTint = 'rgba(87,240,255,0.025)';
       }
       const bg = ctx.createLinearGradient(0, 0, 0, H);
       bg.addColorStop(0, bgTop);
