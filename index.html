@@ -308,8 +308,9 @@
             <span class="label">Momentum</span>
             <div class="value" id="threatValue">x1</div>
             <div style="position:relative; margin-top:8px; width:120px; height:8px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
-              <div style="position:absolute; left:33.333%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
-              <div style="position:absolute; left:66.666%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
+              <div style="position:absolute; left:25%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
+              <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
+              <div style="position:absolute; left:75%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28);"></div>
               <div id="momentumBar" style="height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#57f0ff,#8f7cff,#ffd86a); box-shadow:0 0 16px rgba(143,124,255,0.35);"></div>
             </div>
           </div>
@@ -620,8 +621,8 @@
       player.fromY = player.y;
       player.toX = clampedX;
       player.toY = clampedY;
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.24);
-      momentum = Math.max(0, momentum - 12);
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.34);
+      momentum = Math.max(0, momentum - (18 + dashSpamPenalty * 16));
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -818,9 +819,9 @@
         const alpha = 0.08 + multiplierVisual * 0.04;
         const ringColor = multiplierVisual >= 2.6 ? `rgba(255,216,106,${alpha})` : multiplierVisual >= 1.6 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
         ctx.strokeStyle = ringColor;
-        ctx.lineWidth = 4 + multiplierVisual * 3;
+        ctx.lineWidth = 3 + multiplierVisual * 2.2;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, PLAYER_R + 16 + Math.sin(player.pulse * 1.4) * 4, 0, Math.PI * 2);
+        ctx.arc(player.x, player.y, PLAYER_R + ctx.lineWidth * 0.5 + Math.sin(player.pulse * 1.4) * 1.2, 0, Math.PI * 2);
         ctx.stroke();
       }
 
