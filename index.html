@@ -567,7 +567,7 @@
 
     function multiplierFromMomentum(value) {
       let level = 1;
-      while (value >= momentumThresholdForLevel(level)) level += 1;
+      while (value > momentumThresholdForLevel(level)) level += 1;
       return level;
     }
     function pointToSegmentDistance(px, py, ax, ay, bx, by) {
