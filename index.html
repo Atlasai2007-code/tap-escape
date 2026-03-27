@@ -363,6 +363,8 @@
     let milestoneStep = 10;
     let shake = 0;
     let nearMissMemory = new WeakSet();
+    let nearMissChain = 0;
+    let nearMissTimer = 0;
     let particles = [];
     let confetti = [];
     let obstacles = [];
@@ -501,6 +503,8 @@
       elapsed = 0;
       spawnTimer = 0;
       shake = 0;
+      nearMissChain = 0;
+      nearMissTimer = 0;
       obstacles = [];
       particles = [];
       confetti = [];
@@ -628,6 +632,13 @@
       if (!paused) {
         if (running) {
           elapsed += dt;
+          if (nearMissTimer > 0) {
+            nearMissTimer -= dt;
+            if (nearMissTimer <= 0) {
+              nearMissTimer = 0;
+              nearMissChain = 0;
+            }
+          }
           score += dt * 7 + clamp(elapsed / 20, 0, 4) * dt * 3;
           syncScore();
           threatValue.textContent = threatLabel();
@@ -661,7 +672,10 @@
             const near = Math.min(d, pathD) < ob.size + PLAYER_R + 24;
             if (near && !nearMissMemory.has(ob) && Math.min(d, pathD) > collisionRadius) {
               nearMissMemory.add(ob);
-              score += 2.5;
+              nearMissChain += 1;
+              nearMissTimer = 3;
+              const bonus = nearMissChain === 1 ? 50 : nearMissChain === 2 ? 100 : 200;
+              score += bonus;
               syncScore();
               nearSound();
               shake = Math.max(shake, 6);
