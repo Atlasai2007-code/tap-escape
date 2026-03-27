@@ -307,6 +307,9 @@
           <div class="threat-pill">
             <span class="label">Momentum</span>
             <div class="value" id="threatValue">x1</div>
+            <div style="margin-top:8px; width:120px; height:8px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
+              <div id="momentumBar" style="height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#57f0ff,#8f7cff,#ffd86a); box-shadow:0 0 16px rgba(143,124,255,0.35);"></div>
+            </div>
           </div>
           <button class="icon-btn" id="muteBtn" aria-label="Mute">🔊</button>
           <button class="icon-btn" id="pauseBtn" aria-label="Pause">⏸</button>
@@ -337,6 +340,7 @@
     const gameScore = document.getElementById('gameScore');
     const gameBest = document.getElementById('gameBest');
     const threatValue = document.getElementById('threatValue');
+    const momentumBar = document.getElementById('momentumBar');
     const muteBtn = document.getElementById('muteBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const arenaWrap = document.getElementById('arenaWrap');
@@ -645,9 +649,11 @@
           if (momentum >= 75) multiplier = 3;
           else if (momentum >= 50) multiplier = 2;
           else if (momentum >= 25) multiplier = 1.5;
-          score += dt * multiplier;
+          score += dt * 7 * multiplier;
           syncScore();
           threatValue.textContent = `x${multiplier}`;
+          momentumBar.style.width = `${momentumVisual}%`;
+          momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
           const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
@@ -774,11 +780,18 @@
       });
 
       if (running && momentumVisual > 8) {
-        const alpha = Math.min(0.18, momentumVisual / 700);
-        ctx.strokeStyle = momentumVisual > 75 ? `rgba(255,216,106,${alpha})` : momentumVisual > 40 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
+        const alpha = Math.min(0.22, momentumVisual / 550);
+        const ringColor = momentumVisual > 75 ? `rgba(255,216,106,${alpha})` : momentumVisual > 40 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
+        ctx.strokeStyle = ringColor;
         ctx.lineWidth = 6 + momentumVisual / 35;
         ctx.beginPath();
         ctx.arc(player.x, player.y, PLAYER_R + 18 + Math.sin(player.pulse * 1.4) * 4, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = ringColor.replace(/0\.[0-9]+\)/, `${Math.min(0.1, alpha * 0.55)})`);
+        ctx.lineWidth = 2 + momentumVisual / 70;
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, PLAYER_R + 34 + Math.sin(player.pulse * 2.1) * 6, 0, Math.PI * 2);
         ctx.stroke();
       }
 
