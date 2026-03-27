@@ -366,6 +366,7 @@
     let nearMissChain = 0;
     let nearMissTimer = 0;
     let particles = [];
+    let scorePopups = [];
     let confetti = [];
     let obstacles = [];
     let audioCtx = null;
@@ -507,6 +508,7 @@
       nearMissTimer = 0;
       obstacles = [];
       particles = [];
+      scorePopups = [];
       confetti = [];
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
@@ -672,10 +674,19 @@
             const near = Math.min(d, pathD) < ob.size + PLAYER_R + 24;
             if (near && !nearMissMemory.has(ob) && Math.min(d, pathD) > collisionRadius) {
               nearMissMemory.add(ob);
+              if (nearMissTimer <= 0) nearMissChain = 0;
               nearMissChain += 1;
               nearMissTimer = 3;
               const bonus = nearMissChain === 1 ? 50 : nearMissChain === 2 ? 100 : 200;
               score += bonus;
+              scorePopups.push({
+                x: player.x,
+                y: player.y - 18,
+                text: `+${bonus}`,
+                life: 42,
+                age: 0,
+                color: bonus === 50 ? '#57f0ff' : bonus === 100 ? '#ffd86a' : '#ff63cb'
+              });
               syncScore();
               nearSound();
               shake = Math.max(shake, 6);
@@ -696,6 +707,12 @@
           p.y += p.vy;
           p.vx *= 0.96;
           p.vy *= 0.96;
+          return p.age < p.life;
+        });
+
+        scorePopups = scorePopups.filter(p => {
+          p.age += dt * 60;
+          p.y -= 1.3;
           return p.age < p.life;
         });
 
@@ -768,6 +785,16 @@
         ctx.fillStyle = p.color;
         ctx.globalAlpha = alpha;
         ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        ctx.globalAlpha = 1;
+      });
+
+      scorePopups.forEach(p => {
+        const alpha = 1 - p.age / p.life;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.font = '900 44px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.text, p.x, p.y);
         ctx.globalAlpha = 1;
       });
 
