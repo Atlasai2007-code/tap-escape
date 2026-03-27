@@ -1002,10 +1002,13 @@
             multiplierLevel = displayedMultiplier;
             multiplierTopPop = 0.7;
             multiplierDownSound(displayedMultiplier);
-            currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
+            const resetBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
+            momentum = resetBase;
+            momentumBarVisual = resetBase;
+            currentLevelBase = resetBase;
             nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
             levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
-            rawBarPct = Math.min(100, Math.max(0, ((momentum - currentLevelBase) / levelSpan) * 100));
+            rawBarPct = 0;
           }
 
           const currentBarPct = parseFloat(momentumBar.dataset.pct || '0');
