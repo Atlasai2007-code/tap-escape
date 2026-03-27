@@ -529,6 +529,9 @@
       updateBest();
       threatValue.textContent = 'x1';
       pauseBtn.textContent = '⏸';
+      const openingSides = ['top', 'bottom', 'left', 'right'];
+      const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
+      spawnObstacle(openingSide, true);
     }
 
     function startGame() {
@@ -540,21 +543,21 @@
       overlay.classList.add('hidden');
     }
 
-    function spawnObstacle() {
+    function spawnObstacle(forceSide = null, aimed = false) {
       const level = clamp(elapsed / 35, 0, 1);
       const speed = rand(200, 270) + level * 240;
       const size = rand(18, 34);
       const sides = ['top', 'bottom', 'left', 'right'];
-      const side = sides[Math.floor(Math.random() * sides.length)];
+      const side = forceSide || sides[Math.floor(Math.random() * sides.length)];
       let x, y, vx, vy;
       if (side === 'top') {
-        x = rand(90, W - 90); y = -60; vx = 0; vy = speed;
+        x = aimed ? player.x : rand(90, W - 90); y = -60; vx = 0; vy = speed;
       } else if (side === 'bottom') {
-        x = rand(90, W - 90); y = H + 60; vx = 0; vy = -speed;
+        x = aimed ? player.x : rand(90, W - 90); y = H + 60; vx = 0; vy = -speed;
       } else if (side === 'left') {
-        x = -60; y = rand(180, H - 180); vx = speed; vy = 0;
+        x = -60; y = aimed ? player.y : rand(180, H - 180); vx = speed; vy = 0;
       } else {
-        x = W + 60; y = rand(180, H - 180); vx = -speed; vy = 0;
+        x = W + 60; y = aimed ? player.y : rand(180, H - 180); vx = -speed; vy = 0;
       }
       const palette = ['cyan', 'pink', 'violet', 'gold', 'danger'];
       obstacles.push({ x, y, vx, vy, size, born: elapsed, glow: palette[Math.floor(Math.random() * palette.length)] });
