@@ -862,8 +862,8 @@
       if (!running) return;
       if (paused || player.cooldown > 0) return;
 
-      const clampedX = clamp(targetX, 90, W - 90);
-      const clampedY = clamp(targetY, 180, H - 180);
+      const clampedX = clamp(targetX, PLAYER_R, W - PLAYER_R);
+      const clampedY = clamp(targetY, PLAYER_R, H - PLAYER_R);
       const dx = clampedX - player.x;
       const dy = clampedY - player.y;
       const len = Math.hypot(dx, dy) || 1;
