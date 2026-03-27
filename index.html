@@ -310,7 +310,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 22px;
+      gap: 16px;
       padding: 20px 8px;
       text-align: center;
     }
@@ -339,13 +339,17 @@
       animation: orbPulse 2.4s ease-in-out infinite;
     }
 
+    .home-orb.drop {
+      animation: orbDrop 560ms cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
     .play-hero {
-      width: 100%;
-      min-height: 64px;
-      border-radius: 22px;
+      width: min(220px, 72%);
+      min-height: 56px;
+      border-radius: 20px;
       background: linear-gradient(135deg, #57f0ff, #8f7cff 55%, #ff63cb);
       color: #07101b;
-      font-size: 1.12rem;
+      font-size: 1.05rem;
       font-weight: 900;
       box-shadow: 0 14px 36px rgba(87,240,255,0.14), 0 10px 24px rgba(255,99,203,0.12);
     }
@@ -363,6 +367,12 @@
     @keyframes overlayFade {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes orbDrop {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      65% { transform: translateY(220px) scale(0.92); opacity: 1; }
+      100% { transform: translateY(420px) scale(0.5); opacity: 0; }
     }
 
     @keyframes gameReveal {
@@ -580,15 +590,17 @@
       overlay.classList.remove('hidden');
       overlayPanel.className = 'home-shell';
       overlayPanel.innerHTML = `
-        <div class="home-orb" aria-hidden="true"></div>
-        <div>
-          <h2 class="home-title">Tap Escape</h2>
-          <p class="home-sub">Fast thumb-first survival. Dash clean, build momentum, beat your best.</p>
-        </div>
+        <div class="home-orb" id="homeOrb" aria-hidden="true"></div>
+        <h2 class="home-title">Tap Escape</h2>
+        <p class="home-sub">Fast thumb-first survival. Dash clean, build momentum, beat your best.</p>
         <button class="btn play-hero" id="playBtn">Play</button>
         <div class="best-line">Best score: <strong>${best}</strong></div>
       `;
-      document.getElementById('playBtn').onclick = startGame;
+      document.getElementById('playBtn').onclick = () => {
+        const orb = document.getElementById('homeOrb');
+        if (orb) orb.classList.add('drop');
+        setTimeout(() => startGame(), 340);
+      };
     }
 
     function showPause() {
