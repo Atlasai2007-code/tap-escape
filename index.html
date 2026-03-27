@@ -371,7 +371,7 @@
       box-shadow: 0 0 0 10px rgba(87,240,255,0.05), 0 0 40px rgba(143,124,255,0.22), 0 0 80px rgba(87,240,255,0.14);
       pointer-events: none;
       z-index: 40;
-      will-change: transform, top, left, width, height, opacity;
+      will-change: transform, top, left, width, height, opacity, box-shadow, filter;
     }
 
     .arena-wrap.menu-mode.revealing canvas,
@@ -767,12 +767,14 @@
       homeOrb.style.opacity = '0';
 
       requestAnimationFrame(() => {
-        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease, filter 520ms ease';
+        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease, filter 520ms ease, box-shadow 520ms ease, background 520ms ease';
         flyingOrb.style.left = `${targetLeft}px`;
         flyingOrb.style.top = `${targetTop}px`;
         flyingOrb.style.width = `${targetSize}px`;
         flyingOrb.style.height = `${targetSize}px`;
-        flyingOrb.style.filter = 'hue-rotate(-18deg) saturate(1.05) brightness(0.98)';
+        flyingOrb.style.filter = 'hue-rotate(-18deg) saturate(1.02) brightness(0.98)';
+        flyingOrb.style.boxShadow = '0 0 0 0 rgba(87,240,255,0), 0 0 22px rgba(143,124,255,0.18), 0 0 36px rgba(87,240,255,0.10)';
+        flyingOrb.style.background = 'radial-gradient(circle at 35% 35%, #ffffff 0%, #57f0ff 28%, #8f7cff 70%, rgba(255,99,203,0.08) 100%)';
       });
 
       setTimeout(() => {
