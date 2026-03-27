@@ -619,12 +619,28 @@
       setTimeout(() => beep('triangle', 860, 0.06, 0.026), 45);
     }
 
+    function multiplierUpgradeSound(level) {
+      if (level === 1) {
+        beep('sine', 620, 0.05, 0.026);
+        setTimeout(() => beep('triangle', 760, 0.07, 0.026), 40);
+      } else if (level === 2) {
+        beep('triangle', 680, 0.05, 0.028);
+        setTimeout(() => beep('triangle', 860, 0.06, 0.03), 38);
+        setTimeout(() => beep('sine', 1080, 0.07, 0.024), 78);
+      } else {
+        beep('triangle', 760, 0.05, 0.03);
+        setTimeout(() => beep('sine', 980, 0.06, 0.028), 34);
+        setTimeout(() => beep('triangle', 1260, 0.08, 0.03), 78);
+      }
+    }
+
     function triggerMultiplierLevel(level) {
       const fxColor = level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a';
       playerPop = 1;
       multiplierTopPop = 1;
       scorePulse = Math.max(scorePulse, 1.2);
       scoreGlow = Math.max(scoreGlow, 0.9);
+      multiplierUpgradeSound(level);
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
       particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
