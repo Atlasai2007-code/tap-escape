@@ -461,9 +461,8 @@
       <div class="top-ui">
         <div class="score-pill" style="display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between;">
           <div style="min-width:0; flex:1;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:0.76rem; white-space:nowrap;">
+            <div style="display:flex; align-items:center; justify-content:flex-start; gap:10px; color:var(--muted); font-size:0.76rem; white-space:nowrap;">
               <span style="font-weight:800; letter-spacing:-0.03em; font-size:0.92rem; color:var(--text);">Tap Escape</span>
-              <span>Best <strong id="gameBest">0</strong></span>
             </div>
             <div style="position:relative; margin-top:8px; width:180px; max-width:48vw; height:4px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
               <div style="position:absolute; left:25%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18);"></div>
@@ -471,6 +470,10 @@
               <div style="position:absolute; left:75%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18);"></div>
               <div id="momentumBar" style="height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#57f0ff,#8f7cff,#ffd86a);"></div>
             </div>
+          </div>
+          <div style="position:absolute; left:50%; top:8px; transform:translateX(-50%); text-align:center; pointer-events:none;">
+            <div style="font-size:0.62rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase;">Best</div>
+            <div id="gameBest" style="font-size:0.9rem; font-weight:800; color:var(--text); margin-top:2px;">0</div>
           </div>
           <div class="multiplier-top" id="multiplierTop">x1</div>
           <div style="display:flex; gap:8px; align-items:center; pointer-events:auto;">
@@ -715,7 +718,7 @@
         <h2>Game Over</h2>
         <div class="big-score">${Math.floor(score)}</div>
         <p>One hit. That’s it. Go again.</p>
-        <div class="panel-meta"><span>Best ${best}</span><span>Threat ${threatLabel()}</span></div>
+        <div class="panel-meta"><span>Best ${best}</span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
           <button class="btn btn-secondary" id="menuBtn">Menu</button>
