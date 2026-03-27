@@ -526,6 +526,7 @@
     let audioCtx = null;
     let lastInputAt = 0;
     let startGrace = 0;
+    let openingBallPending = false;
     let multiplierLevel = 0;
     let multiplierVisual = 0;
     let momentumBarVisual = 0;
@@ -702,6 +703,7 @@
       momentumBarVisual = 0;
       playerPop = 0;
       playerVisible = true;
+      openingBallPending = true;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
       player.y = CENTER.y;
@@ -908,7 +910,13 @@
           const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
           if (startGrace > 0) startGrace -= dt;
           spawnTimer -= dt;
-          if (spawnTimer <= 0 && startGrace <= 0) {
+          if (startGrace <= 0 && openingBallPending) {
+            const openingSides = ['top', 'bottom', 'left', 'right'];
+            const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
+            spawnObstacle(openingSide, true);
+            openingBallPending = false;
+            spawnTimer = spawnRate;
+          } else if (spawnTimer <= 0 && startGrace <= 0) {
             spawnPattern();
             spawnTimer = spawnRate;
           }
