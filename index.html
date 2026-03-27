@@ -107,6 +107,12 @@
       max-height: 72vh;
     }
 
+    .arena-wrap.menu-mode canvas,
+    .arena-wrap.menu-mode .top-ui {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     canvas {
       width: 100%;
       height: auto;
@@ -182,7 +188,7 @@
       align-items: center;
       justify-content: center;
       padding: calc(20px + var(--safe-top)) 18px calc(24px + var(--safe-bottom));
-      background: linear-gradient(180deg, rgba(3, 6, 14, 0.42), rgba(3, 6, 14, 0.22));
+      background: linear-gradient(180deg, rgba(3, 6, 14, 0.96), rgba(3, 6, 14, 0.92));
       z-index: 4;
       animation: overlayFade 320ms ease;
     }
@@ -554,6 +560,7 @@
     }
 
     function showStart() {
+      arenaWrap.classList.add('menu-mode');
       overlay.classList.remove('hidden');
       overlayPanel.className = 'home-shell';
       overlayPanel.innerHTML = `
@@ -641,6 +648,7 @@
       resetGame();
       running = true;
       paused = false;
+      arenaWrap.classList.remove('menu-mode');
       overlay.classList.add('hidden');
     }
 
