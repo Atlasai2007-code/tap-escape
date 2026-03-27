@@ -690,9 +690,8 @@
       overlayPanel.innerHTML = `
         <div class="home-orb" id="homeOrb" aria-hidden="true"></div>
         <h2 class="home-title">Tap Escape</h2>
-        <p class="home-sub">Fast thumb-first survival. Dash clean, build momentum, beat your best.</p>
-        <button class="btn play-hero" id="playBtn">Play</button>
         <div class="best-line">Best score: <strong>${best}</strong></div>
+        <button class="btn play-hero" id="playBtn">Play</button>
       `;
       document.getElementById('playBtn').onclick = () => {
         overlay.classList.add('revealing');
