@@ -620,18 +620,8 @@
     }
 
     function multiplierUpgradeSound(level) {
-      if (level === 1) {
-        beep('sine', 620, 0.05, 0.026);
-        setTimeout(() => beep('triangle', 760, 0.07, 0.026), 40);
-      } else if (level === 2) {
-        beep('triangle', 680, 0.05, 0.028);
-        setTimeout(() => beep('triangle', 860, 0.06, 0.03), 38);
-        setTimeout(() => beep('sine', 1080, 0.07, 0.024), 78);
-      } else {
-        beep('triangle', 760, 0.05, 0.03);
-        setTimeout(() => beep('sine', 980, 0.06, 0.028), 34);
-        setTimeout(() => beep('triangle', 1260, 0.08, 0.03), 78);
-      }
+      const base = level === 1 ? 980 : level === 2 ? 1120 : 1320;
+      beep('sine', base, 0.07, 0.028);
     }
 
     function triggerMultiplierLevel(level) {
@@ -1003,10 +993,6 @@
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
 
-          const milestone = Math.floor(score / milestoneStep);
-          if (milestone > 0 && Math.floor((score - dt * 10) / milestoneStep) < milestone) {
-            milestoneSound();
-          }
         }
 
         particles = particles.filter(p => {
