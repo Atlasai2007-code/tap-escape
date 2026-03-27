@@ -901,8 +901,8 @@
       player.fromY = player.y;
       player.toX = clampedX;
       player.toY = clampedY;
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.18);
-      momentum = Math.max(0, momentum - 8);
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.12);
+      momentum = Math.max(0, momentum - 5);
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -1005,14 +1005,13 @@
           let rawBarPct = Math.min(100, Math.max(0, ((momentum - currentLevelBase) / levelSpan) * 100));
 
           if (!glitchActive && displayedMultiplier > 1 && momentum <= currentLevelBase) {
-            displayedMultiplier -= 1;
-            multiplierLevel = displayedMultiplier;
+            displayedMultiplier = 1;
+            multiplierLevel = 1;
             multiplierTopPop = 0.7;
-            multiplierDownSound(displayedMultiplier);
-            const resetBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
-            momentum = resetBase;
-            momentumBarVisual = resetBase;
-            currentLevelBase = resetBase;
+            multiplierDownSound(1);
+            momentum = 0;
+            momentumBarVisual = 0;
+            currentLevelBase = 0;
             nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
             levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
             rawBarPct = 0;
