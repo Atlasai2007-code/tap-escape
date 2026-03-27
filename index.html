@@ -987,10 +987,20 @@
           multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
           multiplierTop.style.textShadow = multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
-          const currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
-          const nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
-          const levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
-          const rawBarPct = Math.min(100, Math.max(0, ((momentum - currentLevelBase) / levelSpan) * 100));
+          let currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
+          let nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
+          let levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
+          let rawBarPct = Math.min(100, Math.max(0, ((momentum - currentLevelBase) / levelSpan) * 100));
+
+          if (!glitchActive && displayedMultiplier > 1 && momentum <= currentLevelBase) {
+            displayedMultiplier -= 1;
+            multiplierLevel = displayedMultiplier;
+            currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
+            nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
+            levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
+            rawBarPct = Math.min(100, Math.max(0, ((momentum - currentLevelBase) / levelSpan) * 100));
+          }
+
           const currentBarPct = parseFloat(momentumBar.dataset.pct || '0');
           const easedBarPct = currentBarPct + (rawBarPct - currentBarPct) * Math.min(1, dt * (rawBarPct < currentBarPct ? 10 : 4));
           momentumBar.dataset.pct = String(easedBarPct);
