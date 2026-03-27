@@ -530,6 +530,7 @@
     let multiplierVisual = 0;
     let momentumBarVisual = 0;
     let playerPop = 0;
+    let playerVisible = true;
 
     const player = {
       x: CENTER.x,
@@ -700,6 +701,7 @@
       multiplierVisual = 0;
       momentumBarVisual = 0;
       playerPop = 0;
+      playerVisible = true;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
       player.y = CENTER.y;
@@ -737,6 +739,7 @@
       ensureAudio();
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
       resetGame();
+      playerVisible = false;
       arenaWrap.classList.add('revealing');
       arenaWrap.classList.remove('menu-mode');
       running = false;
@@ -773,6 +776,7 @@
 
       setTimeout(() => {
         flyingOrb.remove();
+        playerVisible = true;
         arenaWrap.classList.remove('revealing');
         running = true;
         overlay.classList.remove('revealing');
@@ -997,6 +1001,7 @@
     }
 
     function drawPlayer() {
+      if (!playerVisible) return;
       if (!running && confetti.length > 0) return;
       const pulse = 1 + Math.sin(player.pulse) * 0.03;
       const levelT = multiplierVisual / 3;
