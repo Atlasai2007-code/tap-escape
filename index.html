@@ -113,6 +113,11 @@
       pointer-events: none;
     }
 
+    .arena-wrap.game-enter {
+      animation: gameReveal 520ms cubic-bezier(.2,.8,.2,1);
+      transform-origin: center center;
+    }
+
     canvas {
       width: 100%;
       height: auto;
@@ -182,14 +187,17 @@
     }
 
     .overlay {
-      position: absolute;
+      position: fixed;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: calc(20px + var(--safe-top)) 18px calc(24px + var(--safe-bottom));
-      background: linear-gradient(180deg, rgba(3, 6, 14, 0.96), rgba(3, 6, 14, 0.92));
-      z-index: 4;
+      padding: calc(20px + var(--safe-top)) calc(18px + var(--safe-right)) calc(24px + var(--safe-bottom)) calc(18px + var(--safe-left));
+      background:
+        radial-gradient(circle at top, rgba(87,240,255,0.10), transparent 24%),
+        radial-gradient(circle at bottom, rgba(255,99,203,0.10), transparent 26%),
+        linear-gradient(180deg, rgba(3, 6, 14, 0.99), rgba(3, 6, 14, 0.96));
+      z-index: 20;
       animation: overlayFade 320ms ease;
     }
 
@@ -296,13 +304,15 @@
     }
 
     .home-shell {
-      width: min(100%, 360px);
+      width: min(100%, 420px);
+      min-height: calc(100vh - var(--safe-top) - var(--safe-bottom) - 60px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 20px;
-      padding: 8px 2px;
+      gap: 22px;
+      padding: 20px 8px;
+      text-align: center;
     }
 
     .home-title {
@@ -353,6 +363,12 @@
     @keyframes overlayFade {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes gameReveal {
+      0% { opacity: 0; transform: scale(0.94) translateY(18px); filter: blur(8px); }
+      60% { opacity: 1; transform: scale(1.01) translateY(0); filter: blur(0); }
+      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
     }
   </style>
 </head>
@@ -649,6 +665,10 @@
       running = true;
       paused = false;
       arenaWrap.classList.remove('menu-mode');
+      arenaWrap.classList.remove('game-enter');
+      void arenaWrap.offsetWidth;
+      arenaWrap.classList.add('game-enter');
+      setTimeout(() => arenaWrap.classList.remove('game-enter'), 560);
       overlay.classList.add('hidden');
     }
 
