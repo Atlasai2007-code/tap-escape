@@ -324,7 +324,7 @@
     .home-shell.drop-all .home-sub,
     .home-shell.drop-all .play-hero,
     .home-shell.drop-all .best-line {
-      animation: homeDrop 520ms cubic-bezier(.22,.8,.3,1) forwards;
+      animation: homeDrop 300ms cubic-bezier(.22,.8,.3,1) forwards;
     }
 
     .home-title {
@@ -364,6 +364,12 @@
       pointer-events: none;
       z-index: 40;
       will-change: transform, top, left, width, height, opacity;
+    }
+
+    .arena-wrap.menu-mode.revealing canvas,
+    .arena-wrap.menu-mode.revealing .top-ui {
+      opacity: 1;
+      pointer-events: none;
     }
 
     .play-hero {
@@ -722,6 +728,7 @@
       ensureAudio();
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
       resetGame();
+      arenaWrap.classList.add('revealing');
       arenaWrap.classList.remove('menu-mode');
       running = false;
       paused = false;
@@ -748,7 +755,7 @@
       homeOrb.style.opacity = '0';
 
       requestAnimationFrame(() => {
-        flyingOrb.style.transition = 'left 460ms cubic-bezier(.2,.8,.22,1), top 460ms cubic-bezier(.2,.8,.22,1), width 460ms cubic-bezier(.2,.8,.22,1), height 460ms cubic-bezier(.2,.8,.22,1), opacity 460ms ease';
+        flyingOrb.style.transition = 'left 520ms cubic-bezier(.2,.8,.22,1), top 520ms cubic-bezier(.2,.8,.22,1), width 520ms cubic-bezier(.2,.8,.22,1), height 520ms cubic-bezier(.2,.8,.22,1), opacity 520ms ease';
         flyingOrb.style.left = `${targetLeft}px`;
         flyingOrb.style.top = `${targetTop}px`;
         flyingOrb.style.width = `${targetSize}px`;
@@ -757,9 +764,10 @@
 
       setTimeout(() => {
         flyingOrb.remove();
+        arenaWrap.classList.remove('revealing');
         running = true;
         overlay.classList.add('hidden');
-      }, 470);
+      }, 530);
     }
 
     function spawnObstacle(forceSide = null, aimed = false) {
@@ -985,8 +993,8 @@
       const glowBoost = 1 + playerPop * 0.35;
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2) * glowBoost);
       glow.addColorStop(0, '#ffffff');
-      glow.addColorStop(0.25, multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff');
-      glow.addColorStop(0.72, '#8f7cff');
+      glow.addColorStop(0.25, '#57f0ff');
+      glow.addColorStop(0.72, multiplierVisual >= 2.4 ? '#ffd86a' : '#8f7cff');
       glow.addColorStop(1, 'rgba(255,99,203,0.08)');
       ctx.fillStyle = glow;
       ctx.beginPath();
