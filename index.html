@@ -621,8 +621,8 @@
       player.fromY = player.y;
       player.toX = clampedX;
       player.toY = clampedY;
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.34);
-      momentum = Math.max(0, momentum - (18 + dashSpamPenalty * 16));
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.24);
+      momentum = Math.max(0, momentum - 12);
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -675,7 +675,8 @@
           elapsed += dt;
           dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.45);
           momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
-          momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, dt * 2.6);
+          const barCatchup = momentum < momentumBarVisual ? dt * 9.5 : dt * 2.6;
+          momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, barCatchup);
           let multiplier = 1;
           let nextLevel = 0;
           if (momentum >= 75) { multiplier = 3; nextLevel = 3; }
