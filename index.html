@@ -517,7 +517,7 @@
     let running = false;
     let paused = false;
     let score = 0;
-    let best = Number(localStorage.getItem(BEST_KEY) || 0);
+    let best = normalizeBest(localStorage.getItem(BEST_KEY));
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -569,6 +569,12 @@
     function lerp(a, b, t) { return a + (b - a) * t; }
     function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
     function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function normalizeBest(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n) || n < 0) return 0;
+      return Math.floor(n);
+    }
 
     function momentumThresholdForLevel(level) {
       if (level <= 1) return 25;
@@ -667,10 +673,10 @@
     }
 
     function updateBest() {
-      best = Math.max(best, Math.floor(score));
+      best = Math.max(normalizeBest(best), normalizeBest(score));
       localStorage.setItem(BEST_KEY, String(best));
-      hudBest.textContent = best;
-      gameBest.textContent = best;
+      hudBest.textContent = String(best);
+      gameBest.textContent = String(best);
     }
 
     function syncScore() {
@@ -698,7 +704,7 @@
       overlayPanel.innerHTML = `
         <div class="home-orb" id="homeOrb" aria-hidden="true"></div>
         <h2 class="home-title">Tap Escape</h2>
-        <div class="best-line">Best score: <strong>${best}</strong></div>
+        <div class="best-line">Best score: <strong>${normalizeBest(best)}</strong></div>
         <button class="btn play-hero" id="playBtn">Play</button>
       `;
       document.getElementById('playBtn').onclick = () => {
@@ -731,7 +737,7 @@
         <h2>Game Over</h2>
         <div class="big-score">${Math.floor(score)}</div>
         <p>One hit. That’s it. Go again.</p>
-        <div class="panel-meta"><span>Best ${best}</span></div>
+        <div class="panel-meta"><span>Best ${normalizeBest(best)}</span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
           <button class="btn btn-secondary" id="menuBtn">Menu</button>
@@ -1376,8 +1382,10 @@
     document.addEventListener('dragstart', (e) => e.preventDefault(), { passive: false });
     window.addEventListener('touchmove', (e) => { if (!e.target.closest('button')) e.preventDefault(); }, { passive: false });
     window.addEventListener('scroll', () => window.scrollTo(0, 0), { passive: true });
-    hudBest.textContent = best;
-    gameBest.textContent = best;
+    best = normalizeBest(best);
+    hudBest.textContent = String(best);
+    gameBest.textContent = String(best);
+    localStorage.setItem(BEST_KEY, String(best));
     muteBtn.textContent = muted ? '🔇' : '🔊';
     resetGame();
     showStart();
