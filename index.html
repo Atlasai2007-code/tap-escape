@@ -204,6 +204,14 @@
         linear-gradient(180deg, rgba(3, 6, 14, 0.99), rgba(3, 6, 14, 0.96));
       z-index: 20;
       animation: overlayFade 320ms ease;
+      transition: background 180ms ease, opacity 220ms ease;
+    }
+
+    .overlay.revealing {
+      background:
+        radial-gradient(circle at top, rgba(87,240,255,0.02), transparent 24%),
+        radial-gradient(circle at bottom, rgba(255,99,203,0.02), transparent 26%),
+        linear-gradient(180deg, rgba(3, 6, 14, 0.12), rgba(3, 6, 14, 0.06));
     }
 
     .overlay.hidden { display: none; }
@@ -636,6 +644,7 @@
         <div class="best-line">Best score: <strong>${best}</strong></div>
       `;
       document.getElementById('playBtn').onclick = () => {
+        overlay.classList.add('revealing');
         overlayPanel.classList.add('drop-all');
         const orb = document.getElementById('homeOrb');
         startGameFromHomeAnimation(orb);
@@ -766,6 +775,7 @@
         flyingOrb.remove();
         arenaWrap.classList.remove('revealing');
         running = true;
+        overlay.classList.remove('revealing');
         overlay.classList.add('hidden');
       }, 530);
     }
