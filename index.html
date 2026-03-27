@@ -826,7 +826,7 @@
       const now = performance.now();
       if (now - lastInputAt < 24) return;
       lastInputAt = now;
-      if (!running) return startGame();
+      if (!running) return;
       if (paused || player.cooldown > 0) return;
 
       const clampedX = clamp(targetX, 90, W - 90);
