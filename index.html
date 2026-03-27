@@ -486,7 +486,6 @@
     const hudBest = document.getElementById('hudBest');
     const gameScore = document.getElementById('gameScore');
     const gameBest = document.getElementById('gameBest');
-    const threatValue = document.getElementById('threatValue');
     const momentumBar = document.getElementById('momentumBar');
     const muteBtn = document.getElementById('muteBtn');
     const pauseBtn = document.getElementById('pauseBtn');
@@ -726,7 +725,6 @@
       player.cooldown = 0;
       syncScore();
       updateBest();
-      threatValue.textContent = 'x1';
       pauseBtn.textContent = '⏸';
       startGrace = START_GRACE;
     }
