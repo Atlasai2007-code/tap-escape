@@ -381,6 +381,7 @@
     let lastInputAt = 0;
     let multiplierLevel = 0;
     let multiplierVisual = 0;
+    let momentumBarVisual = 0;
     let playerPop = 0;
 
     const player = {
@@ -540,6 +541,7 @@
       levelFx = [];
       multiplierLevel = 0;
       multiplierVisual = 0;
+      momentumBarVisual = 0;
       playerPop = 0;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
@@ -672,7 +674,7 @@
           elapsed += dt;
           dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.45);
           momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
-          momentumVisual += (momentum - momentumVisual) * Math.min(1, dt * 8);
+          momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, dt * 2.6);
           let multiplier = 1;
           let nextLevel = 0;
           if (momentum >= 75) { multiplier = 3; nextLevel = 3; }
@@ -684,7 +686,7 @@
           score += dt * 7 * multiplier;
           syncScore();
           threatValue.textContent = `x${multiplier}`;
-          momentumBar.style.width = `${momentumVisual * (100/3)}%`;
+          momentumBar.style.width = `${momentumBarVisual}%`;
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
