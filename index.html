@@ -553,6 +553,8 @@
     let playerVisible = true;
     let scoreVisual = 0;
     let scorePulse = 0;
+    let scoreGlow = 0;
+    let scoreShimmer = 0;
     let multiplierTopPop = 0;
 
     const player = {
@@ -621,6 +623,8 @@
       const fxColor = level === 1 ? '#57f0ff' : level === 2 ? '#8f7cff' : '#ffd86a';
       playerPop = 1;
       multiplierTopPop = 1;
+      scorePulse = Math.max(scorePulse, 1.2);
+      scoreGlow = Math.max(scoreGlow, 0.9);
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text: level === 1 ? 'x1.5' : level === 2 ? 'x2' : 'x3' });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
       particles.push(...Array.from({ length: 10 + level * 4 }, (_, i) => ({
@@ -648,7 +652,11 @@
 
     function syncScore() {
       const val = Math.floor(score);
-      if (val !== scoreVisual) scorePulse = 1;
+      if (val != scoreVisual) {
+        scorePulse = multiplierLevel >= 3 ? 1.35 : multiplierLevel >= 2 ? 1.12 : multiplierLevel >= 1 ? 0.9 : 0.65;
+        scoreGlow = multiplierLevel >= 3 ? 1.15 : multiplierLevel >= 2 ? 0.8 : multiplierLevel >= 1 ? 0.45 : 0.18;
+        scoreShimmer = multiplierLevel >= 3 ? 1 : multiplierLevel >= 2 ? 0.5 : 0;
+      }
       scoreVisual = val;
       hudScore.textContent = val;
     }
@@ -733,6 +741,8 @@
       playerVisible = true;
       scoreVisual = 0;
       scorePulse = 0;
+      scoreGlow = 0;
+      scoreShimmer = 0;
       multiplierTopPop = 0;
       openingBallPending = true;
       nearMissMemory = new WeakSet();
@@ -1008,7 +1018,9 @@
           return p.age < p.life;
         });
 
-        scorePulse *= 0.92;
+        scorePulse *= (multiplierLevel >= 3 ? 0.90 : multiplierLevel >= 2 ? 0.91 : multiplierLevel >= 1 ? 0.93 : 0.94);
+        scoreGlow *= 0.92;
+        scoreShimmer *= 0.9;
         multiplierTopPop *= 0.88;
         shake *= 0.88;
       }
@@ -1193,15 +1205,29 @@
         ctx.stroke();
       }
 
-      const scoreScale = 1 + scorePulse * 0.06;
+      const scoreBaseAlpha = multiplierLevel >= 3 ? 0.15 : multiplierLevel >= 2 ? 0.135 : multiplierLevel >= 1 ? 0.122 : 0.11;
+      const scoreScale = 1 + (multiplierLevel >= 3 ? 0.1 : multiplierLevel >= 2 ? 0.08 : multiplierLevel >= 1 ? 0.05 : 0.035) * scorePulse + Math.sin(player.pulse * (multiplierLevel >= 1 ? 1.3 : 0.7)) * (multiplierLevel >= 2 ? 0.01 : 0.004);
+      const scoreColor = multiplierLevel >= 3 ? '#e7d1a0' : multiplierLevel >= 2 ? '#c6b8f0' : multiplierLevel >= 1 ? '#b7d9eb' : '#a7b3c6';
       ctx.save();
       ctx.translate(W / 2, H / 2);
       ctx.scale(scoreScale, scoreScale);
-      ctx.globalAlpha = 0.11;
-      ctx.fillStyle = multiplierLevel >= 3 ? '#d9c39a' : multiplierLevel >= 2 ? '#b6a9d8' : '#a7b3c6';
+      if (multiplierLevel >= 2) {
+        ctx.globalAlpha = 0.04 + scoreGlow * 0.05;
+        ctx.fillStyle = multiplierLevel >= 3 ? '#ffd86a' : '#8f7cff';
+        ctx.font = '300 150px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(scoreVisual), (multiplierLevel >= 3 ? 4 : 2) * scoreShimmer, 36);
+      }
+      ctx.globalAlpha = scoreBaseAlpha + scoreGlow * 0.04;
+      ctx.fillStyle = scoreColor;
       ctx.font = '300 150px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(String(scoreVisual), 0, 36);
+      if (multiplierLevel >= 3 && scoreShimmer > 0.02) {
+        ctx.globalAlpha = 0.05 * scoreShimmer;
+        ctx.fillStyle = '#fff4cf';
+        ctx.fillText(String(scoreVisual), -3 * scoreShimmer, 36);
+      }
       ctx.restore();
       ctx.globalAlpha = 1;
 
