@@ -501,7 +501,7 @@
     const DASH_TIME = 0.1;
     const DASH_COOLDOWN = 0.085;
     const MOMENTUM_MAX = 100;
-    const START_GRACE = 1.6;
+    const START_GRACE = 1.5;
     const BEST_KEY = 'tapEscapeBest';
     const MUTE_KEY = 'tapEscapeMute';
 
@@ -716,9 +716,6 @@
       threatValue.textContent = 'x1';
       pauseBtn.textContent = '⏸';
       startGrace = START_GRACE;
-      const openingSides = ['top', 'bottom', 'left', 'right'];
-      const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
-      spawnObstacle(openingSide, true);
     }
 
     function startGame() {
