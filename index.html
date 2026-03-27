@@ -444,17 +444,15 @@
     <div class="arena-wrap" id="arenaWrap">
       <div class="top-ui">
         <div class="score-pill" style="display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between;">
-          <div style="min-width:0;">
-            <div style="font-weight:800; letter-spacing:-0.03em; font-size:0.95rem;">Tap Escape</div>
-            <div style="display:flex; gap:10px; align-items:center; color:var(--muted); font-size:0.78rem; margin-top:4px; white-space:nowrap;">
-              <span>Score <strong id="gameScore">0</strong></span>
+          <div style="min-width:0; flex:1;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:0.76rem; white-space:nowrap;">
+              <span style="font-weight:800; letter-spacing:-0.03em; font-size:0.92rem; color:var(--text);">Tap Escape</span>
               <span>Best <strong id="gameBest">0</strong></span>
-              <span>Mult <strong id="threatValue">x1</strong></span>
             </div>
-            <div style="position:relative; margin-top:8px; width:180px; max-width:48vw; height:5px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
-              <div style="position:absolute; left:25%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.22);"></div>
-              <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.22);"></div>
-              <div style="position:absolute; left:75%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.22);"></div>
+            <div style="position:relative; margin-top:8px; width:180px; max-width:48vw; height:4px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;">
+              <div style="position:absolute; left:25%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18);"></div>
+              <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18);"></div>
+              <div style="position:absolute; left:75%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.18);"></div>
               <div id="momentumBar" style="height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#57f0ff,#8f7cff,#ffd86a);"></div>
             </div>
           </div>
@@ -536,6 +534,8 @@
     let momentumBarVisual = 0;
     let playerPop = 0;
     let playerVisible = true;
+    let scoreVisual = 0;
+    let scorePulse = 0;
 
     const player = {
       x: CENTER.x,
@@ -629,8 +629,9 @@
 
     function syncScore() {
       const val = Math.floor(score);
+      if (val !== scoreVisual) scorePulse = 1;
+      scoreVisual = val;
       hudScore.textContent = val;
-      gameScore.textContent = val;
     }
 
     function threatLabel() {
@@ -711,6 +712,8 @@
       momentumBarVisual = 0;
       playerPop = 0;
       playerVisible = true;
+      scoreVisual = 0;
+      scorePulse = 0;
       openingBallPending = true;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
@@ -910,7 +913,6 @@
           multiplierVisual += (multiplierLevel - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
           syncScore();
-          threatValue.textContent = `x${multiplier}`;
           momentumBar.style.width = `${momentumBarVisual}%`;
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
@@ -982,6 +984,7 @@
           return p.age < p.life;
         });
 
+        scorePulse *= 0.92;
         shake *= 0.88;
       }
     }
@@ -1023,7 +1026,7 @@
       const levelT = multiplierVisual / 3;
       const glowBoost = 1 + playerPop * 0.35;
       const coreColor = multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
-      const outerColor = multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#ff63cb';
+      const outerColor = multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#ff63cb' : '#a7b3cf';
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2) * glowBoost);
       glow.addColorStop(0, '#ffffff');
       glow.addColorStop(0.25, coreColor);
@@ -1038,6 +1041,15 @@
       ctx.beginPath();
       ctx.arc(player.x - 8, player.y - 8, 8, 0, Math.PI * 2);
       ctx.fill();
+
+      const multiplierText = multiplierLevel === 0 ? 'x1' : multiplierLevel === 1 ? 'x1.5' : multiplierLevel === 2 ? 'x2' : 'x3';
+      const multAlpha = 0.34 + multiplierVisual * 0.12 + Math.sin(player.pulse * 1.6) * 0.04;
+      ctx.globalAlpha = Math.min(0.82, multAlpha);
+      ctx.fillStyle = multiplierLevel >= 3 ? '#ffd86a' : multiplierLevel >= 2 ? '#ff63cb' : multiplierLevel >= 1 ? '#57f0ff' : '#adb8d2';
+      ctx.font = `${28 + multiplierVisual * 4}px Inter, system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(multiplierText, player.x, player.y - 52);
+      ctx.globalAlpha = 1;
     }
 
     function drawParticles() {
@@ -1163,6 +1175,18 @@
         ctx.lineTo(W - 70, y);
         ctx.stroke();
       }
+
+      const scoreScale = 1 + scorePulse * 0.06;
+      ctx.save();
+      ctx.translate(W / 2, H / 2);
+      ctx.scale(scoreScale, scoreScale);
+      ctx.globalAlpha = 0.11;
+      ctx.fillStyle = multiplierLevel >= 3 ? '#d9c39a' : multiplierLevel >= 2 ? '#b6a9d8' : '#a7b3c6';
+      ctx.font = '300 150px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(String(scoreVisual), 0, 36);
+      ctx.restore();
+      ctx.globalAlpha = 1;
 
       obstacles.forEach(drawObstacle);
       drawParticles();
