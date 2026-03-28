@@ -35,7 +35,7 @@
       height: 100%;
       min-height: 100dvh;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
+      color: #ffffff;
       background:
         radial-gradient(circle at top, rgba(87,240,255,0.12), transparent 22%),
         radial-gradient(circle at bottom, rgba(10,18,40,0.35), transparent 34%),
@@ -464,7 +464,7 @@
         <div class="multiplier-top" id="multiplierTop" style="position:static; transform:none; min-width:auto; font-size:1.08rem;">x1</div>
         <div style="display:flex; align-items:center; gap:10px; flex:1; justify-content:flex-end; color:var(--muted); font-size:0.82rem; white-space:nowrap;">
           <span>Best <strong id="gameBest">0</strong></span>
-          <button class="icon-btn" id="muteBtn" aria-label="Mute">🔊</button>
+          <button class="icon-btn" id="muteBtn" aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v4h3.2l4.6 3.8c.65.53 1.6.07 1.6-.77V6.99c0-.84-.95-1.3-1.6-.77L8.2 10H5Zm12.1 2a4.6 4.6 0 0 0-1.75-3.62v7.24A4.6 4.6 0 0 0 17.1 12Zm1.9 0c0 2.33-1.1 4.41-2.82 5.75l-1.02-1.4A5.16 5.16 0 0 0 17.2 12c0-1.74-.85-3.28-2.04-4.35l1.02-1.4A7.14 7.14 0 0 1 19 12Z"></path></svg></button>
           <button class="icon-btn" id="pauseBtn" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.5"></rect><rect x="14" y="5" width="4" height="14" rx="1.5"></rect></svg></button>
         </div>
       </div>
@@ -1403,7 +1403,9 @@
     muteBtn.addEventListener('click', () => {
       muted = !muted;
       localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
-      muteBtn.textContent = muted ? '🔇' : '🔊';
+      muteBtn.innerHTML = muted
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v4h3.2l4.6 3.8c.65.53 1.6.07 1.6-.77V6.99c0-.84-.95-1.3-1.6-.77L8.2 10H5Zm10.12-.7 1.41-1.42L19 10.35l1.46-1.47 1.42 1.42L20.41 11.76l1.47 1.47-1.42 1.42L19 13.18l-1.47 1.47-1.41-1.42 1.46-1.47-1.46-1.46Z"></path></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v4h3.2l4.6 3.8c.65.53 1.6.07 1.6-.77V6.99c0-.84-.95-1.3-1.6-.77L8.2 10H5Zm12.1 2a4.6 4.6 0 0 0-1.75-3.62v7.24A4.6 4.6 0 0 0 17.1 12Zm1.9 0c0 2.33-1.1 4.41-2.82 5.75l-1.02-1.4A5.16 5.16 0 0 0 17.2 12c0-1.74-.85-3.28-2.04-4.35l1.02-1.4A7.14 7.14 0 0 1 19 12Z"></path></svg>';
     });
 
     pauseBtn.addEventListener('click', () => {
