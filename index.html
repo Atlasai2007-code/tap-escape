@@ -965,12 +965,12 @@
       glitchTapChain = 0;
       glitchActive = false;
       tutorialActive = !tutorialSeen;
-      tutorialPhase = tutorialActive ? 'move' : 'off';
-      tutorialPhaseTimer = 0;
+      tutorialPhase = tutorialActive ? 'dash-setup' : 'off';
+      tutorialPhaseTimer = tutorialActive ? 0.7 : 0;
       tutorialTimeScale = 1;
       tutorialDashArmed = false;
-      tutorialCue.textContent = tutorialActive ? 'Tap to move' : '';
-      if (tutorialActive) tutorialCue.classList.add('show'); else tutorialCue.classList.remove('show');
+      tutorialCue.textContent = '';
+      tutorialCue.classList.remove('show', 'pointing');
       openingBallPending = true;
       aimedBallTimer = 30;
       nearMissMemory = new WeakSet();
@@ -1105,11 +1105,7 @@
       const dir = { x: dx / len, y: dy / len };
 
       if (tutorialActive) {
-        if (tutorialPhase === 'move') {
-          tutorialPhase = 'move-learned';
-          tutorialPhaseTimer = 1.35;
-          hideTutorialText();
-        } else if (tutorialPhase === 'dash-prompt') {
+        if (tutorialPhase === 'dash-prompt') {
           tutorialPhase = 'build';
           tutorialPhaseTimer = 4.8;
           tutorialDashArmed = false;
@@ -1211,7 +1207,7 @@
           elapsed += dt;
           if (tutorialActive) {
             tutorialPhaseTimer -= dt;
-            if (tutorialPhase === 'move-learned' && tutorialPhaseTimer <= 0) {
+            if (tutorialPhase === 'dash-setup' && tutorialPhaseTimer <= 0) {
               spawnTutorialDashThreat();
             } else if (tutorialPhase === 'build' && (displayedMultiplier > 1 || multiplierProgress >= progressNeededForLevel(1) * 0.58)) {
               tutorialPhase = 'risk';
