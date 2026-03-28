@@ -281,33 +281,6 @@
 
     .overlay.hidden { display: none; }
 
-
-    .tutorial-cue {
-      position: absolute;
-      left: 50%;
-      top: 18%;
-      transform: translateX(-50%);
-      z-index: 8;
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: rgba(8, 14, 30, 0.72);
-      border: 1px solid rgba(255,255,255,0.09);
-      backdrop-filter: blur(14px);
-      color: #ffffff;
-      font-size: 0.92rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 160ms ease, transform 160ms ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    .tutorial-cue.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
     .panel {
       width: min(90%, 360px);
       text-align: center;
@@ -542,8 +515,6 @@
     <div class="arena-wrap" id="arenaWrap">
       <canvas id="game" width="720" height="1280"></canvas>
 
-      <div class="tutorial-cue" id="tutorialCue">Tap to dash</div>
-
       <div class="overlay" id="overlay">
         <div class="panel" id="overlayPanel"></div>
       </div>
@@ -564,7 +535,6 @@
     const muteBtn = document.getElementById('muteBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const arenaWrap = document.getElementById('arenaWrap');
-    const tutorialCue = document.getElementById('tutorialCue');
 
     const W = canvas.width;
     const H = canvas.height;
@@ -623,11 +593,6 @@
     let multiplierTopPop = 0;
     let glitchTapChain = 0;
     let glitchActive = false;
-    let tutorialStage = 'move';
-    let tutorialTimer = 0;
-    let tutorialThreatId = 0;
-    let tutorialDashPending = false;
-    let tutorialTimeScale = 1;
 
     const player = {
       x: CENTER.x,
@@ -894,13 +859,6 @@
       multiplierTopPop = 0;
       glitchTapChain = 0;
       glitchActive = false;
-      tutorialStage = 'move';
-      tutorialTimer = 0;
-      tutorialThreatId = 0;
-      tutorialDashPending = false;
-      tutorialTimeScale = 1;
-      tutorialCue.classList.remove('show');
-      tutorialCue.textContent = 'Tap to move';
       openingBallPending = true;
       aimedBallTimer = 30;
       nearMissMemory = new WeakSet();
@@ -924,36 +882,12 @@
       resetGame();
       running = true;
       paused = false;
-      tutorialCue.textContent = 'Tap to move';
-      tutorialCue.classList.add('show');
       arenaWrap.classList.remove('menu-mode');
       arenaWrap.classList.remove('game-enter');
       void arenaWrap.offsetWidth;
       arenaWrap.classList.add('game-enter');
       setTimeout(() => arenaWrap.classList.remove('game-enter'), 560);
       overlay.classList.add('hidden');
-    }
-
-
-    function spawnTutorialDashThreat() {
-      const side = player.x < W * 0.5 ? 'right' : 'left';
-      const speed = 245;
-      const size = 28;
-      const id = ++tutorialThreatId;
-      const x = side === 'left' ? -60 : W + 60;
-      const y = clamp(player.y + rand(-36, 36), PLAYER_R + 40, H - PLAYER_R - 40);
-      const vx = side === 'left' ? speed : -speed;
-      obstacles.push({ x, y, vx, vy: 0, size, born: elapsed, glow: 'danger', tutorialDash: true, id });
-      tutorialStage = 'dash-watch';
-      tutorialCue.classList.remove('show');
-    }
-
-    function completeDashTutorial() {
-      tutorialStage = 'done';
-      tutorialDashPending = false;
-      tutorialTimeScale = 1;
-      tutorialCue.classList.remove('show');
-      obstacles = obstacles.filter(ob => !ob.tutorialDash);
     }
 
     function startGameFromHomeAnimation(homeOrb) {
@@ -1003,8 +937,6 @@
         playerVisible = true;
         arenaWrap.classList.remove('revealing');
         running = true;
-        tutorialCue.textContent = 'Tap to move';
-        tutorialCue.classList.add('show');
         overlay.classList.remove('revealing');
         overlay.classList.add('hidden');
       }, 530);
@@ -1053,15 +985,6 @@
       const dy = clampedY - player.y;
       const len = Math.hypot(dx, dy) || 1;
       const dir = { x: dx / len, y: dy / len };
-
-      if (tutorialStage === 'move') {
-        tutorialStage = 'move-done';
-        tutorialTimer = 0.65;
-        tutorialCue.classList.remove('show');
-      } else if (tutorialStage === 'dash-prompt') {
-        tutorialDashPending = false;
-        completeDashTutorial();
-      }
 
       player.cooldown = DASH_COOLDOWN;
       player.dashT = 0;
@@ -1152,10 +1075,6 @@
       if (!paused) {
         if (running) {
           elapsed += dt;
-          if (tutorialStage === 'move-done') {
-            tutorialTimer -= dt;
-            if (tutorialTimer <= 0) spawnTutorialDashThreat();
-          }
           dashChainTimer = Math.max(0, dashChainTimer - dt);
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
@@ -1268,15 +1187,7 @@
             const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
             const collisionRadius = ob.size + PLAYER_HIT_R;
             ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
-            if (ob.tutorialDash && tutorialStage === 'dash-watch' && d < ob.size + PLAYER_R + 210) {
-              tutorialStage = 'dash-prompt';
-              tutorialDashPending = true;
-              tutorialTimeScale = 0.2;
-              tutorialCue.textContent = 'Tap to dash';
-              tutorialCue.classList.add('show');
-            }
-            if (startGrace <= 0 && !ob.tutorialDash && (d < collisionRadius || pathD < collisionRadius)) die();
-            if (ob.tutorialDash && tutorialStage === 'dash-prompt' && (d < collisionRadius || pathD < collisionRadius)) return true;
+            if (startGrace <= 0 && (d < collisionRadius || pathD < collisionRadius)) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
 
@@ -1544,10 +1455,8 @@
 
     function loop(ts) {
       if (!lastTime) lastTime = ts;
-      const rawDt = Math.min(0.032, (ts - lastTime) / 1000);
+      const dt = Math.min(0.032, (ts - lastTime) / 1000);
       lastTime = ts;
-      tutorialTimeScale += ((tutorialStage === 'dash-prompt' ? 0.22 : 1) - tutorialTimeScale) * Math.min(1, rawDt * 8);
-      const dt = rawDt * tutorialTimeScale;
       update(dt);
       draw();
       requestAnimationFrame(loop);
