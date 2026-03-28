@@ -890,6 +890,13 @@
       tutorialSeen = true;
       localStorage.setItem(TUTORIAL_DONE_KEY, '1');
       tutorialTargetPos = null;
+      tutorialForcedDashTarget = null;
+      tutorialMomentumPrimed = false;
+      tutorialMomentumWarned = false;
+      tutorialDashLessonCount = 0;
+      obstacles.forEach(ob => { ob.frozen = false; delete ob.tutorialDash; });
+      spawnTimer = Math.min(spawnTimer, 0.7);
+      aimedBallTimer = Math.min(aimedBallTimer, 12);
       tutorialTarget.classList.remove('show');
       hideTutorialText();
     }
