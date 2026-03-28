@@ -541,6 +541,7 @@
     let multiplierLevel = 1;
     let displayedMultiplier = 1;
     let multiplierVisual = 0;
+    let multiplierProgress = 0;
     let backgroundVisual = 0;
     let momentumBarVisual = 0;
     let playerPop = 0;
@@ -576,17 +577,19 @@
       return Math.floor(n);
     }
 
-    function momentumThresholdForLevel(level) {
-      if (level <= 1) return 25;
-      return 25 + (level - 1) * 20;
+    function progressNeededForLevel(level) {
+      const tier = Math.max(0, level - 1);
+      return 18 + tier * 8 + Math.pow(tier, 1.35) * 4;
     }
 
-    function multiplierFromMomentum(value) {
-      let level = 1;
-      while (value >= momentumThresholdForLevel(level) + 0.0001) level += 1;
-      return level;
+    function dropMultiplierLevel() {
+      if (glitchActive || displayedMultiplier <= 1) return;
+      displayedMultiplier -= 1;
+      multiplierLevel = displayedMultiplier;
+      multiplierProgress = 0;
+      multiplierTopPop = 0.7;
+      multiplierDownSound(displayedMultiplier);
     }
-
 
     function difficultyProgress() {
       const timeT = clamp(Math.max(0, elapsed - 8) / 80, 0, 1);
@@ -915,8 +918,11 @@
       player.fromY = player.y;
       player.toX = clampedX;
       player.toY = clampedY;
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.12);
-      momentum = Math.max(0, momentum - 5);
+      const levelNeed = progressNeededForLevel(displayedMultiplier);
+      const dashPenalty = levelNeed * (0.07 + dashSpamPenalty * 0.08);
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.1);
+      multiplierProgress = Math.max(0, multiplierProgress - dashPenalty);
+      momentum = Math.max(0, momentum - 3);
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -961,6 +967,7 @@
       displayedMultiplier = 1;
       multiplierLevel = 1;
       multiplierVisual = 0;
+      multiplierProgress = 0;
       momentumBarVisual = 0;
       if (typeof multiplierTop !== 'undefined' && multiplierTop) multiplierTop.textContent = 'x1';
       if (typeof momentumBar !== 'undefined' && momentumBar) {
@@ -978,10 +985,11 @@
       if (!paused) {
         if (running) {
           elapsed += dt;
-          dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.45);
-          momentum = clamp(momentum + dt * (10 - dashSpamPenalty * 8), 0, MOMENTUM_MAX);
-          const barCatchup = momentum < momentumBarVisual ? dt * 9.5 : dt * 2.6;
+          dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.55);
+          momentum = clamp(momentum + dt * (7 - dashSpamPenalty * 4), 0, MOMENTUM_MAX);
+          const barCatchup = momentum < momentumBarVisual ? dt * 7.5 : dt * 2.4;
           momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, barCatchup);
+
           let multiplier = glitchActive ? 10 : displayedMultiplier;
           if (glitchActive) {
             if (displayedMultiplier < 10) {
@@ -993,17 +1001,30 @@
               glitchSound();
             }
             multiplierLevel = 10;
+            multiplierProgress = progressNeededForLevel(10);
           } else {
-            const nextThreshold = momentumThresholdForLevel(displayedMultiplier);
-            if (momentum >= nextThreshold) {
+            const levelNeed = progressNeededForLevel(displayedMultiplier);
+            const dashHeat = clamp(dashSpamPenalty, 0, 1);
+            const movingHard = player.dashT < 1 ? 1 : 0;
+            const controlGain = clamp(1 - dashHeat * 1.05 - movingHard * 0.72, 0, 1);
+            const fillRate = 1.05 + Math.min(0.18, (displayedMultiplier - 1) * 0.02);
+            const decayRate = 0.16 + dashHeat * 0.95 + movingHard * 0.42;
+            multiplierProgress = clamp(multiplierProgress + dt * fillRate * controlGain - dt * decayRate, 0, levelNeed);
+
+            if (multiplierProgress >= levelNeed - 0.0001) {
               displayedMultiplier += 1;
-              multiplier = displayedMultiplier;
               multiplierLevel = displayedMultiplier;
+              multiplierProgress = 0;
+              multiplier = displayedMultiplier;
               triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
             } else {
               multiplierLevel = displayedMultiplier;
+              if (displayedMultiplier > 1 && multiplierProgress <= 0.0001 && (dashHeat > 0.34 || movingHard)) {
+                dropMultiplierLevel();
+              }
             }
           }
+
           multiplier = glitchActive ? 10 : displayedMultiplier;
           multiplierVisual += (Math.min(multiplierLevel, 3) - multiplierVisual) * Math.min(1, dt * 3.2);
           score += dt * 7 * multiplier;
@@ -1013,29 +1034,14 @@
           multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
           multiplierTop.style.textShadow = multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
-          let currentLevelBase = displayedMultiplier <= 1 ? 0 : momentumThresholdForLevel(displayedMultiplier - 1);
-          let nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
-          let levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
-          let rawBarPct = Math.min(100, Math.max(0, ((momentum - currentLevelBase) / levelSpan) * 100));
 
-          if (!glitchActive && displayedMultiplier > 1 && momentum <= currentLevelBase) {
-            displayedMultiplier = 1;
-            multiplierLevel = 1;
-            multiplierTopPop = 0.7;
-            multiplierDownSound(1);
-            momentum = 0;
-            momentumBarVisual = 0;
-            currentLevelBase = 0;
-            nextLevelThreshold = momentumThresholdForLevel(displayedMultiplier);
-            levelSpan = Math.max(1, nextLevelThreshold - currentLevelBase);
-            rawBarPct = 0;
-          }
-
+          const levelNeed = glitchActive ? progressNeededForLevel(10) : progressNeededForLevel(displayedMultiplier);
+          const rawBarPct = glitchActive ? 100 : Math.min(100, Math.max(0, (multiplierProgress / levelNeed) * 100));
           const currentBarPct = parseFloat(momentumBar.dataset.pct || '0');
           const easedBarPct = currentBarPct + (rawBarPct - currentBarPct) * Math.min(1, dt * (rawBarPct < currentBarPct ? 10 : 4));
           momentumBar.dataset.pct = String(easedBarPct);
           momentumBar.style.width = `${easedBarPct}%`;
-          momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
+          momentumBar.style.filter = multiplierLevel >= 5 ? 'brightness(1.18) saturate(1.22)' : multiplierLevel >= 3 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
           const pressure = difficultyProgress();
