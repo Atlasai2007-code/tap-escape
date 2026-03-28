@@ -1266,7 +1266,7 @@
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
               placeForcedDashTarget();
-              showTutorialText(`${3 - tutorialDashLessonCount} more fast dashes`);
+              showTutorialText('Keep dashing fast');
             }
           }, 140);
         } else {
@@ -1370,7 +1370,7 @@
                 aimedBallTimer = 999;
                 obstacles = [];
                 placeForcedDashTarget();
-                showTutorialText('Dash fast 3x = break');
+                showTutorialText('Dashing fast breaks it');
               }
             } else if (tutorialPhase === 'risk' && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
               finishTutorial();
