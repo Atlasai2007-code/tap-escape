@@ -1022,6 +1022,7 @@
         <div class="home-orb" id="homeOrb" aria-hidden="true"></div>
         <h2 class="home-title">Tap Escape</h2>
         <div class="best-line">Best score: <strong>${normalizeBest(best)}</strong></div>
+        <div class="best-line" style="margin-top:-4px;">Max multiplier: <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></div>
         <button class="btn play-hero" id="playBtn">Play</button>
       `;
       document.getElementById('playBtn').onclick = () => {
