@@ -544,6 +544,8 @@
     let multiplierProgress = 0;
     let backgroundVisual = 0;
     let momentumBarVisual = 0;
+    let dashChain = 0;
+    let dashChainTimer = 0;
     let playerPop = 0;
     let playerVisible = true;
     let scoreVisual = 0;
@@ -788,6 +790,8 @@
       multiplierVisual = 0;
       backgroundVisual = 0;
       momentumBarVisual = 0;
+      dashChain = 0;
+      dashChainTimer = 0;
       playerPop = 0;
       playerVisible = true;
       scoreVisual = 0;
@@ -931,10 +935,27 @@
       player.toX = clampedX;
       player.toY = clampedY;
       const levelNeed = progressNeededForLevel(displayedMultiplier);
-      const dashPenalty = levelNeed * (0.085 + dashSpamPenalty * 0.14 + Math.max(0, displayedMultiplier - 1) * 0.012);
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.14);
-      multiplierProgress = Math.max(0, multiplierProgress - dashPenalty);
-      momentum = Math.max(0, momentum - 5);
+      const chainWindow = 0.52;
+      const withinChain = dashChainTimer > 0;
+      dashChain = withinChain ? dashChain + 1 : 1;
+      dashChainTimer = chainWindow;
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.14 + Math.min(0.08, (dashChain - 1) * 0.03));
+
+      let dashPenalty = 0;
+      if (dashChain === 1) {
+        dashPenalty = levelNeed * (0.16 + Math.max(0, displayedMultiplier - 1) * 0.02);
+      } else if (dashChain === 2) {
+        dashPenalty = Math.max(levelNeed * (0.42 + Math.max(0, displayedMultiplier - 1) * 0.045), multiplierProgress + 0.0001 >= levelNeed * 0.38 ? levelNeed * 0.42 : multiplierProgress);
+      } else {
+        resetMultiplierProgress();
+        dashPenalty = multiplierProgress;
+      }
+
+      if (dashChain < 3) {
+        multiplierProgress = Math.max(0, multiplierProgress - dashPenalty);
+        if (multiplierProgress <= 0.0001) resetMultiplierProgress();
+      }
+      momentum = Math.max(0, momentum - (dashChain >= 2 ? 8 : 5));
       dashSound();
       vibe(8);
       for (let i = 0; i < 10; i++) {
@@ -976,6 +997,8 @@
       shake = 18;
       momentum = 0;
       dashSpamPenalty = 0;
+      dashChain = 0;
+      dashChainTimer = 0;
       resetMultiplierProgress(false);
       spawnConfetti(player.x, player.y);
       deathSound();
@@ -988,6 +1011,8 @@
       if (!paused) {
         if (running) {
           elapsed += dt;
+          dashChainTimer = Math.max(0, dashChainTimer - dt);
+          if (dashChainTimer <= 0) dashChain = 0;
           dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.55);
           momentum = clamp(momentum + dt * (7 - dashSpamPenalty * 4), 0, MOMENTUM_MAX);
           const barCatchup = momentum < momentumBarVisual ? dt * 7.5 : dt * 2.4;
