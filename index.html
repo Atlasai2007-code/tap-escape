@@ -343,6 +343,12 @@
     }
 
 
+    .tutorial-cue.pop-out {
+      opacity: 0 !important;
+      transform: translateX(-50%) translateY(-8px) scale(1.14) !important;
+    }
+
+
     .tutorial-cue.dashboard-point {
       top: 58px;
     }
@@ -947,20 +953,30 @@
       if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen && mode !== 'dashboard') return;
       tutorialCue.textContent = text;
       tutorialCue.classList.toggle('dashboard-point', mode === 'dashboard');
+      tutorialCue.classList.remove('pop-out');
       tutorialCue.classList.add('show');
     }
 
     function showDashboardTutorialText(text, pinned = false) {
       if (pinned) tutorialPinnedMessage = text;
       tutorialCue.textContent = text;
+      tutorialCue.classList.remove('pop-out');
       tutorialCue.classList.add('show', 'dashboard-point');
     }
 
-    function hideTutorialText(force = false) {
+    function hideTutorialText(force = false, pop = false) {
       if (tutorialPinnedMessage && !force) return;
       tutorialPinnedMessage = '';
+      if (pop) {
+        tutorialCue.classList.add('pop-out');
+        setTimeout(() => {
+          tutorialCue.textContent = '';
+          tutorialCue.classList.remove('show', 'dashboard-point', 'pop-out');
+        }, 180);
+        return;
+      }
       tutorialCue.textContent = '';
-      tutorialCue.classList.remove('show', 'dashboard-point');
+      tutorialCue.classList.remove('show', 'dashboard-point', 'pop-out');
     }
 
     function finishTutorial() {
@@ -982,7 +998,7 @@
       tutorialTarget.classList.remove('show');
       tutorialPinnedMessage = '';
       showTutorialText('Stay steady 🤫');
-      setTimeout(() => hideTutorialText(true), 1800);
+      setTimeout(() => hideTutorialText(true, true), 2600);
     }
 
     function placeTutorialTarget() {
