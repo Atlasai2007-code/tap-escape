@@ -732,8 +732,6 @@
     let scoreGlow = 0;
     let scoreShimmer = 0;
     let multiplierTopPop = 0;
-    let glitchTapChain = 0;
-    let glitchActive = false;
     let resumeFromHome = false;
     let resumeCountdownLeft = 0;
     let resumeCountdownPop = 0;
@@ -788,7 +786,6 @@
     }
 
     function resetMultiplierProgress(playSound = true) {
-      if (glitchActive) return;
       if (displayedMultiplier === 1 && multiplierProgress <= 0) return;
       if (tutorialActive && tutorialPhase === 'risk') {
         tutorialMomentumWarned = true;
@@ -889,11 +886,6 @@
     function multiplierUpgradeSound(level) {
       const base = level === 1 ? 980 : level === 2 ? 1120 : 1320;
       beep('sine', base, 0.07, 0.028);
-    }
-
-    function glitchSound() {
-      beep('sine', 1220, 0.07, 0.03);
-      setTimeout(() => beep('triangle', 1560, 0.09, 0.03), 40);
     }
 
     function multiplierDownSound(level) {
@@ -1157,8 +1149,6 @@
       scoreGlow = 0;
       scoreShimmer = 0;
       multiplierTopPop = 0;
-      glitchTapChain = 0;
-      glitchActive = false;
       tutorialActive = !tutorialSeen;
       tutorialPhase = tutorialActive ? 'dash-setup' : 'off';
       tutorialPhaseTimer = tutorialActive ? 0.7 : 0;
@@ -1537,22 +1527,9 @@
           }
           const barCatchup = momentum < momentumBarVisual ? dt * 7.5 : dt * 2.4;
           momentumBarVisual += (momentum - momentumBarVisual) * Math.min(1, barCatchup);
-
-          let multiplier = glitchActive ? 10 : displayedMultiplier;
+          let multiplier = displayedMultiplier;
           if (!tutorialFrozen) {
-            if (glitchActive) {
-              if (displayedMultiplier < 10) {
-                displayedMultiplier = 10;
-                playerPop = 1;
-                multiplierTopPop = 1;
-                scorePulse = Math.max(scorePulse, 1.4);
-                scoreGlow = Math.max(scoreGlow, 1.1);
-                glitchSound();
-              }
-              multiplierLevel = 10;
-              multiplierProgress = progressNeededForLevel(10);
-              updateMaxMultiplier();
-            } else {
+            {
               const levelNeed = progressNeededForLevel(displayedMultiplier);
               const dashHeat = clamp(dashSpamPenalty, 0, 1);
               const movingHard = player.dashT < 1 ? 1 : 0;
@@ -1587,12 +1564,12 @@
               }
             }
 
-            multiplier = glitchActive ? 10 : displayedMultiplier;
+            multiplier = displayedMultiplier;
             multiplierVisual += (Math.min(multiplierLevel, 3) - multiplierVisual) * Math.min(1, dt * 3.2);
             score += dt * 7 * multiplier;
             syncScore();
           } else {
-            multiplier = glitchActive ? 10 : displayedMultiplier;
+            multiplier = displayedMultiplier;
           }
           const multText = `x${multiplier}`;
           multiplierTop.textContent = multText;
@@ -1612,8 +1589,8 @@
           multiplierTop.style.setProperty('--tutorial-ring-scale', tutorialFocusGlow > 0 ? String(1 + tutorialFocusGlow * 0.18) : '0.92');
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2 + tutorialFocusGlow * 0.24})`;
 
-          const levelNeed = glitchActive ? progressNeededForLevel(10) : progressNeededForLevel(displayedMultiplier);
-          const rawBarPct = glitchActive ? 100 : Math.min(100, Math.max(0, (multiplierProgress / levelNeed) * 100));
+          const levelNeed = progressNeededForLevel(displayedMultiplier);
+          const rawBarPct = Math.min(100, Math.max(0, (multiplierProgress / levelNeed) * 100));
           const currentBarPct = parseFloat(momentumBar.dataset.pct || '0');
           const easedBarPct = currentBarPct + (rawBarPct - currentBarPct) * Math.min(1, dt * (rawBarPct < currentBarPct ? 10 : 4));
           momentumBar.dataset.pct = String(easedBarPct);
@@ -1967,16 +1944,6 @@
       const rect = canvas.getBoundingClientRect();
       let x = (e.clientX - rect.left) * (W / rect.width);
       let y = (e.clientY - rect.top) * (H / rect.height);
-      const tappedPlayer = dist(x, y, player.x, player.y) <= PLAYER_R + 16;
-      if (running && tappedPlayer) {
-        glitchTapChain += 1;
-        if (glitchTapChain >= 10 && !glitchActive) {
-          glitchActive = true;
-          multiplierLevel = Math.max(multiplierLevel, 4);
-        }
-      } else {
-        glitchTapChain = 0;
-      }
       if (tutorialActive) {
         const ringPhase = tutorialPhase === 'risk' || tutorialPhase === 'dash-prompt';
         const freeTutorialPhase = tutorialPhase === 'risk-release';
