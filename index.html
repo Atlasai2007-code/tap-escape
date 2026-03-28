@@ -1392,10 +1392,8 @@
                 tutorialPhaseTimer = 999;
                 tutorialDashLessonCount = 0;
                 tutorialForcedDashTarget = null;
-      tutorialX2Glow = 0;
-      tutorialX1BreakGlow = 0;
-      tutorialX2Seen = false;
-      tutorialCarryGlow = 0;
+                tutorialX2Seen = true;
+                tutorialCarryGlow = Math.max(tutorialCarryGlow, 1.7);
                 tutorialTimeScale = 0;
                 spawnTimer = 999;
                 aimedBallTimer = 999;
@@ -1413,7 +1411,11 @@
           resetPop = Math.max(0, resetPop - dt * 1.9);
           tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 1.4);
           tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 1.2);
-          tutorialCarryGlow = Math.max(0, tutorialCarryGlow - dt * 0.5);
+          if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen) {
+            tutorialCarryGlow = Math.max(tutorialCarryGlow, 1.7);
+          } else {
+            tutorialCarryGlow = Math.max(0, tutorialCarryGlow - dt * 0.5);
+          }
 
           const tutorialFrozen = tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk');
           if (!tutorialFrozen) {
