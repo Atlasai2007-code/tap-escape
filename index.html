@@ -1055,6 +1055,7 @@
     }
 
     function spawnObstacle(forceSide = null, aimed = false) {
+      if (tutorialActive && (tutorialPhase === 'dash-threat' || tutorialPhase === 'dash-prompt') && !forceSide) return;
       const level = difficultyProgress();
       const tutorialEase = tutorialActive ? 0.74 : 1;
       const speed = (rand(165, 225) + level * 215 + Math.max(0, elapsed - 45) * 0.9) * tutorialEase;
@@ -1295,12 +1296,14 @@
           spawnTimer -= dt;
           aimedBallTimer -= dt;
           if (startGrace <= 0 && openingBallPending) {
-            const openingSides = ['top', 'bottom', 'left', 'right'];
-            const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
-            spawnObstacle(openingSide, true);
+            if (!tutorialActive) {
+              const openingSides = ['top', 'bottom', 'left', 'right'];
+              const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
+              spawnObstacle(openingSide, true);
+              aimedBallTimer = 30;
+              spawnTimer = spawnRate;
+            }
             openingBallPending = false;
-            aimedBallTimer = 30;
-            spawnTimer = spawnRate;
           } else {
             if (startGrace <= 0 && aimedBallTimer <= 0) {
               const aimedSides = ['top', 'bottom', 'left', 'right'];
@@ -1332,11 +1335,12 @@
             const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
             const collisionRadius = ob.size + PLAYER_HIT_R;
             ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
-            if (tutorialActive && ob.tutorialDash && tutorialPhase === 'dash-threat' && d < ob.size + PLAYER_R + 245) {
+            if (tutorialActive && ob.tutorialDash && tutorialPhase === 'dash-threat' && d < ob.size + PLAYER_R + 260) {
               tutorialPhase = 'dash-prompt';
               tutorialDashArmed = true;
               spawnTimer = 999;
               aimedBallTimer = 999;
+              obstacles = obstacles.filter(item => item.tutorialDash);
               showTutorialText('Tap to dash', true);
             }
             if (startGrace <= 0 && !(tutorialActive && (ob.tutorialDash || tutorialPhase === 'dash-prompt')) && (d < collisionRadius || pathD < collisionRadius)) die();
