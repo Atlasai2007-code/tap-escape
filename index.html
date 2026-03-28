@@ -1416,7 +1416,9 @@
           const multText = `x${multiplier}`;
           multiplierTop.textContent = multText;
           multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
-          multiplierTop.style.textShadow = multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
+          multiplierTop.style.textShadow = tutorialActive && displayedMultiplier >= 2
+            ? '0 0 26px rgba(255,127,224,0.42), 0 0 42px rgba(143,124,255,0.26)'
+            : multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
 
           const levelNeed = glitchActive ? progressNeededForLevel(10) : progressNeededForLevel(displayedMultiplier);
