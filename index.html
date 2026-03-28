@@ -342,6 +342,35 @@
       transform: translateX(-50%) translateY(0);
     }
 
+
+    .tutorial-cue.dashboard-point {
+      top: 58px;
+    }
+
+    .tutorial-cue.dashboard-point::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      width: 2px;
+      height: 24px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.92));
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .tutorial-cue.dashboard-point::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 28px);
+      width: 10px;
+      height: 10px;
+      border-left: 2px solid rgba(255,255,255,0.92);
+      border-top: 2px solid rgba(255,255,255,0.92);
+      transform: translateX(-50%) rotate(45deg);
+    }
+
     .tutorial-target {
       position: absolute;
       width: 92px;
@@ -752,6 +781,8 @@
     let tutorialX1BreakGlow = 0;
     let tutorialX2Seen = false;
     let tutorialCarryGlow = 0;
+    let tutorialX2PointerShown = false;
+    let tutorialX1PointerShown = false;
 
     const player = {
       x: CENTER.x,
@@ -802,6 +833,12 @@
         spawnTimer = 0.9;
         aimedBallTimer = 30;
         showTutorialText('...breaks it');
+        if (!tutorialX1PointerShown) {
+          tutorialX1PointerShown = true;
+          setTimeout(() => {
+            if (tutorialActive) showTutorialText('Back to x1', 'dashboard');
+          }, 220);
+        }
         shake = Math.max(shake, 12);
       }
       displayedMultiplier = 1;
@@ -907,15 +944,16 @@
     }
 
 
-    function showTutorialText(text) {
+    function showTutorialText(text, mode = '') {
       if (tutorialActive && tutorialPhase === 'dash-prompt') return;
       tutorialCue.textContent = text;
+      tutorialCue.classList.toggle('dashboard-point', mode === 'dashboard');
       tutorialCue.classList.add('show');
     }
 
     function hideTutorialText() {
       tutorialCue.textContent = '';
-      tutorialCue.classList.remove('show');
+      tutorialCue.classList.remove('show', 'dashboard-point');
     }
 
     function finishTutorial() {
@@ -1163,6 +1201,8 @@
       tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
       tutorialCarryGlow = 0;
+      tutorialX2PointerShown = false;
+      tutorialX1PointerShown = false;
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show');
       tutorialTarget.classList.remove('show');
@@ -1553,6 +1593,13 @@
                   tutorialX2Seen = true;
                   tutorialX2Glow = 1.6;
                   tutorialCarryGlow = 1.6;
+                  if (!tutorialX2PointerShown) {
+                    tutorialX2PointerShown = true;
+                    showTutorialText('This is x2', 'dashboard');
+                    setTimeout(() => {
+                      if (tutorialActive && !tutorialMomentumWarned) hideTutorialText();
+                    }, 1200);
+                  }
                 }
                 updateMaxMultiplier();
                 triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
