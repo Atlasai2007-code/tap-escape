@@ -713,6 +713,7 @@
     let startGrace = 0;
     let openingBallPending = false;
     let aimedBallTimer = 30;
+    let extraEarlyAimedPending = true;
     let multiplierLevel = 1;
     let displayedMultiplier = 1;
     let multiplierVisual = 0;
@@ -1177,6 +1178,7 @@
       tutorialTarget.classList.remove('show');
       openingBallPending = true;
       aimedBallTimer = 30;
+      extraEarlyAimedPending = true;
       nearMissMemory = new WeakSet();
       player.x = CENTER.x;
       player.y = CENTER.y;
@@ -1629,7 +1631,7 @@
               const openingSides = ['top', 'bottom', 'left', 'right'];
               const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
               spawnObstacle(openingSide, true);
-              aimedBallTimer = aimedIntervalForElapsed();
+              aimedBallTimer = extraEarlyAimedPending ? 5 : aimedIntervalForElapsed();
               spawnTimer = spawnRate;
             }
             openingBallPending = false;
@@ -1638,7 +1640,12 @@
               const aimedSides = ['top', 'bottom', 'left', 'right'];
               const aimedSide = aimedSides[Math.floor(Math.random() * aimedSides.length)];
               spawnObstacle(aimedSide, true);
-              aimedBallTimer = aimedIntervalForElapsed();
+              if (extraEarlyAimedPending) {
+                extraEarlyAimedPending = false;
+                aimedBallTimer = aimedIntervalForElapsed();
+              } else {
+                aimedBallTimer = aimedIntervalForElapsed();
+              }
             }
             if (spawnTimer <= 0 && startGrace <= 0) {
               spawnPattern();
