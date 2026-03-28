@@ -1436,7 +1436,7 @@
           }, DASH_TIME * 1000 + 40);
         }
       }
-      if (dashChain >= 3 || multiplierProgress <= 0.0001) resetMultiplierProgress();
+      if (!(tutorialActive && tutorialPhase === 'risk-release') && (dashChain >= 3 || multiplierProgress <= 0.0001)) resetMultiplierProgress();
       momentum = Math.max(0, momentum - (dashChain >= 3 ? 10 : dashChain === 2 ? 8 : 5));
       dashSound();
       vibe(8);
