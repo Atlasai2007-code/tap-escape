@@ -821,7 +821,7 @@
       if (displayedMultiplier === 1 && multiplierProgress <= 0) return;
       if (tutorialActive && tutorialPhase === 'risk') {
         tutorialMomentumWarned = true;
-        tutorialPhaseTimer = 1.4;
+        tutorialPhaseTimer = 2.8;
         tutorialTimeScale = 1;
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
@@ -980,7 +980,9 @@
       spawnTimer = Math.min(spawnTimer, 0.7);
       aimedBallTimer = Math.min(aimedBallTimer, 12);
       tutorialTarget.classList.remove('show');
-      hideTutorialText(true);
+      tutorialPinnedMessage = '';
+      showTutorialText('Stay steady 🤫');
+      setTimeout(() => hideTutorialText(true), 1800);
     }
 
     function placeTutorialTarget() {
@@ -1427,7 +1429,7 @@
           tutorialTargetPos = null;
           tutorialForcedDashTarget = null;
           tutorialPhase = 'risk-release';
-          tutorialPhaseTimer = 1.4;
+          tutorialPhaseTimer = 2.8;
           tutorialTimeScale = 1;
           obstacles.forEach(ob => { ob.frozen = false; });
           setTimeout(() => {
