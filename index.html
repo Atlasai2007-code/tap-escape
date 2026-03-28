@@ -833,6 +833,7 @@
         spawnTimer = 0.9;
         aimedBallTimer = 30;
         tutorialX1PointerShown = true;
+        tutorialPhase = 'risk-release';
         showTutorialText('Fast taps broke it to x1', 'dashboard');
         shake = Math.max(shake, 12);
       }
@@ -941,6 +942,7 @@
 
     function showTutorialText(text, mode = '') {
       if (tutorialActive && tutorialPhase === 'dash-prompt') return;
+      if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen && mode !== 'dashboard') return;
       tutorialCue.textContent = text;
       tutorialCue.classList.toggle('dashboard-point', mode === 'dashboard');
       tutorialCue.classList.add('show');
