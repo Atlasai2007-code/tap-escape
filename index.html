@@ -617,7 +617,7 @@
     <div class="arena-wrap" id="arenaWrap">
       <canvas id="game" width="720" height="1280"></canvas>
 
-      <div class="arena-best">Best <strong id="gameBest">0</strong></div>
+      <div class="arena-best">Best <strong id="gameBest">0</strong> · Max x<strong id="gameMaxMultiplier">1</strong></div>
       <div class="tutorial-cue" id="tutorialCue"></div>
       <div class="tutorial-target" id="tutorialTarget"></div>
 
@@ -636,6 +636,7 @@
     const hudBest = document.getElementById('hudBest');
     const gameScore = document.getElementById('gameScore');
     const gameBest = document.getElementById('gameBest');
+    const gameMaxMultiplier = document.getElementById('gameMaxMultiplier');
     const multiplierTop = document.getElementById('multiplierTop');
     const momentumBar = document.getElementById('momentumBar');
     const muteBtn = document.getElementById('muteBtn');
@@ -655,6 +656,7 @@
     const MOMENTUM_MAX = 1000;
     const START_GRACE = 1.5;
     const BEST_KEY = 'tapEscapeBest_v2';
+    const MAX_MULTIPLIER_KEY = 'tapEscapeMaxMultiplier_v1';
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
 
@@ -662,6 +664,7 @@
     let paused = false;
     let score = 0;
     let best = normalizeBest(localStorage.getItem(BEST_KEY));
+    let maxMultiplier = Math.max(1, normalizeBest(localStorage.getItem(MAX_MULTIPLIER_KEY) || 1));
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -987,6 +990,12 @@
       gameBest.textContent = String(best);
     }
 
+    function updateMaxMultiplier() {
+      maxMultiplier = Math.max(1, normalizeBest(maxMultiplier), normalizeBest(displayedMultiplier));
+      localStorage.setItem(MAX_MULTIPLIER_KEY, String(maxMultiplier));
+      if (gameMaxMultiplier) gameMaxMultiplier.textContent = String(maxMultiplier);
+    }
+
     function syncScore() {
       const val = Math.floor(score);
       if (val != scoreVisual) {
@@ -1045,7 +1054,7 @@
         <h2>Game Over</h2>
         <div class="big-score">${Math.floor(score)}</div>
         <p>One hit. That’s it. Go again.</p>
-        <div class="panel-meta"><span>Best ${normalizeBest(best)}</span></div>
+        <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max x${Math.max(1, normalizeBest(maxMultiplier))}</span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
           <button class="btn btn-secondary" id="menuBtn">Menu</button>
@@ -1453,6 +1462,7 @@
               }
               multiplierLevel = 10;
               multiplierProgress = progressNeededForLevel(10);
+              updateMaxMultiplier();
             } else {
               const levelNeed = progressNeededForLevel(displayedMultiplier);
               const dashHeat = clamp(dashSpamPenalty, 0, 1);
@@ -1478,6 +1488,7 @@
                   tutorialX2Glow = 1.6;
                   tutorialCarryGlow = 1.6;
                 }
+                updateMaxMultiplier();
                 triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
               } else {
                 multiplierLevel = displayedMultiplier;
@@ -1915,9 +1926,12 @@
     window.addEventListener('touchmove', (e) => { if (!e.target.closest('button')) e.preventDefault(); }, { passive: false });
     window.addEventListener('scroll', () => window.scrollTo(0, 0), { passive: true });
     best = normalizeBest(best);
+    maxMultiplier = Math.max(1, normalizeBest(maxMultiplier));
     hudBest.textContent = String(best);
     gameBest.textContent = String(best);
+    if (gameMaxMultiplier) gameMaxMultiplier.textContent = String(maxMultiplier);
     localStorage.setItem(BEST_KEY, String(best));
+    localStorage.setItem(MAX_MULTIPLIER_KEY, String(maxMultiplier));
     renderMuteIcon();
     renderPauseIcon();
     resetGame();
