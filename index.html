@@ -1406,8 +1406,12 @@
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
-          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 0.16);
-          tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 0.95);
+          if (!(tutorialActive && tutorialX2Seen)) {
+            tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 0.16);
+          } else {
+            tutorialX2Glow = Math.max(tutorialX2Glow, 1.1);
+          }
+          tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 0.475);
 
           const tutorialFrozen = tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk');
           if (!tutorialFrozen) {
