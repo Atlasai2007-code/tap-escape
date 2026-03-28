@@ -579,14 +579,18 @@
 
     function progressNeededForLevel(level) {
       const tier = Math.max(0, level - 1);
-      return 18 + tier * 8 + Math.pow(tier, 1.35) * 4;
+      return 13 + tier * 6 + Math.pow(tier, 1.28) * 2.6;
+    }
+
+    function levelSafetyBuffer(level) {
+      return progressNeededForLevel(level) * 0.24;
     }
 
     function dropMultiplierLevel() {
       if (glitchActive || displayedMultiplier <= 1) return;
       displayedMultiplier -= 1;
       multiplierLevel = displayedMultiplier;
-      multiplierProgress = 0;
+      multiplierProgress = progressNeededForLevel(displayedMultiplier) * 0.4;
       multiplierTopPop = 0.7;
       multiplierDownSound(displayedMultiplier);
     }
@@ -919,8 +923,8 @@
       player.toX = clampedX;
       player.toY = clampedY;
       const levelNeed = progressNeededForLevel(displayedMultiplier);
-      const dashPenalty = levelNeed * (0.07 + dashSpamPenalty * 0.08);
-      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.1);
+      const dashPenalty = levelNeed * (0.045 + dashSpamPenalty * 0.055);
+      dashSpamPenalty = Math.min(1, dashSpamPenalty + 0.085);
       multiplierProgress = Math.max(0, multiplierProgress - dashPenalty);
       momentum = Math.max(0, momentum - 3);
       dashSound();
@@ -1006,20 +1010,23 @@
             const levelNeed = progressNeededForLevel(displayedMultiplier);
             const dashHeat = clamp(dashSpamPenalty, 0, 1);
             const movingHard = player.dashT < 1 ? 1 : 0;
-            const controlGain = clamp(1 - dashHeat * 1.05 - movingHard * 0.72, 0, 1);
-            const fillRate = 1.05 + Math.min(0.18, (displayedMultiplier - 1) * 0.02);
-            const decayRate = 0.16 + dashHeat * 0.95 + movingHard * 0.42;
-            multiplierProgress = clamp(multiplierProgress + dt * fillRate * controlGain - dt * decayRate, 0, levelNeed);
+            const controlGain = clamp(1 - dashHeat * 0.92 - movingHard * 0.68, 0, 1);
+            const fillRate = 1.55 + Math.min(0.26, (displayedMultiplier - 1) * 0.025);
+            const safetyFloor = displayedMultiplier > 1 ? levelSafetyBuffer(displayedMultiplier) : 0;
+            const belowSafety = multiplierProgress < safetyFloor;
+            const decayRate = (belowSafety ? 0.04 : 0.1) + dashHeat * 0.56 + movingHard * 0.26;
+            multiplierProgress = Math.max(0, multiplierProgress + dt * fillRate * controlGain - dt * decayRate);
 
             if (multiplierProgress >= levelNeed - 0.0001) {
+              const overflow = multiplierProgress - levelNeed;
               displayedMultiplier += 1;
               multiplierLevel = displayedMultiplier;
-              multiplierProgress = 0;
+              multiplierProgress = Math.min(progressNeededForLevel(displayedMultiplier), levelSafetyBuffer(displayedMultiplier) + overflow);
               multiplier = displayedMultiplier;
               triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
             } else {
               multiplierLevel = displayedMultiplier;
-              if (displayedMultiplier > 1 && multiplierProgress <= 0.0001 && (dashHeat > 0.34 || movingHard)) {
+              if (displayedMultiplier > 1 && multiplierProgress <= 0.0001) {
                 dropMultiplierLevel();
               }
             }
