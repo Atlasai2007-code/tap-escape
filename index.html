@@ -1301,8 +1301,12 @@
           tutorialTarget.classList.remove('show');
           tutorialTargetPos = null;
           tutorialForcedDashTarget = null;
+          tutorialPhase = 'risk-release';
+          tutorialPhaseTimer = 1.4;
+          tutorialTimeScale = 1;
+          obstacles.forEach(ob => { ob.frozen = false; });
           setTimeout(() => {
-            if (tutorialActive && tutorialPhase === 'risk') {
+            if (tutorialActive && tutorialPhase === 'risk-release') {
               playerPop = Math.max(playerPop, 1.25);
               multiplierTopPop = Math.max(multiplierTopPop, 1.1);
               resetPop = Math.max(resetPop, 1.2);
@@ -1401,7 +1405,7 @@
                 obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
                 showTutorialText('Dashing fast breaks it');
               }
-            } else if (tutorialPhase === 'risk' && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
+            } else if ((tutorialPhase === 'risk' || tutorialPhase === 'risk-release') && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
               finishTutorial();
             }
           }
