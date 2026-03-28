@@ -326,10 +326,14 @@
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      font-size: 1rem;
+      font-size: 1.08rem;
       font-weight: 900;
       letter-spacing: -0.02em;
       text-shadow: 0 0 12px rgba(255,255,255,0.24);
+    }
+
+    .tutorial-target span {
+      animation: tutorialTapFlash 560ms ease-in-out infinite;
     }
 
     .tutorial-target.show {
@@ -339,6 +343,11 @@
     @keyframes tutorialTargetPulse {
       0%, 100% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(255,255,255,0.0), 0 0 22px rgba(87,240,255,0.18); }
       50% { transform: scale(1.08); box-shadow: 0 0 0 14px rgba(255,255,255,0.08), 0 0 34px rgba(87,240,255,0.28); }
+    }
+
+    @keyframes tutorialTapFlash {
+      0%, 100% { opacity: 0.45; transform: scale(0.94); }
+      50% { opacity: 1; transform: scale(1.08); }
     }
 
     .panel {
@@ -835,7 +844,7 @@
       tutorialTargetPos = options[0];
       tutorialTarget.style.left = `${tutorialTargetPos.x * (canvas.getBoundingClientRect().width / W)}px`;
       tutorialTarget.style.top = `${tutorialTargetPos.y * (canvas.getBoundingClientRect().height / H)}px`;
-      tutorialTarget.textContent = 'Tap';
+      tutorialTarget.innerHTML = '<span>Tap</span>';
       tutorialTarget.classList.add('show');
     }
 
@@ -1372,6 +1381,7 @@
               ob.vx = 0;
               ob.vy = 0;
               placeTutorialTarget();
+              tutorialCue.textContent = '';
               hideTutorialText();
             }
             if (startGrace <= 0 && !(tutorialActive && (ob.tutorialDash || tutorialPhase === 'dash-prompt')) && (d < collisionRadius || pathD < collisionRadius)) die();
