@@ -762,6 +762,9 @@
         tutorialCarryGlow = Math.max(tutorialCarryGlow, 1.55);
         tutorialX1BreakGlow = Math.max(tutorialX1BreakGlow, 1.6);
         tutorialTarget.classList.remove('show');
+        obstacles.forEach(ob => {
+          ob.frozen = false;
+        });
         spawnTimer = 0.9;
         aimedBallTimer = 30;
         showTutorialText('...breaks it');
@@ -1389,7 +1392,9 @@
                 tutorialTimeScale = 0;
                 spawnTimer = 999;
                 aimedBallTimer = 999;
-                obstacles = [];
+                obstacles.forEach(ob => {
+                  ob.frozen = true;
+                });
                 placeForcedDashTarget();
                 showTutorialText('Dashing fast breaks it');
               }
