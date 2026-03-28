@@ -781,6 +781,7 @@
     let tutorialX1BreakGlow = 0;
     let tutorialX2Seen = false;
     let tutorialCarryGlow = 0;
+    let tutorialPinnedMessage = '';
     let tutorialX2PointerShown = false;
     let tutorialX1PointerShown = false;
 
@@ -834,7 +835,7 @@
         aimedBallTimer = 30;
         tutorialX1PointerShown = true;
         tutorialPhase = 'risk-release';
-        showDashboardTutorialText('Fast taps broke it to x1');
+        tutorialPinnedMessage = ''; showDashboardTutorialText('Fast taps broke it to x1', true);
         shake = Math.max(shake, 12);
       }
       displayedMultiplier = 1;
@@ -941,6 +942,7 @@
 
 
     function showTutorialText(text, mode = '') {
+      if (tutorialPinnedMessage && mode !== 'dashboard') return;
       if (tutorialActive && tutorialPhase === 'dash-prompt') return;
       if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen && mode !== 'dashboard') return;
       tutorialCue.textContent = text;
@@ -948,12 +950,15 @@
       tutorialCue.classList.add('show');
     }
 
-    function showDashboardTutorialText(text) {
+    function showDashboardTutorialText(text, pinned = false) {
+      if (pinned) tutorialPinnedMessage = text;
       tutorialCue.textContent = text;
       tutorialCue.classList.add('show', 'dashboard-point');
     }
 
-    function hideTutorialText() {
+    function hideTutorialText(force = false) {
+      if (tutorialPinnedMessage && !force) return;
+      tutorialPinnedMessage = '';
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show', 'dashboard-point');
     }
@@ -975,7 +980,7 @@
       spawnTimer = Math.min(spawnTimer, 0.7);
       aimedBallTimer = Math.min(aimedBallTimer, 12);
       tutorialTarget.classList.remove('show');
-      hideTutorialText();
+      hideTutorialText(true);
     }
 
     function placeTutorialTarget() {
@@ -1203,6 +1208,7 @@
       tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
       tutorialCarryGlow = 0;
+      tutorialPinnedMessage = '';
       tutorialX2PointerShown = false;
       tutorialX1PointerShown = false;
       tutorialCue.textContent = '';
@@ -1412,7 +1418,7 @@
             if (tutorialActive && tutorialPhase === 'risk') {
               placeForcedDashTarget();
               obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
-              showDashboardTutorialText('This is x2');
+              showDashboardTutorialText('This is x2', true);
             }
           }, 140);
         } else {
@@ -1598,7 +1604,7 @@
                   if (!tutorialX2PointerShown) {
                     tutorialX2PointerShown = true;
                   }
-                  showDashboardTutorialText('This is x2');
+                  showDashboardTutorialText('This is x2', true);
                 }
                 updateMaxMultiplier();
                 triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
