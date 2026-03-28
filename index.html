@@ -332,6 +332,31 @@
       transform: translateX(-50%) rotate(45deg);
     }
 
+    .tutorial-target {
+      position: absolute;
+      width: 92px;
+      height: 92px;
+      margin-left: -46px;
+      margin-top: -46px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.95);
+      box-shadow: 0 0 0 0 rgba(255,255,255,0.0), 0 0 30px rgba(87,240,255,0.24);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 8;
+      transition: opacity 180ms ease;
+      animation: tutorialTargetPulse 720ms ease-in-out infinite;
+    }
+
+    .tutorial-target.show {
+      opacity: 1;
+    }
+
+    @keyframes tutorialTargetPulse {
+      0%, 100% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(255,255,255,0.0), 0 0 22px rgba(87,240,255,0.18); }
+      50% { transform: scale(1.08); box-shadow: 0 0 0 14px rgba(255,255,255,0.08), 0 0 34px rgba(87,240,255,0.28); }
+    }
+
     .panel {
       width: min(90%, 360px);
       text-align: center;
@@ -567,6 +592,7 @@
       <canvas id="game" width="720" height="1280"></canvas>
 
       <div class="tutorial-cue" id="tutorialCue"></div>
+      <div class="tutorial-target" id="tutorialTarget"></div>
 
       <div class="overlay" id="overlay">
         <div class="panel" id="overlayPanel"></div>
@@ -589,6 +615,7 @@
     const pauseBtn = document.getElementById('pauseBtn');
     const arenaWrap = document.getElementById('arenaWrap');
     const tutorialCue = document.getElementById('tutorialCue');
+    const tutorialTarget = document.getElementById('tutorialTarget');
 
     const W = canvas.width;
     const H = canvas.height;
@@ -654,6 +681,7 @@
     let tutorialPhaseTimer = 0;
     let tutorialTimeScale = 1;
     let tutorialDashArmed = false;
+    let tutorialTargetPos = null;
 
     const player = {
       x: CENTER.x,
@@ -808,7 +836,23 @@
       tutorialDashArmed = false;
       tutorialSeen = true;
       localStorage.setItem(TUTORIAL_DONE_KEY, '1');
+      tutorialTargetPos = null;
+      tutorialTarget.classList.remove('show');
       hideTutorialText();
+    }
+
+    function placeTutorialTarget() {
+      const options = [
+        { x: W * 0.26, y: H * 0.34 },
+        { x: W * 0.74, y: H * 0.34 },
+        { x: W * 0.26, y: H * 0.66 },
+        { x: W * 0.74, y: H * 0.66 }
+      ];
+      options.sort((a, b) => dist(b.x, b.y, player.x, player.y) - dist(a.x, a.y, player.x, player.y));
+      tutorialTargetPos = options[0];
+      tutorialTarget.style.left = `${tutorialTargetPos.x * (canvas.getBoundingClientRect().width / W)}px`;
+      tutorialTarget.style.top = `${tutorialTargetPos.y * (canvas.getBoundingClientRect().height / H)}px`;
+      tutorialTarget.classList.add('show');
     }
 
     function spawnTutorialDashThreat() {
@@ -969,8 +1013,10 @@
       tutorialPhaseTimer = tutorialActive ? 0.7 : 0;
       tutorialTimeScale = 1;
       tutorialDashArmed = false;
+      tutorialTargetPos = null;
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show', 'pointing');
+      tutorialTarget.classList.remove('show');
       openingBallPending = true;
       aimedBallTimer = 30;
       nearMissMemory = new WeakSet();
@@ -1109,6 +1155,8 @@
           tutorialPhase = 'build';
           tutorialPhaseTimer = 4.8;
           tutorialDashArmed = false;
+          tutorialTargetPos = null;
+          tutorialTarget.classList.remove('show');
           spawnTimer = 0.8;
           aimedBallTimer = 30;
           obstacles = obstacles.filter(ob => !ob.tutorialDash);
@@ -1337,6 +1385,9 @@
               spawnTimer = 999;
               aimedBallTimer = 999;
               obstacles = obstacles.filter(item => item.tutorialDash);
+              ob.vx = 0;
+              ob.vy = 0;
+              placeTutorialTarget();
               showTutorialText('Tap to dash', true);
             }
             if (startGrace <= 0 && !(tutorialActive && (ob.tutorialDash || tutorialPhase === 'dash-prompt')) && (d < collisionRadius || pathD < collisionRadius)) die();
@@ -1629,6 +1680,10 @@
         }
       } else {
         glitchTapChain = 0;
+      }
+      if (tutorialActive && tutorialPhase === 'dash-prompt' && tutorialTargetPos) {
+        x = tutorialTargetPos.x;
+        y = tutorialTargetPos.y;
       }
       dashToward(x, y);
     }, { passive: false });
