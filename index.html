@@ -583,6 +583,7 @@
     let dashChainTimer = 0;
     let dashBeat = 0;
     let dashBeatMode = 0;
+    let resetPop = 0;
     let playerPop = 0;
     let playerVisible = true;
     let scoreVisual = 0;
@@ -633,7 +634,11 @@
       multiplierVisual = 0;
       multiplierProgress = 0;
       momentumBarVisual = 0;
-      multiplierTopPop = 0.7;
+      multiplierTopPop = 1.1;
+      playerPop = Math.max(playerPop, 1.25);
+      resetPop = 1.2;
+      levelFx.push({ x: player.x, y: player.y, r: 12, life: 44, age: 0, text: 'x1' });
+      bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 34, age: 0, color: '#ff7a9f', level: 1 });
       if (playSound) multiplierDownSound(1);
       if (typeof multiplierTop !== 'undefined' && multiplierTop) multiplierTop.textContent = 'x1';
       if (typeof momentumBar !== 'undefined' && momentumBar) {
@@ -844,6 +849,7 @@
       dashChainTimer = 0;
       dashBeat = 0;
       dashBeatMode = 0;
+      resetPop = 0;
       playerPop = 0;
       playerVisible = true;
       scoreVisual = 0;
@@ -996,15 +1002,15 @@
       let dashPenalty = 0;
       if (dashChain === 1) {
         dashPenalty = levelNeed / 6;
-        dashBeat = 1;
+        dashBeat = 1.75;
         dashBeatMode = 1;
       } else if (dashChain === 2) {
         dashPenalty = levelNeed / 3;
-        dashBeat = 1.35;
+        dashBeat = 2.5;
         dashBeatMode = 2;
       } else {
         dashPenalty = levelNeed;
-        dashBeat = 1.75;
+        dashBeat = 3.4;
         dashBeatMode = 3;
       }
 
@@ -1056,6 +1062,7 @@
       dashChainTimer = 0;
       dashBeat = 0;
       dashBeatMode = 0;
+      resetPop = 0;
       resetMultiplierProgress(false);
       spawnConfetti(player.x, player.y);
       deathSound();
@@ -1070,7 +1077,8 @@
           elapsed += dt;
           dashChainTimer = Math.max(0, dashChainTimer - dt);
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
-          dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.45 : 0.95));
+          dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
+          resetPop = Math.max(0, resetPop - dt * 1.9);
           dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.55);
           momentum = clamp(momentum + dt * (7 - dashSpamPenalty * 4), 0, MOMENTUM_MAX);
           const barCatchup = momentum < momentumBarVisual ? dt * 7.5 : dt * 2.4;
@@ -1251,9 +1259,11 @@
     function drawPlayer() {
       if (!playerVisible) return;
       if (!running && confetti.length > 0) return;
-      const pulse = 1 + Math.sin(player.pulse) * 0.03;
+      const beatFreq = dashBeatMode >= 2 ? 4.8 : 2.8;
+      const beatPulse = dashBeat > 0 ? Math.max(0, Math.sin(player.pulse * beatFreq)) * 0.16 * dashBeat : 0;
+      const pulse = 1 + Math.sin(player.pulse) * 0.03 + beatPulse + resetPop * 0.18;
       const levelT = multiplierVisual / 3;
-      const glowBoost = 1 + playerPop * 0.35;
+      const glowBoost = 1 + playerPop * 0.35 + dashBeat * 0.26 + resetPop * 0.4;
       const coreColor = multiplierLevel >= 4 ? '#ffffff' : multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
       const outerColor = multiplierLevel >= 4 ? '#57f0ff' : multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#ff63cb' : '#a7b3cf';
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2) * glowBoost);
@@ -1282,17 +1292,21 @@
         ctx.globalAlpha = 1;
       });
 
-      if (running && (multiplierVisual >= 1 || dashBeat > 0.02)) {
-        const alpha = 0.08 + multiplierVisual * 0.04 + dashBeat * 0.08;
-        const ringColor = dashBeatMode >= 3
-          ? `rgba(255,99,203,${Math.min(0.45, alpha + 0.12)})`
-          : dashBeatMode >= 2
-            ? `rgba(255,120,160,${Math.min(0.34, alpha + 0.08)})`
-            : multiplierVisual >= 2.6 ? `rgba(255,216,106,${alpha})` : multiplierVisual >= 1.6 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
-        const beatFreq = dashBeatMode >= 2 ? 4.6 : 2.6;
-        const beatPulse = dashBeat > 0 ? Math.max(0, Math.sin(player.pulse * beatFreq)) * dashBeat * (dashBeatMode >= 2 ? 5.2 : 3.1) : 0;
+      if (running && (multiplierVisual >= 1 || dashBeat > 0.02 || resetPop > 0.02)) {
+        const alpha = 0.12 + multiplierVisual * 0.04 + dashBeat * 0.11 + resetPop * 0.16;
+        const ringColor = resetPop > 0.02
+          ? `rgba(255,122,159,${Math.min(0.62, alpha + 0.18)})`
+          : dashBeatMode >= 3
+            ? `rgba(255,99,203,${Math.min(0.54, alpha + 0.16)})`
+            : dashBeatMode >= 2
+              ? `rgba(255,120,160,${Math.min(0.42, alpha + 0.1)})`
+              : multiplierVisual >= 2.6 ? `rgba(255,216,106,${alpha})` : multiplierVisual >= 1.6 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
+        const beatFreq = resetPop > 0.02 ? 6.4 : dashBeatMode >= 2 ? 4.9 : 2.9;
+        const beatPulse = (dashBeat > 0 || resetPop > 0)
+          ? Math.max(0, Math.sin(player.pulse * beatFreq)) * ((dashBeatMode >= 2 ? 7.2 : 4.2) * dashBeat + resetPop * 11)
+          : 0;
         ctx.strokeStyle = ringColor;
-        ctx.lineWidth = 3 + multiplierVisual * 2.2 + dashBeat * 1.8;
+        ctx.lineWidth = 3.5 + multiplierVisual * 2.4 + dashBeat * 2.6 + resetPop * 3.4;
         ctx.beginPath();
         ctx.arc(player.x, player.y, PLAYER_R + ctx.lineWidth * 0.5 + Math.sin(player.pulse * 1.4) * 1.2 + beatPulse, 0, Math.PI * 2);
         ctx.stroke();
