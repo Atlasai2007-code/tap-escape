@@ -1631,7 +1631,7 @@
               const openingSides = ['top', 'bottom', 'left', 'right'];
               const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
               spawnObstacle(openingSide, true);
-              aimedBallTimer = extraEarlyAimedPending ? 5 : aimedIntervalForElapsed();
+              aimedBallTimer = extraEarlyAimedPending ? 10 : aimedIntervalForElapsed();
               spawnTimer = spawnRate;
             }
             openingBallPending = false;
