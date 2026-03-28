@@ -1033,16 +1033,8 @@
         { x: W * 0.5, y: H * 0.22 },
         { x: W * 0.5, y: H * 0.78 }
       ];
-      const scored = offsets.map(pos => {
-        let nearest = Infinity;
-        for (const ob of obstacles) {
-          nearest = Math.min(nearest, dist(pos.x, pos.y, ob.x, ob.y) - ob.size);
-        }
-        const playerGap = dist(pos.x, pos.y, player.x, player.y);
-        return { pos, score: nearest + playerGap * 0.35 };
-      });
-      scored.sort((a, b) => b.score - a.score);
-      tutorialForcedDashTarget = scored[0].pos;
+      offsets.sort((a, b) => dist(b.x, b.y, player.x, player.y) - dist(a.x, a.y, player.x, player.y));
+      tutorialForcedDashTarget = offsets[0];
       tutorialTargetPos = tutorialForcedDashTarget;
       tutorialTarget.style.left = `${tutorialTargetPos.x * (canvas.getBoundingClientRect().width / W)}px`;
       tutorialTarget.style.top = `${tutorialTargetPos.y * (canvas.getBoundingClientRect().height / H)}px`;
@@ -1451,6 +1443,7 @@
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
               placeForcedDashTarget();
+              obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
               showDashboardTutorialText('This is x2', true);
             }
           }, 140);
@@ -1582,6 +1575,7 @@
                   ob.frozen = true;
                 });
                 placeForcedDashTarget();
+                obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
                 showTutorialText('Tapping fast breaks your multiplier streak');
               }
             } else if ((tutorialPhase === 'risk' || tutorialPhase === 'risk-release') && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
