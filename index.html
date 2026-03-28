@@ -1238,13 +1238,17 @@
         tutorialDashLessonCount += 1;
         shake = Math.max(shake, dashChain >= 2 ? 8 : 4);
         resetPop = Math.max(resetPop, dashChain >= 2 ? 0.34 : 0.12);
+        tutorialTarget.classList.remove('show');
+        tutorialTargetPos = null;
+        tutorialForcedDashTarget = null;
         if (tutorialDashLessonCount < 3) {
-          placeForcedDashTarget();
-          showTutorialText(`Dash ${3 - tutorialDashLessonCount} more`);
+          setTimeout(() => {
+            if (tutorialActive && tutorialPhase === 'risk') {
+              placeForcedDashTarget();
+              showTutorialText(`Dash ${3 - tutorialDashLessonCount} more`);
+            }
+          }, 140);
         } else {
-          tutorialTargetPos = null;
-          tutorialForcedDashTarget = null;
-          tutorialTarget.classList.remove('show');
           tutorialMomentumWarned = true;
           resetMultiplierProgress();
         }
