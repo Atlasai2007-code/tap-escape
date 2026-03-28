@@ -1285,10 +1285,6 @@
         tutorialTarget.classList.remove('show');
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
-      tutorialX2Glow = 0;
-      tutorialX1BreakGlow = 0;
-      tutorialX2Seen = false;
-      tutorialCarryGlow = 0;
         if (tutorialDashLessonCount < 3) {
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
@@ -1301,10 +1297,6 @@
           tutorialTarget.classList.remove('show');
           tutorialTargetPos = null;
           tutorialForcedDashTarget = null;
-      tutorialX2Glow = 0;
-      tutorialX1BreakGlow = 0;
-      tutorialX2Seen = false;
-      tutorialCarryGlow = 0;
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
               playerPop = Math.max(playerPop, 1.25);
