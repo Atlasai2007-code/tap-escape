@@ -1466,7 +1466,7 @@
               tutorialCue.textContent = '';
               hideTutorialText();
             }
-            if (startGrace <= 0 && !(tutorialActive && (ob.tutorialDash || tutorialPhase === 'dash-prompt')) && (d < collisionRadius || pathD < collisionRadius)) die();
+            if (startGrace <= 0 && !tutorialActive && (d < collisionRadius || pathD < collisionRadius)) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
 
