@@ -679,6 +679,8 @@
     let tutorialMomentumWarned = false;
     let tutorialDashLessonCount = 0;
     let tutorialForcedDashTarget = null;
+    let tutorialX2Glow = 0;
+    let tutorialX2Seen = false;
 
     const player = {
       x: CENTER.x,
@@ -721,6 +723,8 @@
         tutorialTimeScale = 1;
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
+      tutorialX2Glow = 0;
+      tutorialX2Seen = false;
         tutorialTarget.classList.remove('show');
         spawnTimer = 0.9;
         aimedBallTimer = 30;
@@ -1047,6 +1051,8 @@
       tutorialMomentumWarned = false;
       tutorialDashLessonCount = 0;
       tutorialForcedDashTarget = null;
+      tutorialX2Glow = 0;
+      tutorialX2Seen = false;
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show');
       tutorialTarget.classList.remove('show');
@@ -1241,6 +1247,8 @@
         tutorialTarget.classList.remove('show');
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
+      tutorialX2Glow = 0;
+      tutorialX2Seen = false;
         if (tutorialDashLessonCount < 3) {
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
@@ -1253,6 +1261,8 @@
           tutorialTarget.classList.remove('show');
           tutorialTargetPos = null;
           tutorialForcedDashTarget = null;
+      tutorialX2Glow = 0;
+      tutorialX2Seen = false;
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
               playerPop = Math.max(playerPop, 1.25);
@@ -1340,6 +1350,8 @@
                 tutorialPhaseTimer = 999;
                 tutorialDashLessonCount = 0;
                 tutorialForcedDashTarget = null;
+      tutorialX2Glow = 0;
+      tutorialX2Seen = false;
                 tutorialTimeScale = 0;
                 spawnTimer = 999;
                 aimedBallTimer = 999;
@@ -1355,6 +1367,7 @@
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
+          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 1.8);
 
           const tutorialFrozen = tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk');
           if (!tutorialFrozen) {
@@ -1397,6 +1410,10 @@
                 const promotionFloor = nextLevelNeed / 3;
                 multiplierProgress = Math.min(nextLevelNeed, Math.max(promotionFloor, levelSafetyBuffer(displayedMultiplier) + overflow));
                 multiplier = displayedMultiplier;
+                if (tutorialActive && displayedMultiplier >= 2 && !tutorialX2Seen) {
+                  tutorialX2Seen = true;
+                  tutorialX2Glow = 1.6;
+                }
                 triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
               } else {
                 multiplierLevel = displayedMultiplier;
@@ -1416,9 +1433,11 @@
           const multText = `x${multiplier}`;
           multiplierTop.textContent = multText;
           multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
-          multiplierTop.style.textShadow = tutorialActive && displayedMultiplier >= 2
-            ? '0 0 26px rgba(255,127,224,0.42), 0 0 42px rgba(143,124,255,0.26)'
-            : multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
+          multiplierTop.style.textShadow = tutorialX2Glow > 0
+            ? `0 0 ${28 + tutorialX2Glow * 24}px rgba(255,127,224,${0.46 + tutorialX2Glow * 0.18}), 0 0 ${46 + tutorialX2Glow * 38}px rgba(143,124,255,${0.28 + tutorialX2Glow * 0.12}), 0 0 ${60 + tutorialX2Glow * 48}px rgba(255,255,255,${0.1 + tutorialX2Glow * 0.08})`
+            : tutorialActive && displayedMultiplier >= 2
+              ? '0 0 26px rgba(255,127,224,0.42), 0 0 42px rgba(143,124,255,0.26)'
+              : multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
           multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2})`;
 
           const levelNeed = glitchActive ? progressNeededForLevel(10) : progressNeededForLevel(displayedMultiplier);
