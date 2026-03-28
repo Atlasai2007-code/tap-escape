@@ -1767,11 +1767,16 @@
       } else {
         glitchTapChain = 0;
       }
+      if (tutorialActive && tutorialPhase === 'build') {
+        return;
+      }
       if (tutorialActive && tutorialPhase === 'risk') {
         if (!tutorialTargetPos) return;
+        if (dist(x, y, tutorialTargetPos.x, tutorialTargetPos.y) > 46) return;
         x = tutorialTargetPos.x;
         y = tutorialTargetPos.y;
       } else if (tutorialActive && tutorialPhase === 'dash-prompt' && tutorialTargetPos) {
+        if (dist(x, y, tutorialTargetPos.x, tutorialTargetPos.y) > 46) return;
         x = tutorialTargetPos.x;
         y = tutorialTargetPos.y;
       }
