@@ -1384,7 +1384,7 @@
             const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
             const collisionRadius = ob.size + PLAYER_HIT_R;
             ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
-            if (tutorialActive && ob.tutorialDash && tutorialPhase === 'dash-threat' && d < ob.size + PLAYER_R + 180) {
+            if (tutorialActive && ob.tutorialDash && tutorialPhase === 'dash-threat' && d < ob.size + PLAYER_R + 95) {
               tutorialPhase = 'dash-prompt';
               tutorialDashArmed = true;
               spawnTimer = 999;
