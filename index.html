@@ -622,7 +622,7 @@
     const START_GRACE = 1.5;
     const BEST_KEY = 'tapEscapeBest_v2';
     const MUTE_KEY = 'tapEscapeMute';
-    const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v1';
+    const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
 
     let running = false;
     let paused = false;
@@ -812,11 +812,13 @@
 
 
     function showTutorialText(text) {
+      if (tutorialActive && tutorialPhase === 'dash-prompt') return;
       tutorialCue.textContent = text;
       tutorialCue.classList.add('show');
     }
 
     function hideTutorialText() {
+      tutorialCue.textContent = '';
       tutorialCue.classList.remove('show');
     }
 
