@@ -832,13 +832,8 @@
         });
         spawnTimer = 0.9;
         aimedBallTimer = 30;
-        showTutorialText('...breaks it');
-        if (!tutorialX1PointerShown) {
-          tutorialX1PointerShown = true;
-          setTimeout(() => {
-            if (tutorialActive) showTutorialText('Back to x1', 'dashboard');
-          }, 220);
-        }
+        tutorialX1PointerShown = true;
+        showTutorialText('Fast taps broke it to x1', 'dashboard');
         shake = Math.max(shake, 12);
       }
       displayedMultiplier = 1;
@@ -1410,7 +1405,7 @@
             if (tutorialActive && tutorialPhase === 'risk') {
               placeForcedDashTarget();
               obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
-              showTutorialText('Keep dashing fast');
+              showTutorialText('This is x2', 'dashboard');
             }
           }, 140);
         } else {
@@ -1595,11 +1590,8 @@
                   tutorialCarryGlow = 1.6;
                   if (!tutorialX2PointerShown) {
                     tutorialX2PointerShown = true;
-                    showTutorialText('This is x2', 'dashboard');
-                    setTimeout(() => {
-                      if (tutorialActive && !tutorialMomentumWarned) hideTutorialText();
-                    }, 1200);
                   }
+                  showTutorialText('This is x2', 'dashboard');
                 }
                 updateMaxMultiplier();
                 triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
