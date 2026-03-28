@@ -758,9 +758,8 @@
         tutorialTimeScale = 1;
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
-      tutorialX2Glow = 0;
-      tutorialX1BreakGlow = 0;
-      tutorialX2Seen = false;
+        tutorialX2Glow = Math.max(tutorialX2Glow, 1.45);
+        tutorialX1BreakGlow = Math.max(tutorialX1BreakGlow, 1.9);
         tutorialTarget.classList.remove('show');
         spawnTimer = 0.9;
         aimedBallTimer = 30;
@@ -1407,8 +1406,8 @@
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
-          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 0.55);
-          tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 1.6);
+          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 0.16);
+          tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 0.95);
 
           const tutorialFrozen = tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk');
           if (!tutorialFrozen) {
