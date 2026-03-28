@@ -714,6 +714,7 @@
     let tutorialDashLessonCount = 0;
     let tutorialForcedDashTarget = null;
     let tutorialX2Glow = 0;
+    let tutorialX1BreakGlow = 0;
     let tutorialX2Seen = false;
 
     const player = {
@@ -758,6 +759,7 @@
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
       tutorialX2Glow = 0;
+      tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
         tutorialTarget.classList.remove('show');
         spawnTimer = 0.9;
@@ -1086,6 +1088,7 @@
       tutorialDashLessonCount = 0;
       tutorialForcedDashTarget = null;
       tutorialX2Glow = 0;
+      tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show');
@@ -1282,6 +1285,7 @@
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
       tutorialX2Glow = 0;
+      tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
         if (tutorialDashLessonCount < 3) {
           setTimeout(() => {
@@ -1296,6 +1300,7 @@
           tutorialTargetPos = null;
           tutorialForcedDashTarget = null;
       tutorialX2Glow = 0;
+      tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
@@ -1385,6 +1390,7 @@
                 tutorialDashLessonCount = 0;
                 tutorialForcedDashTarget = null;
       tutorialX2Glow = 0;
+      tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
                 tutorialTimeScale = 0;
                 spawnTimer = 999;
@@ -1401,7 +1407,8 @@
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
-          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 1.8);
+          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 0.55);
+          tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 1.6);
 
           const tutorialFrozen = tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk');
           if (!tutorialFrozen) {
@@ -1467,17 +1474,20 @@
           const multText = `x${multiplier}`;
           multiplierTop.textContent = multText;
           multiplierTop.style.color = multiplierLevel >= 10 ? '#ffffff' : multiplierLevel >= 5 ? '#ffd86a' : multiplierLevel >= 3 ? '#ffcf7a' : multiplierLevel >= 2 ? '#ff7fe0' : '#adb8d2';
-          multiplierTop.style.textShadow = tutorialX2Glow > 0
-            ? `0 0 ${28 + tutorialX2Glow * 24}px rgba(255,127,224,${0.46 + tutorialX2Glow * 0.18}), 0 0 ${46 + tutorialX2Glow * 38}px rgba(143,124,255,${0.28 + tutorialX2Glow * 0.12}), 0 0 ${60 + tutorialX2Glow * 48}px rgba(255,255,255,${0.1 + tutorialX2Glow * 0.08})`
-            : tutorialActive && displayedMultiplier >= 2
-              ? '0 0 26px rgba(255,127,224,0.42), 0 0 42px rgba(143,124,255,0.26)'
-              : multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
-          multiplierTop.style.background = tutorialX2Glow > 0 ? `rgba(255,255,255,${0.05 + tutorialX2Glow * 0.1})` : 'transparent';
-          multiplierTop.style.boxShadow = tutorialX2Glow > 0 ? `0 0 ${20 + tutorialX2Glow * 24}px rgba(255,127,224,${0.2 + tutorialX2Glow * 0.16})` : 'none';
-          multiplierTop.style.setProperty('--tutorial-ring-border', tutorialX2Glow > 0 ? `rgba(255,255,255,${0.4 + tutorialX2Glow * 0.24})` : 'rgba(255,255,255,0)');
-          multiplierTop.style.setProperty('--tutorial-ring-opacity', tutorialX2Glow > 0 ? String(Math.min(1, 0.45 + tutorialX2Glow * 0.3)) : '0');
-          multiplierTop.style.setProperty('--tutorial-ring-scale', tutorialX2Glow > 0 ? String(1 + tutorialX2Glow * 0.18) : '0.92');
-          multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2 + tutorialX2Glow * 0.24})`;
+          const tutorialFocusGlow = tutorialX1BreakGlow > 0 ? tutorialX1BreakGlow : tutorialX2Glow;
+          multiplierTop.style.textShadow = tutorialX1BreakGlow > 0
+            ? `0 0 ${34 + tutorialX1BreakGlow * 30}px rgba(255,255,255,${0.52 + tutorialX1BreakGlow * 0.12}), 0 0 ${58 + tutorialX1BreakGlow * 42}px rgba(255,122,159,${0.34 + tutorialX1BreakGlow * 0.14}), 0 0 ${78 + tutorialX1BreakGlow * 54}px rgba(143,124,255,${0.18 + tutorialX1BreakGlow * 0.1})`
+            : tutorialX2Glow > 0
+              ? `0 0 ${28 + tutorialX2Glow * 24}px rgba(255,127,224,${0.46 + tutorialX2Glow * 0.18}), 0 0 ${46 + tutorialX2Glow * 38}px rgba(143,124,255,${0.28 + tutorialX2Glow * 0.12}), 0 0 ${60 + tutorialX2Glow * 48}px rgba(255,255,255,${0.1 + tutorialX2Glow * 0.08})`
+              : tutorialActive && displayedMultiplier >= 2
+                ? '0 0 26px rgba(255,127,224,0.42), 0 0 42px rgba(143,124,255,0.26)'
+                : multiplierLevel >= 10 ? '0 0 22px rgba(255,255,255,0.45)' : multiplierLevel >= 5 ? '0 0 20px rgba(255,216,106,0.34)' : multiplierLevel >= 3 ? '0 0 18px rgba(255,207,122,0.35)' : multiplierLevel >= 2 ? '0 0 18px rgba(255,127,224,0.28)' : '0 0 14px rgba(173,184,210,0.12)';
+          multiplierTop.style.background = tutorialFocusGlow > 0 ? `rgba(255,255,255,${0.05 + tutorialFocusGlow * 0.1})` : 'transparent';
+          multiplierTop.style.boxShadow = tutorialFocusGlow > 0 ? `0 0 ${20 + tutorialFocusGlow * 24}px rgba(${tutorialX1BreakGlow > 0 ? '255,122,159' : '255,127,224'},${0.2 + tutorialFocusGlow * 0.16})` : 'none';
+          multiplierTop.style.setProperty('--tutorial-ring-border', tutorialFocusGlow > 0 ? `rgba(255,255,255,${0.4 + tutorialFocusGlow * 0.24})` : 'rgba(255,255,255,0)');
+          multiplierTop.style.setProperty('--tutorial-ring-opacity', tutorialFocusGlow > 0 ? String(Math.min(1, 0.45 + tutorialFocusGlow * 0.3)) : '0');
+          multiplierTop.style.setProperty('--tutorial-ring-scale', tutorialFocusGlow > 0 ? String(1 + tutorialFocusGlow * 0.18) : '0.92');
+          multiplierTop.style.transform = `translateX(-50%) scale(${1 + multiplierTopPop * 0.2 + tutorialFocusGlow * 0.24})`;
 
           const levelNeed = glitchActive ? progressNeededForLevel(10) : progressNeededForLevel(displayedMultiplier);
           const rawBarPct = glitchActive ? 100 : Math.min(100, Math.max(0, (multiplierProgress / levelNeed) * 100));
