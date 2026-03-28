@@ -1292,6 +1292,7 @@
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
               placeForcedDashTarget();
+              obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
               showTutorialText('Keep dashing fast');
             }
           }, 140);
@@ -1392,10 +1393,12 @@
                 tutorialTimeScale = 0;
                 spawnTimer = 999;
                 aimedBallTimer = 999;
+                obstacles = obstacles.filter(ob => dist(ob.x, ob.y, player.x, player.y) > 220);
                 obstacles.forEach(ob => {
                   ob.frozen = true;
                 });
                 placeForcedDashTarget();
+                obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
                 showTutorialText('Dashing fast breaks it');
               }
             } else if (tutorialPhase === 'risk' && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
