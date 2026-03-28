@@ -1154,7 +1154,15 @@
           tutorialTarget.classList.remove('show');
           spawnTimer = 0.8;
           aimedBallTimer = 30;
-          obstacles = obstacles.filter(ob => !ob.tutorialDash);
+          obstacles.forEach(ob => {
+            if (ob.tutorialDash) {
+              ob.frozen = false;
+              const speed = 210;
+              ob.vx = ob.x < player.fromX ? speed : -speed;
+              ob.vy = 0;
+              delete ob.tutorialDash;
+            }
+          });
           showTutorialText('Stay smooth to build');
         }
       }
