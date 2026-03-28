@@ -308,6 +308,30 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    .tutorial-cue.pointing::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 8px);
+      width: 2px;
+      height: 42px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+      box-shadow: 0 0 12px rgba(255,255,255,0.3);
+    }
+
+    .tutorial-cue.pointing::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 46px);
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid rgba(255,255,255,0.92);
+      border-bottom: 2px solid rgba(255,255,255,0.92);
+      transform: translateX(-50%) rotate(45deg);
+    }
+
     .panel {
       width: min(90%, 360px);
       text-align: center;
@@ -766,13 +790,14 @@
     }
 
 
-    function showTutorialText(text) {
+    function showTutorialText(text, pointing = false) {
       tutorialCue.textContent = text;
+      tutorialCue.classList.toggle('pointing', pointing);
       tutorialCue.classList.add('show');
     }
 
     function hideTutorialText() {
-      tutorialCue.classList.remove('show');
+      tutorialCue.classList.remove('show', 'pointing');
     }
 
     function finishTutorial() {
@@ -791,7 +816,7 @@
       const size = 30;
       const speed = 210;
       const y = clamp(player.y + rand(-30, 30), PLAYER_R + 50, H - PLAYER_R - 50);
-      obstacles = obstacles.filter(ob => !ob.tutorialDash);
+      obstacles = [];
       obstacles.push({
         x: side === 'left' ? -60 : W + 60,
         y,
@@ -1052,10 +1077,13 @@
 
     function spawnPattern() {
       const level = difficultyProgress();
-      const tutorialWaveScale = tutorialActive ? 0.45 : 1;
+      if (tutorialActive) {
+        spawnObstacle();
+        return;
+      }
       spawnObstacle();
-      if (Math.random() < (0.1 + level * 0.22) * tutorialWaveScale) setTimeout(() => spawnObstacle(), 0);
-      if (Math.random() < Math.max(0, level - 0.28) * 0.16 * tutorialWaveScale) {
+      if (Math.random() < 0.1 + level * 0.22) setTimeout(() => spawnObstacle(), 0);
+      if (Math.random() < Math.max(0, level - 0.28) * 0.16) {
         setTimeout(() => spawnObstacle(), 0);
         setTimeout(() => spawnObstacle(), 0);
       }
@@ -1084,6 +1112,8 @@
           tutorialPhase = 'build';
           tutorialPhaseTimer = 4.8;
           tutorialDashArmed = false;
+          spawnTimer = 0.8;
+          aimedBallTimer = 30;
           obstacles = obstacles.filter(ob => !ob.tutorialDash);
           showTutorialText('Stay smooth to build');
         }
@@ -1302,10 +1332,12 @@
             const pathD = pointToSegmentDistance(ob.x, ob.y, prevX, prevY, player.x, player.y);
             const collisionRadius = ob.size + PLAYER_HIT_R;
             ob.danger = Math.min(d, pathD) < ob.size + PLAYER_R + 140;
-            if (tutorialActive && ob.tutorialDash && tutorialPhase === 'dash-threat' && d < ob.size + PLAYER_R + 185) {
+            if (tutorialActive && ob.tutorialDash && tutorialPhase === 'dash-threat' && d < ob.size + PLAYER_R + 245) {
               tutorialPhase = 'dash-prompt';
               tutorialDashArmed = true;
-              showTutorialText('Tap to dash');
+              spawnTimer = 999;
+              aimedBallTimer = 999;
+              showTutorialText('Tap to dash', true);
             }
             if (startGrace <= 0 && !(tutorialActive && (ob.tutorialDash || tutorialPhase === 'dash-prompt')) && (d < collisionRadius || pathD < collisionRadius)) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
