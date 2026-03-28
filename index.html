@@ -1669,8 +1669,8 @@
       if (e.target && e.target.closest('button')) return;
       e.preventDefault();
       const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * (W / rect.width);
-      const y = (e.clientY - rect.top) * (H / rect.height);
+      let x = (e.clientX - rect.left) * (W / rect.width);
+      let y = (e.clientY - rect.top) * (H / rect.height);
       const tappedPlayer = dist(x, y, player.x, player.y) <= PLAYER_R + 16;
       if (running && tappedPlayer) {
         glitchTapChain += 1;
