@@ -675,8 +675,6 @@
     let tutorialTimeScale = 1;
     let tutorialDashArmed = false;
     let tutorialTargetPos = null;
-    let tutorialPenaltySeen = false;
-    let tutorialBuildReady = false;
 
     const player = {
       x: CENTER.x,
@@ -713,12 +711,6 @@
     function resetMultiplierProgress(playSound = true) {
       if (glitchActive) return;
       if (displayedMultiplier === 1 && multiplierProgress <= 0) return;
-      if (tutorialActive && tutorialPhase === 'risk') {
-        tutorialPenaltySeen = true;
-        tutorialPhaseTimer = 1.5;
-        showTutorialText('...breaks it');
-        shake = Math.max(shake, 12);
-      }
       displayedMultiplier = 1;
       multiplierLevel = 1;
       multiplierVisual = 0;
@@ -826,8 +818,8 @@
     }
 
     function hideTutorialText() {
-      tutorialCue.textContent = tutorialActive ? 'Tap to move' : '';
-      if (tutorialActive) tutorialCue.classList.add('show'); else tutorialCue.classList.remove('show');
+      tutorialCue.textContent = '';
+      tutorialCue.classList.remove('show');
     }
 
     function finishTutorial() {
@@ -1012,15 +1004,13 @@
       glitchTapChain = 0;
       glitchActive = false;
       tutorialActive = !tutorialSeen;
-      tutorialPhase = tutorialActive ? 'move' : 'off';
-      tutorialPhaseTimer = 0;
+      tutorialPhase = tutorialActive ? 'dash-setup' : 'off';
+      tutorialPhaseTimer = tutorialActive ? 0.7 : 0;
       tutorialTimeScale = 1;
       tutorialDashArmed = false;
       tutorialTargetPos = null;
-      tutorialPenaltySeen = false;
-      tutorialBuildReady = false;
-      tutorialCue.textContent = tutorialActive ? 'Tap to move' : '';
-      if (tutorialActive) tutorialCue.classList.add('show'); else tutorialCue.classList.remove('show');
+      tutorialCue.textContent = '';
+      tutorialCue.classList.remove('show');
       tutorialTarget.classList.remove('show');
       openingBallPending = true;
       aimedBallTimer = 30;
@@ -1108,7 +1098,7 @@
     function spawnObstacle(forceSide = null, aimed = false) {
       if (tutorialActive && (tutorialPhase === 'dash-threat' || tutorialPhase === 'dash-prompt') && !forceSide) return;
       const level = difficultyProgress();
-      const tutorialEase = tutorialActive ? ((tutorialPhase === 'build' || tutorialPhase === 'free-build' || tutorialPhase === 'risk') ? 0.68 : 0.74) : 1;
+      const tutorialEase = tutorialActive ? 0.74 : 1;
       const speed = (rand(165, 225) + level * 215 + Math.max(0, elapsed - 45) * 0.9) * tutorialEase;
       const size = rand(18, 34);
       const sides = ['top', 'bottom', 'left', 'right'];
@@ -1156,17 +1146,13 @@
       const dir = { x: dx / len, y: dy / len };
 
       if (tutorialActive) {
-        if (tutorialPhase === 'move') {
-          tutorialPhase = 'move-done';
-          tutorialPhaseTimer = 1.1;
-          hideTutorialText();
-        } else if (tutorialPhase === 'dash-prompt') {
+        if (tutorialPhase === 'dash-prompt') {
           tutorialPhase = 'build';
-          tutorialPhaseTimer = 6;
+          tutorialPhaseTimer = 4.8;
           tutorialDashArmed = false;
           tutorialTargetPos = null;
           tutorialTarget.classList.remove('show');
-          spawnTimer = 1.2;
+          spawnTimer = 0.8;
           aimedBallTimer = 30;
           obstacles.forEach(ob => {
             if (ob.tutorialDash) {
@@ -1177,8 +1163,7 @@
               delete ob.tutorialDash;
             }
           });
-          tutorialBuildReady = false;
-          showTutorialText('Stay smooth');
+          showTutorialText('Stay smooth to build');
         }
       }
 
@@ -1211,10 +1196,6 @@
       }
 
       multiplierProgress = Math.max(0, multiplierProgress - dashPenalty);
-      if (tutorialActive && tutorialPhase === 'risk') {
-        shake = Math.max(shake, dashChain >= 2 ? 8 : 4);
-        resetPop = Math.max(resetPop, dashChain >= 2 ? 0.35 : 0.12);
-      }
       if (dashChain >= 3 || multiplierProgress <= 0.0001) resetMultiplierProgress();
       momentum = Math.max(0, momentum - (dashChain >= 3 ? 10 : dashChain === 2 ? 8 : 5));
       dashSound();
@@ -1277,22 +1258,13 @@
           elapsed += dt;
           if (tutorialActive) {
             tutorialPhaseTimer -= dt;
-            if (tutorialPhase === 'move-done' && tutorialPhaseTimer <= 0) {
+            if (tutorialPhase === 'dash-setup' && tutorialPhaseTimer <= 0) {
               spawnTutorialDashThreat();
-            } else if (tutorialPhase === 'build') {
-              if (!tutorialBuildReady && multiplierProgress >= progressNeededForLevel(displayedMultiplier) * 0.78) {
-                tutorialBuildReady = true;
-              }
-              if (displayedMultiplier > 1) {
-                tutorialPhase = 'free-build';
-                tutorialPhaseTimer = 2.4;
-                hideTutorialText();
-              }
-            } else if (tutorialPhase === 'free-build' && tutorialPhaseTimer <= 0) {
+            } else if (tutorialPhase === 'build' && (displayedMultiplier > 1 || multiplierProgress >= progressNeededForLevel(1) * 0.58)) {
               tutorialPhase = 'risk';
-              tutorialPhaseTimer = 999;
-              showTutorialText('Too many dashes…');
-            } else if (tutorialPhase === 'risk' && tutorialPenaltySeen && tutorialPhaseTimer <= 0) {
+              tutorialPhaseTimer = 3.6;
+              showTutorialText('Too many dashes break it');
+            } else if (tutorialPhase === 'risk' && tutorialPhaseTimer <= 0) {
               finishTutorial();
             }
           }
@@ -1370,7 +1342,7 @@
           const easedBarPct = currentBarPct + (rawBarPct - currentBarPct) * Math.min(1, dt * (rawBarPct < currentBarPct ? 10 : 4));
           momentumBar.dataset.pct = String(easedBarPct);
           momentumBar.style.width = `${easedBarPct}%`;
-          momentumBar.style.filter = tutorialActive && (tutorialPhase === 'build' || tutorialPhase === 'free-build') ? (tutorialBuildReady ? 'brightness(1.42) saturate(1.45) drop-shadow(0 0 14px rgba(255,216,106,0.34))' : 'brightness(1.28) saturate(1.35) drop-shadow(0 0 10px rgba(87,240,255,0.28))') : tutorialActive && tutorialPhase === 'risk' ? 'brightness(1.18) saturate(1.1) drop-shadow(0 0 10px rgba(255,90,120,0.24))' : multiplierLevel >= 5 ? 'brightness(1.18) saturate(1.22)' : multiplierLevel >= 3 ? 'brightness(1.1)' : 'none';
+          momentumBar.style.filter = tutorialActive && tutorialPhase === 'build' ? 'brightness(1.28) saturate(1.35) drop-shadow(0 0 10px rgba(87,240,255,0.28))' : multiplierLevel >= 5 ? 'brightness(1.18) saturate(1.22)' : multiplierLevel >= 3 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
           const pressure = difficultyProgress();
