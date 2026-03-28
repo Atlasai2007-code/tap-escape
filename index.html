@@ -586,13 +586,21 @@
       return progressNeededForLevel(level) * 0.24;
     }
 
-    function dropMultiplierLevel() {
-      if (glitchActive || displayedMultiplier <= 1) return;
-      displayedMultiplier -= 1;
-      multiplierLevel = displayedMultiplier;
-      multiplierProgress = progressNeededForLevel(displayedMultiplier) * 0.4;
+    function resetMultiplierProgress(playSound = true) {
+      if (glitchActive) return;
+      if (displayedMultiplier === 1 && multiplierProgress <= 0) return;
+      displayedMultiplier = 1;
+      multiplierLevel = 1;
+      multiplierVisual = 0;
+      multiplierProgress = 0;
+      momentumBarVisual = 0;
       multiplierTopPop = 0.7;
-      multiplierDownSound(displayedMultiplier);
+      if (playSound) multiplierDownSound(1);
+      if (typeof multiplierTop !== 'undefined' && multiplierTop) multiplierTop.textContent = 'x1';
+      if (typeof momentumBar !== 'undefined' && momentumBar) {
+        momentumBar.style.width = '0%';
+        momentumBar.dataset.pct = '0';
+      }
     }
 
     function difficultyProgress() {
@@ -968,16 +976,7 @@
       shake = 18;
       momentum = 0;
       dashSpamPenalty = 0;
-      displayedMultiplier = 1;
-      multiplierLevel = 1;
-      multiplierVisual = 0;
-      multiplierProgress = 0;
-      momentumBarVisual = 0;
-      if (typeof multiplierTop !== 'undefined' && multiplierTop) multiplierTop.textContent = 'x1';
-      if (typeof momentumBar !== 'undefined' && momentumBar) {
-        momentumBar.style.width = '0%';
-        momentumBar.dataset.pct = '0';
-      }
+      resetMultiplierProgress(false);
       spawnConfetti(player.x, player.y);
       deathSound();
       vibe([25, 20, 25]);
@@ -1026,8 +1025,8 @@
               triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
             } else {
               multiplierLevel = displayedMultiplier;
-              if (displayedMultiplier > 1 && multiplierProgress <= 0.0001) {
-                dropMultiplierLevel();
+              if (multiplierProgress <= 0.0001) {
+                resetMultiplierProgress();
               }
             }
           }
