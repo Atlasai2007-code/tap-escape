@@ -1030,9 +1030,10 @@
         if (resumeFromHome) {
           resumeFromHome = false;
           arenaWrap.classList.remove('menu-mode');
+          paused = false;
+          overlay.classList.remove('revealing');
           overlay.classList.add('hidden');
-          paused = true;
-          showPause();
+          renderPauseIcon();
           return;
         }
         overlay.classList.add('revealing');
