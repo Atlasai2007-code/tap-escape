@@ -1046,7 +1046,9 @@
               const overflow = multiplierProgress - levelNeed;
               displayedMultiplier += 1;
               multiplierLevel = displayedMultiplier;
-              multiplierProgress = Math.min(progressNeededForLevel(displayedMultiplier), levelSafetyBuffer(displayedMultiplier) + overflow);
+              const nextLevelNeed = progressNeededForLevel(displayedMultiplier);
+              const promotionFloor = nextLevelNeed / 3;
+              multiplierProgress = Math.min(nextLevelNeed, Math.max(promotionFloor, levelSafetyBuffer(displayedMultiplier) + overflow));
               multiplier = displayedMultiplier;
               triggerMultiplierLevel(multiplierLevel, `x${displayedMultiplier}`);
             } else {
