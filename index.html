@@ -308,30 +308,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    .tutorial-cue.pointing::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: calc(100% + 8px);
-      width: 2px;
-      height: 42px;
-      transform: translateX(-50%);
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
-      box-shadow: 0 0 12px rgba(255,255,255,0.3);
-    }
-
-    .tutorial-cue.pointing::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: calc(100% + 46px);
-      width: 10px;
-      height: 10px;
-      border-right: 2px solid rgba(255,255,255,0.92);
-      border-bottom: 2px solid rgba(255,255,255,0.92);
-      transform: translateX(-50%) rotate(45deg);
-    }
-
     .tutorial-target {
       position: absolute;
       width: 92px;
@@ -346,6 +322,14 @@
       z-index: 8;
       transition: opacity 180ms ease;
       animation: tutorialTargetPulse 720ms ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 12px rgba(255,255,255,0.24);
     }
 
     .tutorial-target.show {
@@ -818,14 +802,13 @@
     }
 
 
-    function showTutorialText(text, pointing = false) {
+    function showTutorialText(text) {
       tutorialCue.textContent = text;
-      tutorialCue.classList.toggle('pointing', pointing);
       tutorialCue.classList.add('show');
     }
 
     function hideTutorialText() {
-      tutorialCue.classList.remove('show', 'pointing');
+      tutorialCue.classList.remove('show');
     }
 
     function finishTutorial() {
@@ -852,6 +835,7 @@
       tutorialTargetPos = options[0];
       tutorialTarget.style.left = `${tutorialTargetPos.x * (canvas.getBoundingClientRect().width / W)}px`;
       tutorialTarget.style.top = `${tutorialTargetPos.y * (canvas.getBoundingClientRect().height / H)}px`;
+      tutorialTarget.textContent = 'Tap';
       tutorialTarget.classList.add('show');
     }
 
@@ -1015,7 +999,7 @@
       tutorialDashArmed = false;
       tutorialTargetPos = null;
       tutorialCue.textContent = '';
-      tutorialCue.classList.remove('show', 'pointing');
+      tutorialCue.classList.remove('show');
       tutorialTarget.classList.remove('show');
       openingBallPending = true;
       aimedBallTimer = 30;
@@ -1388,7 +1372,7 @@
               ob.vx = 0;
               ob.vy = 0;
               placeTutorialTarget();
-              showTutorialText('Tap to dash', true);
+              hideTutorialText();
             }
             if (startGrace <= 0 && !(tutorialActive && (ob.tutorialDash || tutorialPhase === 'dash-prompt')) && (d < collisionRadius || pathD < collisionRadius)) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
