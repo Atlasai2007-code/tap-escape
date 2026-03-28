@@ -586,6 +586,14 @@
       while (value >= momentumThresholdForLevel(level) + 0.0001) level += 1;
       return level;
     }
+
+
+    function difficultyProgress() {
+      const timeT = clamp(Math.max(0, elapsed - 8) / 80, 0, 1);
+      const smoothT = timeT * timeT * (3 - 2 * timeT);
+      const multBoost = clamp((displayedMultiplier - 1) * 0.018, 0, 0.16);
+      return clamp(smoothT + multBoost, 0, 1);
+    }
     function pointToSegmentDistance(px, py, ax, ay, bx, by) {
       const abx = bx - ax;
       const aby = by - ay;
@@ -858,8 +866,8 @@
     }
 
     function spawnObstacle(forceSide = null, aimed = false) {
-      const level = clamp(elapsed / 35, 0, 1);
-      const speed = rand(200, 270) + level * 240;
+      const level = difficultyProgress();
+      const speed = rand(165, 225) + level * 215 + Math.max(0, elapsed - 45) * 0.9;
       const size = rand(18, 34);
       const sides = ['top', 'bottom', 'left', 'right'];
       const side = forceSide || sides[Math.floor(Math.random() * sides.length)];
@@ -878,10 +886,10 @@
     }
 
     function spawnPattern() {
-      const level = clamp(elapsed / 30, 0, 1);
+      const level = difficultyProgress();
       spawnObstacle();
-      if (Math.random() < 0.22 + level * 0.2) setTimeout(() => spawnObstacle(), 0);
-      if (Math.random() < 0.08 + level * 0.18) {
+      if (Math.random() < 0.1 + level * 0.22) setTimeout(() => spawnObstacle(), 0);
+      if (Math.random() < Math.max(0, level - 0.28) * 0.16) {
         setTimeout(() => spawnObstacle(), 0);
         setTimeout(() => spawnObstacle(), 0);
       }
@@ -1030,7 +1038,8 @@
           momentumBar.style.filter = momentum >= 75 ? 'brightness(1.2) saturate(1.2)' : momentum >= 50 ? 'brightness(1.1)' : 'none';
           if (Math.floor(score) >= best) updateBest();
 
-          const spawnRate = Math.max(0.28, 0.85 - elapsed * 0.012);
+          const pressure = difficultyProgress();
+          const spawnRate = Math.max(0.36, 1.02 - pressure * 0.5 - Math.max(0, elapsed - 50) * 0.0018);
           if (startGrace > 0) startGrace -= dt;
           spawnTimer -= dt;
           aimedBallTimer -= dt;
