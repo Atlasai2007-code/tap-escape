@@ -831,6 +831,14 @@
       const multBoost = clamp((displayedMultiplier - 1) * 0.018, 0, 0.16);
       return clamp(smoothT + multBoost, 0, 1);
     }
+
+    function aimedIntervalForElapsed() {
+      if (elapsed < 30) return 30;
+      if (elapsed < 60) return 25;
+      if (elapsed < 90) return 20;
+      if (elapsed < 120) return 16;
+      return 12.5;
+    }
     function pointToSegmentDistance(px, py, ax, ay, bx, by) {
       const abx = bx - ax;
       const aby = by - ay;
@@ -1621,7 +1629,7 @@
               const openingSides = ['top', 'bottom', 'left', 'right'];
               const openingSide = openingSides[Math.floor(Math.random() * openingSides.length)];
               spawnObstacle(openingSide, true);
-              aimedBallTimer = 30;
+              aimedBallTimer = aimedIntervalForElapsed();
               spawnTimer = spawnRate;
             }
             openingBallPending = false;
@@ -1630,7 +1638,7 @@
               const aimedSides = ['top', 'bottom', 'left', 'right'];
               const aimedSide = aimedSides[Math.floor(Math.random() * aimedSides.length)];
               spawnObstacle(aimedSide, true);
-              aimedBallTimer = 30;
+              aimedBallTimer = aimedIntervalForElapsed();
             }
             if (spawnTimer <= 0 && startGrace <= 0) {
               spawnPattern();
