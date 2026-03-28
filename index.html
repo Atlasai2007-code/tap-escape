@@ -643,7 +643,7 @@
     <div class="arena-wrap" id="arenaWrap">
       <canvas id="game" width="720" height="1280"></canvas>
 
-      <div class="arena-best">Best <strong id="gameBest">0</strong> · Max x<strong id="gameMaxMultiplier">1</strong></div>
+      <div class="arena-best">Best <strong id="gameBest">0</strong> · Max <strong>x<span id="gameMaxMultiplier">1</span></strong></div>
       <div class="tutorial-cue" id="tutorialCue"></div>
       <div class="tutorial-target" id="tutorialTarget"></div>
       <div class="resume-countdown" id="resumeCountdown"></div>
@@ -1108,7 +1108,7 @@
         <h2>Game Over</h2>
         <div class="big-score">${Math.floor(score)}</div>
         <p>One hit. That’s it. Go again.</p>
-        <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max x${Math.max(1, normalizeBest(maxMultiplier))}</span></div>
+        <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
           <button class="btn btn-secondary" id="menuBtn">Menu</button>
