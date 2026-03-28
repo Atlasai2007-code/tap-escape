@@ -1250,12 +1250,19 @@
           }, 140);
         } else {
           tutorialMomentumWarned = true;
-          playerPop = Math.max(playerPop, 1.25);
-          multiplierTopPop = Math.max(multiplierTopPop, 1.1);
-          resetPop = Math.max(resetPop, 1.2);
-          levelFx.push({ x: player.x, y: player.y, r: 12, life: 44, age: 0, text: 'x1' });
-          bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 34, age: 0, color: '#ff7a9f', level: 1 });
-          resetMultiplierProgress();
+          tutorialTarget.classList.remove('show');
+          tutorialTargetPos = null;
+          tutorialForcedDashTarget = null;
+          setTimeout(() => {
+            if (tutorialActive && tutorialPhase === 'risk') {
+              playerPop = Math.max(playerPop, 1.25);
+              multiplierTopPop = Math.max(multiplierTopPop, 1.1);
+              resetPop = Math.max(resetPop, 1.2);
+              levelFx.push({ x: player.x, y: player.y, r: 12, life: 44, age: 0, text: 'x1' });
+              bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 34, age: 0, color: '#ff7a9f', level: 1 });
+              resetMultiplierProgress();
+            }
+          }, DASH_TIME * 1000 + 40);
         }
       }
       if (dashChain >= 3 || multiplierProgress <= 0.0001) resetMultiplierProgress();
