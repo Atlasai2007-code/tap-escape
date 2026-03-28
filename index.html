@@ -1498,7 +1498,7 @@
                 });
                 placeForcedDashTarget();
                 obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
-                showTutorialText('Dashing fast breaks it');
+                showTutorialText('Tapping fast breaks your multiplier streak');
               }
             } else if ((tutorialPhase === 'risk' || tutorialPhase === 'risk-release') && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
               finishTutorial();
