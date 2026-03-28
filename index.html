@@ -1409,7 +1409,11 @@
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
-          tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 1.4);
+          if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen) {
+            tutorialX2Glow = Math.max(tutorialX2Glow, 1.6);
+          } else {
+            tutorialX2Glow = Math.max(0, tutorialX2Glow - dt * 1.4);
+          }
           tutorialX1BreakGlow = Math.max(0, tutorialX1BreakGlow - dt * 1.2);
           if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen) {
             tutorialCarryGlow = Math.max(tutorialCarryGlow, 1.7);
