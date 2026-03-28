@@ -677,6 +677,7 @@
     let tutorialTargetPos = null;
     let tutorialMomentumPrimed = false;
     let tutorialMomentumWarned = false;
+    let tutorialDashLessonCount = 0;
 
     const player = {
       x: CENTER.x,
@@ -1019,6 +1020,7 @@
       tutorialTargetPos = null;
       tutorialMomentumPrimed = false;
       tutorialMomentumWarned = false;
+      tutorialDashLessonCount = 0;
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show');
       tutorialTarget.classList.remove('show');
@@ -1108,7 +1110,7 @@
     function spawnObstacle(forceSide = null, aimed = false) {
       if (tutorialActive && (tutorialPhase === 'dash-threat' || tutorialPhase === 'dash-prompt') && !forceSide) return;
       const level = difficultyProgress();
-      const tutorialEase = tutorialActive ? ((tutorialPhase === 'build' || tutorialPhase === 'coast' || tutorialPhase === 'risk') ? 0.66 : 0.74) : 1;
+      const tutorialEase = tutorialActive ? ((tutorialPhase === 'build' || tutorialPhase === 'risk') ? 0.66 : 0.74) : 1;
       const speed = (rand(165, 225) + level * 215 + Math.max(0, elapsed - 45) * 0.9) * tutorialEase;
       const size = rand(18, 34);
       const sides = ['top', 'bottom', 'left', 'right'];
@@ -1207,9 +1209,15 @@
 
       multiplierProgress = Math.max(0, multiplierProgress - dashPenalty);
       if (tutorialActive && tutorialPhase === 'risk') {
+        tutorialDashLessonCount += 1;
         shake = Math.max(shake, dashChain >= 2 ? 8 : 4);
         resetPop = Math.max(resetPop, dashChain >= 2 ? 0.34 : 0.12);
-        tutorialMomentumWarned = true;
+        if (tutorialDashLessonCount < 3) {
+          showTutorialText(`Dash ${3 - tutorialDashLessonCount} more`);
+        }
+        if (tutorialDashLessonCount >= 3) {
+          tutorialMomentumWarned = true;
+        }
       }
       if (dashChain >= 3 || multiplierProgress <= 0.0001) resetMultiplierProgress();
       momentum = Math.max(0, momentum - (dashChain >= 3 ? 10 : dashChain === 2 ? 8 : 5));
@@ -1276,21 +1284,17 @@
             if (tutorialPhase === 'dash-setup' && tutorialPhaseTimer <= 0) {
               spawnTutorialDashThreat();
             } else if (tutorialPhase === 'build') {
-              const levelNeed = progressNeededForLevel(Math.max(1, displayedMultiplier));
-              if (!tutorialMomentumPrimed && multiplierProgress >= levelNeed * 0.82) {
+              if (!tutorialMomentumPrimed && (displayedMultiplier >= 2 || multiplierProgress >= progressNeededForLevel(1) * 0.92)) {
                 tutorialMomentumPrimed = true;
                 playerPop = Math.max(playerPop, 0.4);
                 multiplierTopPop = Math.max(multiplierTopPop, 0.35);
               }
-              if (displayedMultiplier > 1) {
-                tutorialPhase = 'coast';
-                tutorialPhaseTimer = 1.6;
-                hideTutorialText();
+              if (displayedMultiplier >= 2 && multiplierProgress >= progressNeededForLevel(displayedMultiplier) * 0.76) {
+                tutorialPhase = 'risk';
+                tutorialPhaseTimer = 999;
+                tutorialDashLessonCount = 0;
+                showTutorialText('Dash 3 times');
               }
-            } else if (tutorialPhase === 'coast' && tutorialPhaseTimer <= 0) {
-              tutorialPhase = 'risk';
-              tutorialPhaseTimer = 6;
-              showTutorialText('Too many dashes…');
             } else if (tutorialPhase === 'risk' && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
               finishTutorial();
             }
