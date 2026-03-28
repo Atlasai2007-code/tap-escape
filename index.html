@@ -345,7 +345,9 @@
 
     .tutorial-cue.pop-out {
       opacity: 0 !important;
-      transform: translateX(-50%) translateY(-8px) scale(1.14) !important;
+      transform: translateX(-50%) translateY(-18px) scale(1.22) !important;
+      transition: opacity 260ms ease, transform 260ms cubic-bezier(.2,.8,.2,1) !important;
+      filter: blur(0.4px);
     }
 
 
@@ -968,11 +970,13 @@
       if (tutorialPinnedMessage && !force) return;
       tutorialPinnedMessage = '';
       if (pop) {
+        tutorialCue.classList.add('show');
+        void tutorialCue.offsetWidth;
         tutorialCue.classList.add('pop-out');
         setTimeout(() => {
           tutorialCue.textContent = '';
           tutorialCue.classList.remove('show', 'dashboard-point', 'pop-out');
-        }, 180);
+        }, 260);
         return;
       }
       tutorialCue.textContent = '';
