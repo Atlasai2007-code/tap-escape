@@ -678,6 +678,7 @@
     let tutorialMomentumPrimed = false;
     let tutorialMomentumWarned = false;
     let tutorialDashLessonCount = 0;
+    let tutorialForcedDashTarget = null;
 
     const player = {
       x: CENTER.x,
@@ -717,6 +718,11 @@
       if (tutorialActive && tutorialPhase === 'risk') {
         tutorialMomentumWarned = true;
         tutorialPhaseTimer = 1.4;
+        tutorialTargetPos = null;
+        tutorialForcedDashTarget = null;
+        tutorialTarget.classList.remove('show');
+        spawnTimer = 0.9;
+        aimedBallTimer = 30;
         showTutorialText('...breaks it');
         shake = Math.max(shake, 12);
       }
@@ -853,6 +859,24 @@
       ];
       options.sort((a, b) => dist(b.x, b.y, player.x, player.y) - dist(a.x, a.y, player.x, player.y));
       tutorialTargetPos = options[0];
+      tutorialTarget.style.left = `${tutorialTargetPos.x * (canvas.getBoundingClientRect().width / W)}px`;
+      tutorialTarget.style.top = `${tutorialTargetPos.y * (canvas.getBoundingClientRect().height / H)}px`;
+      tutorialTarget.innerHTML = '<span>Tap</span>';
+      tutorialTarget.classList.add('show');
+    }
+
+    function placeForcedDashTarget() {
+      const offsets = [
+        { x: W * 0.24, y: H * 0.28 },
+        { x: W * 0.76, y: H * 0.28 },
+        { x: W * 0.24, y: H * 0.72 },
+        { x: W * 0.76, y: H * 0.72 },
+        { x: W * 0.5, y: H * 0.22 },
+        { x: W * 0.5, y: H * 0.78 }
+      ];
+      offsets.sort((a, b) => dist(b.x, b.y, player.x, player.y) - dist(a.x, a.y, player.x, player.y));
+      tutorialForcedDashTarget = offsets[0];
+      tutorialTargetPos = tutorialForcedDashTarget;
       tutorialTarget.style.left = `${tutorialTargetPos.x * (canvas.getBoundingClientRect().width / W)}px`;
       tutorialTarget.style.top = `${tutorialTargetPos.y * (canvas.getBoundingClientRect().height / H)}px`;
       tutorialTarget.innerHTML = '<span>Tap</span>';
@@ -1021,6 +1045,7 @@
       tutorialMomentumPrimed = false;
       tutorialMomentumWarned = false;
       tutorialDashLessonCount = 0;
+      tutorialForcedDashTarget = null;
       tutorialCue.textContent = '';
       tutorialCue.classList.remove('show');
       tutorialTarget.classList.remove('show');
@@ -1213,10 +1238,14 @@
         shake = Math.max(shake, dashChain >= 2 ? 8 : 4);
         resetPop = Math.max(resetPop, dashChain >= 2 ? 0.34 : 0.12);
         if (tutorialDashLessonCount < 3) {
+          placeForcedDashTarget();
           showTutorialText(`Dash ${3 - tutorialDashLessonCount} more`);
-        }
-        if (tutorialDashLessonCount >= 3) {
+        } else {
+          tutorialTargetPos = null;
+          tutorialForcedDashTarget = null;
+          tutorialTarget.classList.remove('show');
           tutorialMomentumWarned = true;
+          resetMultiplierProgress();
         }
       }
       if (dashChain >= 3 || multiplierProgress <= 0.0001) resetMultiplierProgress();
@@ -1293,6 +1322,7 @@
                 tutorialPhase = 'risk';
                 tutorialPhaseTimer = 999;
                 tutorialDashLessonCount = 0;
+      tutorialForcedDashTarget = null;
                 showTutorialText('Dash 3 times');
               }
             } else if (tutorialPhase === 'risk' && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
@@ -1727,7 +1757,7 @@
       } else {
         glitchTapChain = 0;
       }
-      if (tutorialActive && tutorialPhase === 'dash-prompt' && tutorialTargetPos) {
+      if (tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk') && tutorialTargetPos) {
         x = tutorialTargetPos.x;
         y = tutorialTargetPos.y;
       }
