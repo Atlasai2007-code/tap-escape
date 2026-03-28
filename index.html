@@ -718,6 +718,7 @@
       if (tutorialActive && tutorialPhase === 'risk') {
         tutorialMomentumWarned = true;
         tutorialPhaseTimer = 1.4;
+        tutorialTimeScale = 1;
         tutorialTargetPos = null;
         tutorialForcedDashTarget = null;
         tutorialTarget.classList.remove('show');
@@ -1318,11 +1319,16 @@
                 playerPop = Math.max(playerPop, 0.4);
                 multiplierTopPop = Math.max(multiplierTopPop, 0.35);
               }
-              if (displayedMultiplier >= 2 && multiplierProgress >= progressNeededForLevel(displayedMultiplier) * 0.76) {
+              if (displayedMultiplier >= 2 && multiplierProgress >= progressNeededForLevel(2) * 0.5) {
                 tutorialPhase = 'risk';
                 tutorialPhaseTimer = 999;
                 tutorialDashLessonCount = 0;
-      tutorialForcedDashTarget = null;
+                tutorialForcedDashTarget = null;
+                tutorialTimeScale = 0;
+                spawnTimer = 999;
+                aimedBallTimer = 999;
+                obstacles = [];
+                placeForcedDashTarget();
                 showTutorialText('Dash 3 times');
               }
             } else if (tutorialPhase === 'risk' && tutorialMomentumWarned && tutorialPhaseTimer <= 0) {
@@ -1334,7 +1340,7 @@
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
 
-          const tutorialFrozen = tutorialActive && tutorialPhase === 'dash-prompt';
+          const tutorialFrozen = tutorialActive && (tutorialPhase === 'dash-prompt' || tutorialPhase === 'risk');
           if (!tutorialFrozen) {
             dashSpamPenalty = Math.max(0, dashSpamPenalty - dt * 0.55);
             momentum = clamp(momentum + dt * (7 - dashSpamPenalty * 4), 0, MOMENTUM_MAX);
