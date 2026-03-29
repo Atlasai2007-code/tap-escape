@@ -902,6 +902,13 @@
       audioCtx = new Ctx();
     }
 
+    function unlockAudio() {
+      ensureAudio();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    }
+
     function beep(type, freq, dur, gain = 0.03) {
       if (!audioCtx || muted) return;
       const now = audioCtx.currentTime;
@@ -1264,8 +1271,7 @@
     }
 
     function startGame() {
-      ensureAudio();
-      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      unlockAudio();
       resumeFromHome = false;
       resetGame();
       running = true;
@@ -1279,8 +1285,7 @@
     }
 
     function startGameFromHomeAnimation(homeOrb) {
-      ensureAudio();
-      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      unlockAudio();
       resumeFromHome = false;
       resetGame();
       playerVisible = false;
@@ -2024,6 +2029,7 @@
     }
 
     arenaWrap.addEventListener('pointerdown', (e) => {
+      unlockAudio();
       if (e.target && e.target.closest('button')) return;
       e.preventDefault();
       const rect = canvas.getBoundingClientRect();
@@ -2044,9 +2050,11 @@
     }, { passive: false });
 
     muteBtn.addEventListener('click', () => {
+      unlockAudio();
       muted = !muted;
       localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
       renderMuteIcon();
+      if (!muted) beep('sine', 880, 0.05, 0.028);
     });
 
     pauseBtn.addEventListener('click', () => {
@@ -2071,6 +2079,8 @@
     document.addEventListener('dragstart', (e) => e.preventDefault(), { passive: false });
     window.addEventListener('touchmove', (e) => { if (!e.target.closest('button')) e.preventDefault(); }, { passive: false });
     window.addEventListener('scroll', () => window.scrollTo(0, 0), { passive: true });
+    document.addEventListener('touchend', unlockAudio, { passive: true });
+    document.addEventListener('pointerup', unlockAudio, { passive: true });
     best = normalizeBest(best);
     maxMultiplier = Math.max(1, normalizeBest(maxMultiplier));
     hudBest.textContent = String(best);
