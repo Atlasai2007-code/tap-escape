@@ -854,7 +854,7 @@
         aimedBallTimer = 30;
         tutorialX1PointerShown = true;
         tutorialPhase = 'risk-release';
-        tutorialPinnedMessage = ''; showDashboardTutorialText('Fast taps break it to x1', true);
+        tutorialPinnedMessage = ''; showDashboardTutorialText('Fast taps reset it to x1', true);
         shake = Math.max(shake, 12);
       }
       displayedMultiplier = 1;
@@ -1488,7 +1488,7 @@
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk-release') {
               tutorialPinnedMessage = '';
-              showDashboardTutorialText('Fast taps break it to x1', true);
+              showDashboardTutorialText('Fast taps reset it to x1', true);
               playerPop = Math.max(playerPop, 1.25);
               multiplierTopPop = Math.max(multiplierTopPop, 1.1);
               resetPop = Math.max(resetPop, 1.2);
@@ -1496,7 +1496,7 @@
               bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 34, age: 0, color: '#ff7a9f', level: 1 });
               resetMultiplierProgress();
               tutorialPinnedMessage = '';
-              showDashboardTutorialText('Fast taps break it to x1', true);
+              showDashboardTutorialText('Fast taps reset it to x1', true);
             }
           }, DASH_TIME * 1000 + 40);
         }
