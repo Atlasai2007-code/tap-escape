@@ -881,11 +881,7 @@
     }
 
     function aimedIntervalForElapsed() {
-      if (elapsed < 30) return 30;
-      if (elapsed < 60) return 25;
-      if (elapsed < 90) return 20;
-      if (elapsed < 120) return 16;
-      return 12.5;
+      return 25;
     }
     function pointToSegmentDistance(px, py, ax, ay, bx, by) {
       const abx = bx - ax;
