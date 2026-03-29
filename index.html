@@ -825,6 +825,10 @@
       return 5.4 * Math.pow(1.01, tier);
     }
 
+    function progressFloorForLevel(level) {
+      return progressNeededForLevel(level) / 3;
+    }
+
     function levelSafetyBuffer(level) {
       return progressNeededForLevel(level) * 0.1;
     }
@@ -1609,22 +1613,25 @@
           if (!tutorialFrozen) {
             {
               const levelNeed = progressNeededForLevel(displayedMultiplier);
+              const floorTarget = progressFloorForLevel(displayedMultiplier);
               const dashHeat = clamp(dashSpamPenalty, 0, 1);
               const movingHard = player.dashT < 1 ? 1 : 0;
               const levelPressure = Math.max(0, displayedMultiplier - 1) * 0.08;
               const controlGain = clamp(1 - dashHeat * 1.05 - movingHard * 0.78 - levelPressure * 0.24, 0, 1);
-              const fillRate = Math.max(0.82, 1.35 - Math.max(0, displayedMultiplier - 1) * 0.055);
+              const recoveryFillRate = 1.35;
+              const scaledFillRate = Math.max(0.82, 1.35 - Math.max(0, displayedMultiplier - 1) * 0.055);
+              const activeFillRate = multiplierProgress < floorTarget ? recoveryFillRate : scaledFillRate;
               const safetyFloor = displayedMultiplier > 1 ? levelSafetyBuffer(displayedMultiplier) : 0;
               const belowSafety = multiplierProgress < safetyFloor;
               const decayRate = (belowSafety ? 0.08 : 0.18) + dashHeat * 0.9 + movingHard * 0.44 + levelPressure * 0.34;
-              multiplierProgress = Math.max(0, multiplierProgress + dt * fillRate * controlGain - dt * decayRate);
+              multiplierProgress = Math.max(0, multiplierProgress + dt * activeFillRate * controlGain - dt * decayRate);
 
               if (multiplierProgress >= levelNeed - 0.0001) {
                 const overflow = multiplierProgress - levelNeed;
                 displayedMultiplier += 1;
                 multiplierLevel = displayedMultiplier;
                 const nextLevelNeed = progressNeededForLevel(displayedMultiplier);
-                const promotionFloor = nextLevelNeed / 3;
+                const promotionFloor = progressFloorForLevel(displayedMultiplier);
                 multiplierProgress = Math.min(nextLevelNeed, Math.max(promotionFloor, levelSafetyBuffer(displayedMultiplier) + overflow));
                 multiplier = displayedMultiplier;
                 if (tutorialActive && displayedMultiplier >= 2 && !tutorialX2Seen) {
