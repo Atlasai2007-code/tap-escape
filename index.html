@@ -495,16 +495,9 @@
     .name-entry {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       width: min(100%, 320px);
       margin: 10px auto 0;
-    }
-
-    .name-entry .btn {
-      min-height: 58px;
-      font-size: 1rem;
-      border-radius: 18px;
-      box-shadow: 0 14px 34px rgba(143,124,255,0.18);
     }
 
     .name-entry input {
@@ -1245,15 +1238,7 @@
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') save();
       });
-      input.addEventListener('pointerdown', (e) => {
-        e.stopPropagation();
-        setTimeout(() => input.focus(), 0);
-      });
-      input.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setTimeout(() => input.focus(), 0);
-      });
-      setTimeout(() => input.focus(), 80);
+      setTimeout(() => input.focus(), 50);
     }
 
     function showStart() {
