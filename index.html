@@ -1167,6 +1167,13 @@
       resumeCountdown.classList.add('show');
     }
 
+    function autoPauseGame() {
+      if (!running || paused || resumePending) return;
+      paused = true;
+      renderPauseIcon();
+      showPause();
+    }
+
     function showPause() {
       overlay.classList.remove('hidden');
       overlayPanel.className = 'panel';
@@ -2065,6 +2072,18 @@
       renderPauseIcon();
       if (paused) showPause();
       else overlay.classList.add('hidden');
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) autoPauseGame();
+    });
+
+    window.addEventListener('blur', () => {
+      autoPauseGame();
+    });
+
+    window.addEventListener('pagehide', () => {
+      autoPauseGame();
     });
 
     arenaWrap.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
