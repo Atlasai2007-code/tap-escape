@@ -778,6 +778,7 @@
     let resumeCountdownPop = 0;
     let resumeCountdownShown = 0;
     let resumePending = false;
+    let autoPausedPendingResume = false;
     let tutorialSeen = localStorage.getItem(TUTORIAL_DONE_KEY) === '1';
     let tutorialActive = false;
     let tutorialPhase = 'off';
@@ -1170,8 +1171,9 @@
     function autoPauseGame() {
       if (!running || paused || resumePending) return;
       paused = true;
+      autoPausedPendingResume = true;
+      overlay.classList.add('hidden');
       renderPauseIcon();
-      showPause();
     }
 
     function showPause() {
@@ -1555,6 +1557,7 @@
         resumeCountdown.style.transform = `translateX(-50%) scale(${1 + resumeCountdownPop * 0.32})`;
         if (resumeCountdownLeft <= 0) {
           resumePending = false;
+          autoPausedPendingResume = false;
           paused = false;
           resumeCountdown.classList.remove('show');
           resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
@@ -2075,11 +2078,21 @@
     });
 
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) autoPauseGame();
+      if (document.hidden) {
+        autoPauseGame();
+      } else if (autoPausedPendingResume && running && paused && !resumePending) {
+        beginResumeCountdown();
+      }
     });
 
     window.addEventListener('blur', () => {
       autoPauseGame();
+    });
+
+    window.addEventListener('focus', () => {
+      if (autoPausedPendingResume && running && paused && !resumePending) {
+        beginResumeCountdown();
+      }
     });
 
     window.addEventListener('pagehide', () => {
