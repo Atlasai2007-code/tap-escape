@@ -826,7 +826,7 @@
       const tier = Math.max(0, level - 1);
       if (tier <= 9) return 5.4 * Math.pow(1.0045, tier);
       const toX10 = 5.4 * Math.pow(1.0045, 9);
-      return toX10 * Math.pow(1.001, tier - 9);
+      return toX10 * Math.pow(1.0002, tier - 9);
     }
 
     function progressFloorForLevel(level) {
