@@ -726,6 +726,7 @@
     const START_GRACE = 1.5;
     const BEST_KEY = 'tapEscapeBest_v2';
     const MAX_MULTIPLIER_KEY = 'tapEscapeMaxMultiplier_v1';
+    const PLAYER_NAME_KEY = 'tapEscapePlayerName_v1';
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
 
@@ -734,6 +735,7 @@
     let score = 0;
     let best = normalizeBest(localStorage.getItem(BEST_KEY));
     let maxMultiplier = Math.max(1, normalizeBest(localStorage.getItem(MAX_MULTIPLIER_KEY) || 1));
+    let playerName = (localStorage.getItem(PLAYER_NAME_KEY) || '').trim();
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -1104,10 +1106,12 @@
     }
 
     function updateBest() {
+      const prevBest = best;
       best = Math.max(normalizeBest(best), normalizeBest(score));
       localStorage.setItem(BEST_KEY, String(best));
       hudBest.textContent = String(best);
       gameBest.textContent = String(best);
+      if (best > prevBest) submitLeaderboardScore();
     }
 
     function updateMaxMultiplier() {
@@ -1134,6 +1138,70 @@
       return 'Extreme';
     }
 
+    async function fetchLeaderboardEntries() {
+      return [];
+    }
+
+    async function submitLeaderboardScore() {
+      if (!playerName || !best) return;
+      return { ok: false };
+    }
+
+    function renderLeaderboardRows(entries) {
+      if (!entries.length) {
+        return '<div class="leaderboard-note">Global leaderboard will appear here once backend is connected.</div>';
+      }
+      return `<div class="leaderboard-list">${entries.map((entry, index) => `
+        <div class="leaderboard-row">
+          <div class="leaderboard-rank">${index + 1}</div>
+          <div class="leaderboard-name">${entry.name}</div>
+          <div class="leaderboard-score">${entry.score}</div>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    async function showLeaderboard() {
+      arenaWrap.classList.add('menu-mode');
+      overlay.classList.remove('hidden');
+      overlayPanel.innerHTML = `
+        <h2 class="home-title">Leaderboard</h2>
+        ${renderLeaderboardRows(await fetchLeaderboardEntries())}
+        <div class="leaderboard-note">Player: <strong>${playerName || 'Guest'}</strong></div>
+        <button class="btn play-hero" id="leaderboardBackBtn">Back</button>
+      `;
+      document.getElementById('leaderboardBackBtn').onclick = () => showStart();
+    }
+
+    function showNameEntry(nextAction = 'start') {
+      arenaWrap.classList.add('menu-mode');
+      overlay.classList.remove('hidden');
+      overlayPanel.innerHTML = `
+        <h2 class="home-title">Pick your name</h2>
+        <div class="name-entry">
+          <input id="playerNameInput" maxlength="18" placeholder="Your name" value="${playerName.replace(/"/g, '&quot;')}">
+          <button class="btn play-hero" id="saveNameBtn">Continue</button>
+        </div>
+      `;
+      const input = document.getElementById('playerNameInput');
+      const save = () => {
+        const value = input.value.trim().replace(/\s+/g, ' ').slice(0, 18);
+        if (!value) return;
+        playerName = value;
+        localStorage.setItem(PLAYER_NAME_KEY, playerName);
+        if (nextAction === 'start') {
+          showStart();
+          document.getElementById('playBtn').click();
+        } else {
+          showStart();
+        }
+      };
+      document.getElementById('saveNameBtn').onclick = save;
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') save();
+      });
+      setTimeout(() => input.focus(), 50);
+    }
+
     function showStart() {
       arenaWrap.classList.add('menu-mode');
       overlay.classList.remove('hidden');
@@ -1143,9 +1211,16 @@
         <h2 class="home-title">Tap Escape</h2>
         <div class="best-line">Best score: <strong>${normalizeBest(best)}</strong></div>
         <div class="best-line" style="margin-top:-4px;">Max multiplier: <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></div>
+        <div class="best-line" style="margin-top:-4px;">Name: <strong>${playerName || 'Not set'}</strong></div>
         <button class="btn play-hero" id="playBtn">${resumeFromHome ? 'Continue Game' : 'Play'}</button>
+        <button class="btn" id="leaderboardBtn">Leaderboard</button>
       `;
+      document.getElementById('leaderboardBtn').onclick = () => showLeaderboard();
       document.getElementById('playBtn').onclick = () => {
+        if (!playerName) {
+          showNameEntry('start');
+          return;
+        }
         if (resumeFromHome) {
           resumeFromHome = false;
           arenaWrap.classList.remove('menu-mode');
