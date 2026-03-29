@@ -1034,8 +1034,8 @@
       tutorialTarget.classList.add('show');
     }
 
-    function placeForcedDashTarget() {
-      const offsets = [
+    function tutorialForcedDashZones() {
+      return [
         { x: W * 0.24, y: H * 0.28 },
         { x: W * 0.76, y: H * 0.28 },
         { x: W * 0.24, y: H * 0.72 },
@@ -1043,6 +1043,10 @@
         { x: W * 0.5, y: H * 0.22 },
         { x: W * 0.5, y: H * 0.78 }
       ];
+    }
+
+    function placeForcedDashTarget() {
+      const offsets = tutorialForcedDashZones();
       offsets.sort((a, b) => dist(b.x, b.y, player.x, player.y) - dist(a.x, a.y, player.x, player.y));
       tutorialForcedDashTarget = offsets[0];
       tutorialTargetPos = tutorialForcedDashTarget;
@@ -1365,6 +1369,11 @@
       } else {
         x = W + 60; y = aimed ? player.y : rand(size, H - size); vx = -speed; vy = 0;
       }
+      if (tutorialActive && tutorialPhase === 'risk') {
+        const zones = tutorialForcedDashZones();
+        const blocked = zones.some(zone => Math.abs(x - zone.x) < 150 && Math.abs(y - zone.y) < 150);
+        if (blocked) return;
+      }
       const palette = ['cyan', 'pink', 'violet', 'gold', 'danger'];
       obstacles.push({ x, y, vx, vy, size, born: elapsed, glow: palette[Math.floor(Math.random() * palette.length)] });
     }
@@ -1459,7 +1468,6 @@
           setTimeout(() => {
             if (tutorialActive && tutorialPhase === 'risk') {
               placeForcedDashTarget();
-              obstacles = obstacles.filter(ob => !tutorialTargetPos || dist(ob.x, ob.y, tutorialTargetPos.x, tutorialTargetPos.y) > 180);
               showDashboardTutorialText('This is x2', true);
             }
           }, 140);
