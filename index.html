@@ -748,8 +748,6 @@
     let confetti = [];
     let levelFx = [];
     let bgWaveFx = [];
-    let intensityFlash = 0;
-    let intensityTier = 0;
     let obstacles = [];
     let audioCtx = null;
     let lastInputAt = 0;
@@ -1229,8 +1227,6 @@
       confetti = [];
       levelFx = [];
       bgWaveFx = [];
-      intensityFlash = 0;
-      intensityTier = 0;
       multiplierLevel = 0;
       multiplierVisual = 0;
       backgroundVisual = 0;
@@ -1721,12 +1717,6 @@
           if (Math.floor(score) >= best) updateBest();
 
           const pressure = difficultyProgress();
-          intensityFlash = Math.max(0, intensityFlash - dt * 2.8);
-          const nextIntensityTier = pressure >= 0.95 ? 4 : pressure >= 0.72 ? 3 : pressure >= 0.48 ? 2 : pressure >= 0.22 ? 1 : 0;
-          if (nextIntensityTier > intensityTier) {
-            intensityTier = nextIntensityTier;
-            intensityFlash = Math.max(intensityFlash, 1);
-          }
           const spawnRate = Math.max(0.46, 1.05 - pressure * 0.45 - Math.min(0.1, Math.max(0, elapsed - 62) * 0.0015));
           if (startGrace > 0) startGrace -= dt;
           spawnTimer -= dt;
@@ -2051,17 +2041,6 @@
       ctx.globalAlpha = 1;
 
       obstacles.forEach(drawObstacle);
-      if (intensityFlash > 0.001) {
-        const alpha = intensityFlash * 0.08;
-        const flashGrad = ctx.createLinearGradient(0, 0, 0, H);
-        flashGrad.addColorStop(0, `rgba(255,255,255,${alpha * 0.3})`);
-        flashGrad.addColorStop(0.35, `rgba(255,255,255,${alpha})`);
-        flashGrad.addColorStop(0.7, `rgba(143,124,255,${alpha * 0.55})`);
-        flashGrad.addColorStop(1, 'rgba(143,124,255,0)');
-        ctx.fillStyle = flashGrad;
-        ctx.fillRect(0, 0, W, H);
-      }
-
       drawParticles();
       drawPlayer();
 
