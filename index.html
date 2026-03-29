@@ -748,6 +748,7 @@
     let confetti = [];
     let levelFx = [];
     let bgWaveFx = [];
+    let arenaFlash = 0;
     let obstacles = [];
     let audioCtx = null;
     let lastInputAt = 0;
@@ -1084,6 +1085,7 @@
       multiplierTopPop = 1;
       scorePulse = Math.max(scorePulse, 1.2);
       scoreGlow = Math.max(scoreGlow, 0.9);
+      arenaFlash = Math.max(arenaFlash, 1);
       multiplierUpgradeSound(level);
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
@@ -1227,6 +1229,7 @@
       confetti = [];
       levelFx = [];
       bgWaveFx = [];
+      arenaFlash = 0;
       multiplierLevel = 0;
       multiplierVisual = 0;
       backgroundVisual = 0;
@@ -1619,6 +1622,7 @@
           if (dashChainTimer <= 0) { dashChain = 0; dashBeatMode = 0; }
           dashBeat = Math.max(0, dashBeat - dt * (dashBeatMode >= 2 ? 1.55 : 1.0));
           resetPop = Math.max(0, resetPop - dt * 1.9);
+          arenaFlash = Math.max(0, arenaFlash - dt * 3.2);
           if (tutorialActive && tutorialPhase === 'risk' && tutorialX2Seen) {
             tutorialX2Glow = Math.max(tutorialX2Glow, 1.6);
           } else {
@@ -2041,6 +2045,17 @@
       ctx.globalAlpha = 1;
 
       obstacles.forEach(drawObstacle);
+      if (arenaFlash > 0.001) {
+        const flashAlpha = arenaFlash * 0.18;
+        const flashGrad = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, Math.max(W, H) * 0.9);
+        flashGrad.addColorStop(0, `rgba(255,255,255,${flashAlpha})`);
+        flashGrad.addColorStop(0.28, `rgba(143,124,255,${flashAlpha * 0.65})`);
+        flashGrad.addColorStop(0.58, `rgba(87,240,255,${flashAlpha * 0.32})`);
+        flashGrad.addColorStop(1, 'rgba(87,240,255,0)');
+        ctx.fillStyle = flashGrad;
+        ctx.fillRect(0, 0, W, H);
+      }
+
       drawParticles();
       drawPlayer();
 
