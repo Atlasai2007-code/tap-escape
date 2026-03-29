@@ -878,7 +878,7 @@
 
     function difficultyProgress() {
       const tutorialDelay = tutorialActive ? 20 : 10;
-      const timeT = clamp(Math.max(0, elapsed - tutorialDelay) / 50, 0, 1);
+      const timeT = clamp(Math.max(0, elapsed - tutorialDelay) / 30, 0, 1);
       const smoothT = timeT * timeT * (3 - 2 * timeT);
       const multBoost = clamp((displayedMultiplier - 1) * 0.014, 0, 0.09);
       return clamp(smoothT + multBoost, 0, 1);
