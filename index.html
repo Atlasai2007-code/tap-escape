@@ -1358,20 +1358,25 @@
       const speed = (rand(162, 220) + level * 188 + Math.min(24, Math.max(0, elapsed - 58) * 0.42)) * tutorialEase;
       const size = rand(18, 34);
       const sides = ['top', 'bottom', 'left', 'right'];
-      const side = forceSide || sides[Math.floor(Math.random() * sides.length)];
+      let side = forceSide || sides[Math.floor(Math.random() * sides.length)];
       let x, y, vx, vy;
+      if (tutorialActive && (tutorialPhase === 'build' || tutorialPhase === 'risk')) {
+        side = Math.random() < 0.5 ? 'left' : 'right';
+      }
       if (side === 'top') {
         x = aimed ? player.x : rand(size, W - size); y = -60; vx = 0; vy = speed;
       } else if (side === 'bottom') {
         x = aimed ? player.x : rand(size, W - size); y = H + 60; vx = 0; vy = -speed;
       } else if (side === 'left') {
-        x = -60; y = aimed ? player.y : rand(size, H - size); vx = speed; vy = 0;
+        const laneY = Math.random() < 0.5 ? H * 0.16 : H * 0.84;
+        x = -60; y = (tutorialActive && (tutorialPhase === 'build' || tutorialPhase === 'risk')) ? laneY : (aimed ? player.y : rand(size, H - size)); vx = speed; vy = 0;
       } else {
-        x = W + 60; y = aimed ? player.y : rand(size, H - size); vx = -speed; vy = 0;
+        const laneY = Math.random() < 0.5 ? H * 0.16 : H * 0.84;
+        x = W + 60; y = (tutorialActive && (tutorialPhase === 'build' || tutorialPhase === 'risk')) ? laneY : (aimed ? player.y : rand(size, H - size)); vx = -speed; vy = 0;
       }
       if (tutorialActive && tutorialPhase === 'risk') {
         const zones = tutorialForcedDashZones();
-        const blocked = zones.some(zone => Math.abs(x - zone.x) < 150 && Math.abs(y - zone.y) < 150);
+        const blocked = zones.some(zone => Math.abs(x - zone.x) < 170 && Math.abs(y - zone.y) < 170);
         if (blocked) return;
       }
       const palette = ['cyan', 'pink', 'violet', 'gold', 'danger'];
