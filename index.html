@@ -543,41 +543,6 @@
       display: block;
     }
 
-    .share-callout {
-      position: absolute;
-      right: 54px;
-      top: -22px;
-      color: rgba(255,255,255,0.86);
-      font-size: 0.8rem;
-      font-weight: 700;
-      white-space: nowrap;
-      line-height: 1;
-      padding-right: 66px;
-    }
-
-    .share-callout::before {
-      content: '';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      width: 52px;
-      height: 2px;
-      background: rgba(87,240,255,0.9);
-      transform: translateY(-50%);
-    }
-
-    .share-callout::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      width: 10px;
-      height: 10px;
-      border-top: 2px solid rgba(87,240,255,0.9);
-      border-right: 2px solid rgba(87,240,255,0.9);
-      transform: translateY(-50%) rotate(45deg);
-    }
-
     .panel p {
       margin: 8px 0 0;
       color: var(--muted);
@@ -1439,7 +1404,6 @@
               <path d="M7 11.5H6.8a2.8 2.8 0 0 0-2.8 2.8v2.9A2.8 2.8 0 0 0 6.8 20h10.4a2.8 2.8 0 0 0 2.8-2.8v-2.9a2.8 2.8 0 0 0-2.8-2.8H17"></path>
             </svg>
           </button>
-          <div class="share-callout">Share to friends</div>
         </div>
         <div class="big-score">${Math.floor(score)}</div>
         <div class="new-best-sub">That run set a new best. Share it.</div>
