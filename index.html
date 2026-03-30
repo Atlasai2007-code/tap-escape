@@ -2020,6 +2020,13 @@
         ctx.fillStyle = nextTint;
         ctx.fillRect(0, 0, W, H);
         ctx.restore();
+        const alpha = Math.max(0, 1 - activeThemeWave.age / activeThemeWave.life);
+        const edgeColor = activeThemeWave.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.045})` : activeThemeWave.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.042})` : `rgba(87,240,255,${alpha * 0.042})`;
+        ctx.strokeStyle = edgeColor;
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.arc(activeThemeWave.x, activeThemeWave.y, activeThemeWave.r - 0.55, 0, Math.PI * 2);
+        ctx.stroke();
       } else if (targetBgThemeLevel !== currentBgThemeLevel && bgWaveFx.length === 0) {
         currentBgThemeLevel = targetBgThemeLevel;
       }
@@ -2027,19 +2034,6 @@
       bgWaveFx = bgWaveFx.filter(fx => {
         fx.age += 1;
         fx.r += 18;
-        const alpha = 1 - fx.age / fx.life;
-        const ringWidth = 4 + (1 - alpha) * 4;
-        const outer = fx.r;
-        const inner = Math.max(0, outer - ringWidth);
-        const wave = ctx.createRadialGradient(fx.x, fx.y, inner, fx.x, fx.y, outer);
-        const strong = fx.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.08})` : fx.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.075})` : `rgba(87,240,255,${alpha * 0.075})`;
-        const soft = fx.color === '#ffd86a' ? `rgba(255,216,106,${alpha * 0.024})` : fx.color === '#8f7cff' ? `rgba(143,124,255,${alpha * 0.022})` : `rgba(87,240,255,${alpha * 0.022})`;
-        wave.addColorStop(0, 'rgba(0,0,0,0)');
-        wave.addColorStop(0.9, 'rgba(0,0,0,0)');
-        wave.addColorStop(0.97, soft);
-        wave.addColorStop(1, strong);
-        ctx.fillStyle = wave;
-        ctx.fillRect(0, 0, W, H);
         return fx.age < fx.life;
       });
 
