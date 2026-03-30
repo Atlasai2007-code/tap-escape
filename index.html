@@ -1999,11 +1999,23 @@
       ctx.save();
       ctx.translate(sx, sy);
 
-      const activeThemeWavePreview = bgWaveFx.reduce((best, fx) => {
+      let activeThemeWavePreview = bgWaveFx.reduce((best, fx) => {
         if (fx.level < targetBgThemeLevel) return best;
         if (!best || fx.r > best.r) return fx;
         return best;
       }, null);
+      if (activeThemeWavePreview && targetBgThemeLevel !== currentBgThemeLevel) {
+        const coverRadius = Math.max(
+          Math.hypot(activeThemeWavePreview.x, activeThemeWavePreview.y),
+          Math.hypot(W - activeThemeWavePreview.x, activeThemeWavePreview.y),
+          Math.hypot(activeThemeWavePreview.x, H - activeThemeWavePreview.y),
+          Math.hypot(W - activeThemeWavePreview.x, H - activeThemeWavePreview.y)
+        );
+        if (activeThemeWavePreview.r >= coverRadius) {
+          currentBgThemeLevel = targetBgThemeLevel;
+          activeThemeWavePreview = null;
+        }
+      }
       if (targetBgThemeLevel !== currentBgThemeLevel && !activeThemeWavePreview) {
         currentBgThemeLevel = targetBgThemeLevel;
       }
