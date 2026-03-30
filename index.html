@@ -748,6 +748,8 @@
     let confetti = [];
     let levelFx = [];
     let bgWaveFx = [];
+    let currentBgThemeLevel = 1;
+    let targetBgThemeLevel = 1;
     let obstacles = [];
     let audioCtx = null;
     let lastInputAt = 0;
@@ -822,6 +824,13 @@
       const cb = hexToRgb(b);
       const m = (x, y) => Math.round(x + (y - x) * clamp(t, 0, 1));
       return `rgba(${m(ca.r, cb.r)},${m(ca.g, cb.g)},${m(ca.b, cb.b)},${alpha})`;
+    }
+
+    function backgroundThemeForLevel(level) {
+      if (level >= 4) return { bgTop: '#060816', overlayTint: 'rgba(87,240,255,0.035)' };
+      if (level >= 3) return { bgTop: '#080b1f', overlayTint: 'rgba(255,216,106,0.025)' };
+      if (level >= 2) return { bgTop: '#091027', overlayTint: 'rgba(143,124,255,0.03)' };
+      return { bgTop: '#0a1230', overlayTint: 'rgba(87,240,255,0.025)' };
     }
     function lerp(a, b, t) { return a + (b - a) * t; }
     function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
@@ -1096,6 +1105,7 @@
       scorePulse = Math.max(scorePulse, 0.72);
       scoreGlow = Math.max(scoreGlow, 0.42);
       multiplierUpgradeSound(level);
+      targetBgThemeLevel = Math.max(targetBgThemeLevel, level);
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
       particles.push(...Array.from({ length: 10 + Math.min(level, 6) * 4 }, (_, i) => ({
@@ -1238,6 +1248,8 @@
       confetti = [];
       levelFx = [];
       bgWaveFx = [];
+      currentBgThemeLevel = 1;
+      targetBgThemeLevel = 1;
       multiplierLevel = 0;
       multiplierVisual = 0;
       backgroundVisual = 0;
@@ -1973,32 +1985,44 @@
       ctx.save();
       ctx.translate(sx, sy);
 
-      let bgTop = '#0a1230';
-      let overlayTint = 'rgba(0,0,0,0)';
-      if (multiplierLevel >= 4) {
-        bgTop = '#060816';
-        overlayTint = 'rgba(87,240,255,0.035)';
-      } else if (multiplierLevel >= 3) {
-        bgTop = '#080b1f';
-        overlayTint = 'rgba(255,216,106,0.025)';
-      } else if (multiplierLevel >= 2) {
-        bgTop = '#091027';
-        overlayTint = 'rgba(143,124,255,0.03)';
-      } else if (multiplierLevel >= 1) {
-        bgTop = '#0a1230';
-        overlayTint = 'rgba(87,240,255,0.025)';
-      }
+      const currentTheme = backgroundThemeForLevel(currentBgThemeLevel);
+      const targetTheme = backgroundThemeForLevel(targetBgThemeLevel);
       const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, bgTop);
+      bg.addColorStop(0, currentTheme.bgTop);
       bg.addColorStop(1, '#050816');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
       const tint = ctx.createLinearGradient(0, 0, W, H);
-      tint.addColorStop(0, overlayTint);
+      tint.addColorStop(0, currentTheme.overlayTint);
       tint.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = tint;
       ctx.fillRect(0, 0, W, H);
+
+      const activeThemeWave = bgWaveFx.reduce((best, fx) => {
+        if (fx.level < targetBgThemeLevel) return best;
+        if (!best || fx.r > best.r) return fx;
+        return best;
+      }, null);
+      if (activeThemeWave && targetBgThemeLevel !== currentBgThemeLevel) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(activeThemeWave.x, activeThemeWave.y, activeThemeWave.r, 0, Math.PI * 2);
+        ctx.clip();
+        const nextBg = ctx.createLinearGradient(0, 0, 0, H);
+        nextBg.addColorStop(0, targetTheme.bgTop);
+        nextBg.addColorStop(1, '#050816');
+        ctx.fillStyle = nextBg;
+        ctx.fillRect(0, 0, W, H);
+        const nextTint = ctx.createLinearGradient(0, 0, W, H);
+        nextTint.addColorStop(0, targetTheme.overlayTint);
+        nextTint.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = nextTint;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+      } else if (targetBgThemeLevel !== currentBgThemeLevel && bgWaveFx.length === 0) {
+        currentBgThemeLevel = targetBgThemeLevel;
+      }
 
       bgWaveFx = bgWaveFx.filter(fx => {
         fx.age += 1;
