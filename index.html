@@ -811,6 +811,7 @@
     let maxMultiplier = Math.max(1, normalizeBest(localStorage.getItem(MAX_MULTIPLIER_KEY) || 1));
     let runMaxMultiplier = 1;
     let lastRunWasNewBest = false;
+    let lastNewBestLine = 'What a run!';
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -1391,6 +1392,19 @@
       document.getElementById('homeBtn').onclick = () => { resumeFromHome = true; paused = true; overlay.classList.add('hidden'); arenaWrap.classList.add('menu-mode'); showStart(); };
     }
 
+    function randomNewBestLine() {
+      const options = [
+        'Wow. New best!',
+        'That was clean!',
+        'Huge run!',
+        'You crushed that!',
+        'That was big!',
+        'New best. Nice!',
+        'What a run!'
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
     function showGameOver() {
       overlay.classList.remove('hidden');
       overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
@@ -1406,7 +1420,7 @@
           </button>
         </div>
         <div class="big-score">${Math.floor(score)}</div>
-        <div class="new-best-sub">Wow. That run was kind of disgusting.</div>
+        <div class="new-best-sub">${lastNewBestLine}</div>
         <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
@@ -1782,6 +1796,7 @@
       vibe([25, 20, 25]);
       updateBest();
       lastRunWasNewBest = gotNewBest;
+      if (lastRunWasNewBest) lastNewBestLine = randomNewBestLine();
       showGameOver();
     }
 
