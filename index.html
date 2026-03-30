@@ -734,6 +734,7 @@
     let score = 0;
     let best = normalizeBest(localStorage.getItem(BEST_KEY));
     let maxMultiplier = Math.max(1, normalizeBest(localStorage.getItem(MAX_MULTIPLIER_KEY) || 1));
+    let runMaxMultiplier = 1;
     let lastRunWasNewBest = false;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
@@ -1230,7 +1231,7 @@
 
     async function shareNewBestCard() {
       const scoreValue = normalizeBest(score);
-      const multValue = Math.max(1, normalizeBest(maxMultiplier));
+      const multValue = Math.max(1, normalizeBest(runMaxMultiplier));
       const shareText = `I just hit a new Tap Escape high score: ${scoreValue}. Best multiplier: x${multValue}. Can you beat me?`;
       const shareUrl = 'https://atlasai2007-code.github.io/tap-escape/';
       const card = document.createElement('canvas');
@@ -1257,25 +1258,25 @@
       c.fillText('NEW HIGH SCORE', card.width / 2, 220);
       c.fillStyle = '#ffffff';
       c.font = '900 156px Inter, system-ui, sans-serif';
-      c.fillText('Tap Escape', card.width / 2, 400);
+      c.fillText('Tap Escape', card.width / 2, 520);
       c.font = '900 360px Inter, system-ui, sans-serif';
-      c.fillText(String(scoreValue), card.width / 2, 980);
+      c.fillText(String(scoreValue), card.width / 2, 1000);
       c.fillStyle = 'rgba(255,255,255,0.7)';
       c.font = '700 72px Inter, system-ui, sans-serif';
-      c.fillText(`Best multiplier  x${multValue}`, card.width / 2, 1110);
+      c.fillText(`Best multiplier  x${multValue}`, card.width / 2, 1128);
       c.strokeStyle = 'rgba(255,255,255,0.18)';
       c.lineWidth = 18;
       c.beginPath();
-      c.arc(card.width / 2, 1430, 144, 0, Math.PI * 2);
+      c.arc(card.width / 2, 1430, 120, 0, Math.PI * 2);
       c.stroke();
-      const orb = c.createRadialGradient(card.width / 2 - 32, 1430 - 32, 12, card.width / 2, 1430, 210);
+      const orb = c.createRadialGradient(card.width / 2 - 28, 1430 - 28, 10, card.width / 2, 1430, 180);
       orb.addColorStop(0, '#ffffff');
       orb.addColorStop(0.25, '#8f7cff');
       orb.addColorStop(0.7, '#57f0ff');
       orb.addColorStop(1, 'rgba(87,240,255,0.04)');
       c.fillStyle = orb;
       c.beginPath();
-      c.arc(card.width / 2, 1430, 96, 0, Math.PI * 2);
+      c.arc(card.width / 2, 1430, 88, 0, Math.PI * 2);
       c.fill();
       c.fillStyle = 'rgba(255,255,255,0.92)';
       c.font = '800 78px Inter, system-ui, sans-serif';
@@ -1340,6 +1341,7 @@
     function resetGame() {
       score = 0;
       elapsed = 0;
+      runMaxMultiplier = 1;
       lastRunWasNewBest = false;
       spawnTimer = 0;
       shake = 0;
@@ -1797,6 +1799,7 @@
                 const promotionFloor = progressFloorForLevel(displayedMultiplier);
                 multiplierProgress = Math.min(nextLevelNeed, Math.max(promotionFloor, levelSafetyBuffer(displayedMultiplier) + overflow));
                 multiplier = displayedMultiplier;
+                runMaxMultiplier = Math.max(runMaxMultiplier, displayedMultiplier);
                 if (tutorialActive && displayedMultiplier >= 2 && !tutorialX2Seen) {
                   tutorialX2Seen = true;
                   tutorialX2Glow = 1.6;
