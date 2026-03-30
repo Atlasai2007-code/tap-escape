@@ -769,6 +769,7 @@
     let dashBeatMode = 0;
     let resetPop = 0;
     let playerPop = 0;
+    let resumeHeartbeat = 0;
     let playerVisible = true;
     let scoreVisual = 0;
     let scorePulse = 0;
@@ -1260,6 +1261,7 @@
       dashBeatMode = 0;
       resetPop = 0;
       playerPop = 0;
+      resumeHeartbeat = 0;
       playerVisible = true;
       scoreVisual = 0;
       scorePulse = 0;
@@ -1593,11 +1595,13 @@
         }
         resumeCountdown.textContent = String(shown);
         resumeCountdownPop = Math.max(0, resumeCountdownPop - dt * 2.8);
+        resumeHeartbeat += dt * 8.2;
         resumeCountdown.style.transform = `translateX(-50%) scale(${1 + resumeCountdownPop * 0.32})`;
         if (resumeCountdownLeft <= 0) {
           resumePending = false;
           autoPausedPendingResume = false;
           resumeSlowmo = 1.05;
+          resumeHeartbeat = 0;
           paused = false;
           resumeCountdown.classList.remove('show');
           resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
@@ -1879,7 +1883,8 @@
       if (!running && confetti.length > 0) return;
       const beatFreq = dashBeatMode >= 2 ? 4.8 : 2.8;
       const beatPulse = dashBeat > 0 ? Math.max(0, Math.sin(player.pulse * beatFreq)) * 0.16 * dashBeat : 0;
-      const pulse = 1 + Math.sin(player.pulse) * 0.03 + beatPulse + resetPop * 0.18;
+      const resumePulse = resumePending ? Math.max(0, Math.sin(resumeHeartbeat)) * 0.16 : 0;
+      const pulse = 1 + Math.sin(player.pulse) * 0.03 + beatPulse + resetPop * 0.18 + resumePulse;
       const levelT = multiplierVisual / 3;
       const glowBoost = 1 + playerPop * 0.35 + dashBeat * 0.26 + resetPop * 0.4;
       const coreColor = multiplierLevel >= 4 ? '#ffffff' : multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
