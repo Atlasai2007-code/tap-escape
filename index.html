@@ -540,21 +540,37 @@
 
     .share-callout {
       position: absolute;
-      right: -116px;
-      top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      right: -118px;
+      top: 58px;
       color: rgba(255,255,255,0.82);
       font-size: 0.84rem;
       font-weight: 700;
       white-space: nowrap;
+      line-height: 1;
     }
 
     .share-callout::before {
-      content: '↗';
-      font-size: 1rem;
-      color: rgba(87,240,255,0.9);
+      content: '';
+      position: absolute;
+      right: calc(100% + 10px);
+      top: -6px;
+      width: 58px;
+      height: 42px;
+      border-top: 2px solid rgba(87,240,255,0.9);
+      border-right: 2px solid rgba(87,240,255,0.9);
+      border-top-right-radius: 14px;
+    }
+
+    .share-callout::after {
+      content: '';
+      position: absolute;
+      right: calc(100% + 68px);
+      top: -14px;
+      width: 10px;
+      height: 10px;
+      border-top: 2px solid rgba(87,240,255,0.9);
+      border-right: 2px solid rgba(87,240,255,0.9);
+      transform: rotate(45deg);
     }
 
     .panel p {
