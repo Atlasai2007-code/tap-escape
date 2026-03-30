@@ -813,6 +813,16 @@
     };
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function hexToRgb(hex) {
+      const clean = hex.replace('#', '');
+      return { r: parseInt(clean.slice(0, 2), 16), g: parseInt(clean.slice(2, 4), 16), b: parseInt(clean.slice(4, 6), 16) };
+    }
+    function mixColor(a, b, t, alpha = 1) {
+      const ca = hexToRgb(a);
+      const cb = hexToRgb(b);
+      const m = (x, y) => Math.round(x + (y - x) * clamp(t, 0, 1));
+      return `rgba(${m(ca.r, cb.r)},${m(ca.g, cb.g)},${m(ca.b, cb.b)},${alpha})`;
+    }
     function lerp(a, b, t) { return a + (b - a) * t; }
     function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
     function rand(min, max) { return Math.random() * (max - min) + min; }
@@ -1081,10 +1091,10 @@
 
     function triggerMultiplierLevel(level, text) {
       const fxColor = level >= 5 ? '#ffd86a' : level >= 3 ? '#ffcf7a' : level >= 2 ? '#8f7cff' : '#57f0ff';
-      playerPop = 1;
-      multiplierTopPop = 1;
-      scorePulse = Math.max(scorePulse, 1.2);
-      scoreGlow = Math.max(scoreGlow, 0.9);
+      playerPop = 0.82;
+      multiplierTopPop = 0.76;
+      scorePulse = Math.max(scorePulse, 0.72);
+      scoreGlow = Math.max(scoreGlow, 0.42);
       multiplierUpgradeSound(level);
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
@@ -1890,13 +1900,20 @@
 
       if (running && (multiplierVisual >= 1 || dashBeat > 0.02 || resetPop > 0.02)) {
         const alpha = 0.12 + multiplierVisual * 0.04 + dashBeat * 0.11 + resetPop * 0.16;
-        const ringColor = resetPop > 0.02
-          ? `rgba(255,122,159,${Math.min(0.62, alpha + 0.18)})`
-          : dashBeatMode >= 3
-            ? `rgba(255,99,203,${Math.min(0.54, alpha + 0.16)})`
-            : dashBeatMode >= 2
-              ? `rgba(255,120,160,${Math.min(0.42, alpha + 0.1)})`
-              : multiplierVisual >= 2.6 ? `rgba(255,216,106,${alpha})` : multiplierVisual >= 1.6 ? `rgba(143,124,255,${alpha})` : `rgba(87,240,255,${alpha})`;
+        let ringColor;
+        if (resetPop > 0.02) {
+          ringColor = `rgba(255,122,159,${Math.min(0.56, alpha + 0.14)})`;
+        } else if (dashBeatMode >= 3) {
+          ringColor = `rgba(255,99,203,${Math.min(0.5, alpha + 0.12)})`;
+        } else if (dashBeatMode >= 2) {
+          ringColor = `rgba(255,120,160,${Math.min(0.38, alpha + 0.08)})`;
+        } else {
+          ringColor = multiplierVisual >= 2.6
+            ? mixColor('#8f7cff', '#ffd86a', (multiplierVisual - 2.6) / 0.9, alpha)
+            : multiplierVisual >= 1.6
+              ? mixColor('#57f0ff', '#8f7cff', (multiplierVisual - 1.6) / 1.0, alpha)
+              : mixColor('#57f0ff', '#8f7cff', multiplierVisual / 1.6, alpha);
+        }
         const beatFreq = resetPop > 0.02 ? 6.4 : dashBeatMode >= 2 ? 4.9 : 2.9;
         const beatPulse = (dashBeat > 0 || resetPop > 0)
           ? Math.max(0, Math.sin(player.pulse * beatFreq)) * ((dashBeatMode >= 2 ? 7.2 : 4.2) * dashBeat + resetPop * 11)
