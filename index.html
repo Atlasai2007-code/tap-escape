@@ -2011,7 +2011,8 @@
           Math.hypot(activeThemeWavePreview.x, H - activeThemeWavePreview.y),
           Math.hypot(W - activeThemeWavePreview.x, H - activeThemeWavePreview.y)
         );
-        if (activeThemeWavePreview.r >= coverRadius) {
+        const commitEarlyBy = 26;
+        if (activeThemeWavePreview.r >= coverRadius - commitEarlyBy) {
           currentBgThemeLevel = targetBgThemeLevel;
           activeThemeWavePreview = null;
         }
