@@ -750,6 +750,7 @@
     let bgWaveFx = [];
     let currentBgThemeLevel = 1;
     let targetBgThemeLevel = 1;
+    let lastExpandedBgThemeLevel = 1;
     let obstacles = [];
     let audioCtx = null;
     let lastInputAt = 0;
@@ -879,7 +880,8 @@
         tutorialPinnedMessage = ''; showDashboardTutorialText('Fast taps reset it to x1', true);
         shake = Math.max(shake, 12);
       }
-      const resetSourceLevel = Math.max(currentBgThemeLevel, targetBgThemeLevel, displayedMultiplier, multiplierLevel);
+      const resetSourceLevel = Math.max(lastExpandedBgThemeLevel, currentBgThemeLevel, targetBgThemeLevel, displayedMultiplier, multiplierLevel);
+      bgWaveFx = bgWaveFx.filter(fx => fx.mode === 'contract');
       displayedMultiplier = 1;
       multiplierLevel = 1;
       multiplierVisual = 0;
@@ -1124,6 +1126,7 @@
       scoreGlow = Math.max(scoreGlow, 0.42);
       multiplierUpgradeSound(level);
       targetBgThemeLevel = Math.max(targetBgThemeLevel, level);
+      lastExpandedBgThemeLevel = Math.max(lastExpandedBgThemeLevel, level);
       levelFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, text });
       bgWaveFx.push({ x: player.x, y: player.y, r: 10, life: 40, age: 0, color: fxColor, level });
       particles.push(...Array.from({ length: 10 + Math.min(level, 6) * 4 }, (_, i) => ({
@@ -1268,6 +1271,7 @@
       bgWaveFx = [];
       currentBgThemeLevel = 1;
       targetBgThemeLevel = 1;
+      lastExpandedBgThemeLevel = 1;
       multiplierLevel = 0;
       multiplierVisual = 0;
       backgroundVisual = 0;
@@ -2081,7 +2085,11 @@
         ctx.beginPath();
         ctx.arc(activeContractWave.x, activeContractWave.y, Math.max(PLAYER_R + 1, activeContractWave.r - 0.5), 0, Math.PI * 2);
         ctx.stroke();
-        if (activeContractWave.r <= PLAYER_R + 8) currentBgThemeLevel = 1;
+        if (activeContractWave.r <= PLAYER_R + 8) {
+          currentBgThemeLevel = 1;
+          targetBgThemeLevel = 1;
+          lastExpandedBgThemeLevel = 1;
+        }
       }
 
       const activeThemeWave = activeThemeWavePreview;
