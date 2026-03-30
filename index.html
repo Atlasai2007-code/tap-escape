@@ -510,16 +510,18 @@
 
     .new-best-topbar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
       align-items: center;
+      gap: 12px;
       min-height: 26px;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
+      position: relative;
     }
 
     .share-icon-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.06);
       color: rgba(255,255,255,0.92);
@@ -527,27 +529,29 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+      flex: 0 0 auto;
     }
 
     .share-icon-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       display: block;
     }
 
     .share-callout {
+      position: absolute;
+      right: -116px;
+      top: 8px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      justify-content: flex-end;
-      width: 100%;
       color: rgba(255,255,255,0.82);
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 700;
-      margin-bottom: 4px;
+      white-space: nowrap;
     }
 
-    .share-callout::after {
+    .share-callout::before {
       content: '↗';
       font-size: 1rem;
       color: rgba(87,240,255,0.9);
@@ -1406,17 +1410,15 @@
       overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
       overlayPanel.innerHTML = lastRunWasNewBest ? `
         <div class="new-best-topbar">
+          <h2>New Best!</h2>
           <button class="share-icon-btn" id="shareBestBtn" aria-label="Share to friends">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M8 12h8"></path>
-              <path d="M13 7l5 5-5 5"></path>
-              <path d="M6 5h4"></path>
-              <path d="M6 19h4"></path>
+              <path d="M7 12h8"></path>
+              <path d="M12 7l5 5-5 5"></path>
             </svg>
           </button>
+          <div class="share-callout">Share to friends</div>
         </div>
-        <div class="share-callout">Share to friends</div>
-        <h2>New Best!</h2>
         <div class="big-score">${Math.floor(score)}</div>
         <div class="new-best-sub">That run set a new best. Share it.</div>
         <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Run Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
