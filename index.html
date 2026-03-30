@@ -1883,11 +1883,11 @@
       if (!running && confetti.length > 0) return;
       const beatFreq = dashBeatMode >= 2 ? 4.8 : 2.8;
       const beatPulse = dashBeat > 0 ? Math.max(0, Math.sin(player.pulse * beatFreq)) * 0.16 * dashBeat : 0;
-      const heartbeatWave = resumePending ? Math.max(0, Math.sin(resumeHeartbeat)) : 0;
-      const resumePulse = heartbeatWave * 0.28;
+      const heartbeatWave = resumePending ? (0.5 + 0.5 * Math.sin(resumeHeartbeat)) : 0;
+      const resumePulse = heartbeatWave * 0.1;
       const pulse = 1 + Math.sin(player.pulse) * 0.03 + beatPulse + resetPop * 0.18 + resumePulse;
       const levelT = multiplierVisual / 3;
-      const glowBoost = 1 + playerPop * 0.35 + dashBeat * 0.26 + resetPop * 0.4 + heartbeatWave * 0.35;
+      const glowBoost = 1 + playerPop * 0.35 + dashBeat * 0.26 + resetPop * 0.4 + heartbeatWave * 0.12;
       const coreColor = multiplierLevel >= 4 ? '#ffffff' : multiplierVisual >= 2.4 ? '#ffd86a' : multiplierVisual >= 1.2 ? '#8f7cff' : '#57f0ff';
       const outerColor = multiplierLevel >= 4 ? '#57f0ff' : multiplierVisual >= 2.4 ? '#ffb86a' : multiplierVisual >= 1.2 ? '#ff63cb' : '#a7b3cf';
       const glow = ctx.createRadialGradient(player.x - 8, player.y - 8, 4, player.x, player.y, PLAYER_R * (2.8 + levelT * 2) * glowBoost);
@@ -1900,11 +1900,11 @@
       ctx.arc(player.x, player.y, PLAYER_R * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      if (resumePending && heartbeatWave > 0.02) {
-        ctx.strokeStyle = `rgba(255,255,255,${0.12 + heartbeatWave * 0.2})`;
-        ctx.lineWidth = 2.2 + heartbeatWave * 1.4;
+      if (resumePending) {
+        ctx.strokeStyle = `rgba(255,255,255,${0.05 + heartbeatWave * 0.08})`;
+        ctx.lineWidth = 1.2 + heartbeatWave * 0.6;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, PLAYER_R * (1.12 + heartbeatWave * 0.34), 0, Math.PI * 2);
+        ctx.arc(player.x, player.y, PLAYER_R * (1.06 + heartbeatWave * 0.12), 0, Math.PI * 2);
         ctx.stroke();
       }
 
