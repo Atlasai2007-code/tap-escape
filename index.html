@@ -494,8 +494,7 @@
     .panel.new-best h2 {
       font-size: 2rem;
       margin: 0;
-      flex: 1;
-      text-align: left;
+      text-align: center;
     }
 
     .panel.new-best .big-score {
@@ -513,13 +512,11 @@
 
     .new-best-topbar {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      gap: 12px;
       min-height: 42px;
       margin-bottom: 10px;
       position: relative;
-      padding-right: 2px;
     }
 
     .share-icon-btn {
@@ -534,6 +531,9 @@
       justify-content: center;
       box-shadow: 0 10px 24px rgba(0,0,0,0.24);
       flex: 0 0 auto;
+      position: absolute;
+      right: 0;
+      top: 0;
     }
 
     .share-icon-btn svg {
@@ -544,8 +544,8 @@
 
     .share-callout {
       position: absolute;
-      right: -118px;
-      top: 58px;
+      right: -126px;
+      top: 54px;
       color: rgba(255,255,255,0.82);
       font-size: 0.84rem;
       font-weight: 700;
@@ -557,9 +557,9 @@
       content: '';
       position: absolute;
       right: calc(100% + 10px);
-      top: -6px;
-      width: 58px;
-      height: 42px;
+      top: -2px;
+      width: 54px;
+      height: 30px;
       border-top: 2px solid rgba(87,240,255,0.9);
       border-right: 2px solid rgba(87,240,255,0.9);
       border-top-right-radius: 14px;
@@ -568,10 +568,10 @@
     .share-callout::after {
       content: '';
       position: absolute;
-      right: calc(100% + 68px);
-      top: -14px;
-      width: 10px;
-      height: 10px;
+      right: calc(100% + 59px);
+      top: -7px;
+      width: 9px;
+      height: 9px;
       border-top: 2px solid rgba(87,240,255,0.9);
       border-right: 2px solid rgba(87,240,255,0.9);
       transform: rotate(45deg);
