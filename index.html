@@ -1148,11 +1148,12 @@
 
     function updateBest() {
       const prevBest = normalizeBest(best);
-      best = Math.max(prevBest, normalizeBest(score));
+      const runScore = normalizeBest(score);
+      best = Math.max(prevBest, runScore);
       localStorage.setItem(BEST_KEY, String(best));
       hudBest.textContent = String(best);
       gameBest.textContent = String(best);
-      lastRunWasNewBest = normalizeBest(score) > prevBest;
+      lastRunWasNewBest = runScore >= best;
       return lastRunWasNewBest;
     }
 
@@ -1674,7 +1675,7 @@
     }
 
     function die() {
-      const gotNewBest = normalizeBest(score) > normalizeBest(best);
+      const gotNewBest = normalizeBest(score) >= normalizeBest(best);
       running = false;
       shake = 18;
       momentum = 0;
