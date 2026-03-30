@@ -879,6 +879,7 @@
         tutorialPinnedMessage = ''; showDashboardTutorialText('Fast taps reset it to x1', true);
         shake = Math.max(shake, 12);
       }
+      const resetSourceLevel = Math.max(currentBgThemeLevel, targetBgThemeLevel, displayedMultiplier, multiplierLevel);
       displayedMultiplier = 1;
       multiplierLevel = 1;
       multiplierVisual = 0;
@@ -887,7 +888,6 @@
       multiplierTopPop = 1.1;
       playerPop = Math.max(playerPop, 1.25);
       resetPop = 1.2;
-      const resetSourceLevel = Math.max(currentBgThemeLevel, targetBgThemeLevel, displayedMultiplier);
       targetBgThemeLevel = 1;
       levelFx.push({ x: player.x, y: player.y, r: 12, life: 44, age: 0, text: 'x1' });
       bgWaveFx.push({
