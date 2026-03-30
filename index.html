@@ -1674,6 +1674,7 @@
     }
 
     function die() {
+      const gotNewBest = normalizeBest(score) > normalizeBest(best);
       running = false;
       shake = 18;
       momentum = 0;
@@ -1688,6 +1689,7 @@
       deathSound();
       vibe([25, 20, 25]);
       updateBest();
+      lastRunWasNewBest = gotNewBest;
       showGameOver();
     }
 
