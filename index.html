@@ -468,6 +468,46 @@
       letter-spacing: -0.04em;
     }
 
+    .panel.new-best {
+      width: min(92%, 390px);
+      padding: 28px 24px 24px;
+      background: linear-gradient(180deg, rgba(12,18,40,0.94), rgba(8,10,24,0.92));
+      border-color: rgba(255,255,255,0.14);
+      box-shadow: 0 24px 72px rgba(0,0,0,0.48), 0 0 40px rgba(143,124,255,0.12);
+    }
+
+    .new-best-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(87,240,255,0.18), rgba(255,99,203,0.18));
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.88);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+
+    .panel.new-best h2 {
+      font-size: 2rem;
+    }
+
+    .panel.new-best .big-score {
+      font-size: 4.2rem;
+      margin-top: 12px;
+      line-height: 1;
+    }
+
+    .new-best-sub {
+      margin-top: 10px;
+      color: rgba(255,255,255,0.68);
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
     .panel p {
       margin: 8px 0 0;
       color: var(--muted);
@@ -1318,14 +1358,24 @@
 
     function showGameOver() {
       overlay.classList.remove('hidden');
-      overlayPanel.className = 'panel';
-      overlayPanel.innerHTML = `
-        <h2>${lastRunWasNewBest ? 'New Best!' : 'Game Over'}</h2>
+      overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
+      overlayPanel.innerHTML = lastRunWasNewBest ? `
+        <div class="new-best-badge">NEW HIGH SCORE</div>
+        <h2>New Best!</h2>
         <div class="big-score">${Math.floor(score)}</div>
-        <p>${lastRunWasNewBest ? 'That run set a new best. Share it.' : 'One hit. That’s it. Go again.'}</p>
+        <div class="new-best-sub">That run set a new best. Share it.</div>
+        <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Run Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
+        <div class="row">
+          <button class="btn btn-primary" id="shareBestBtn">Share</button>
+          <button class="btn btn-primary" id="restartBtn">Restart</button>
+          <button class="btn btn-secondary" id="menuBtn">Menu</button>
+        </div>
+      ` : `
+        <h2>Game Over</h2>
+        <div class="big-score">${Math.floor(score)}</div>
+        <p>One hit. That’s it. Go again.</p>
         <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></span></div>
         <div class="row">
-          ${lastRunWasNewBest ? '<button class="btn btn-primary" id="shareBestBtn">Share</button>' : ''}
           <button class="btn btn-primary" id="restartBtn">Restart</button>
           <button class="btn btn-secondary" id="menuBtn">Menu</button>
         </div>
