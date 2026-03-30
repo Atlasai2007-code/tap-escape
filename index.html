@@ -1242,9 +1242,9 @@
       bg.addColorStop(1, '#050816');
       c.fillStyle = bg;
       c.fillRect(0, 0, card.width, card.height);
-      const glow = c.createRadialGradient(card.width * 0.5, card.height * 0.34, 40, card.width * 0.5, card.height * 0.34, 520);
-      glow.addColorStop(0, 'rgba(143,124,255,0.55)');
-      glow.addColorStop(0.45, 'rgba(87,240,255,0.18)');
+      const glow = c.createRadialGradient(card.width * 0.5, card.height * 0.38, 24, card.width * 0.5, card.height * 0.38, 260);
+      glow.addColorStop(0, 'rgba(143,124,255,0.18)');
+      glow.addColorStop(0.42, 'rgba(87,240,255,0.06)');
       glow.addColorStop(1, 'rgba(0,0,0,0)');
       c.fillStyle = glow;
       c.fillRect(0, 0, card.width, card.height);
@@ -1280,9 +1280,6 @@
       c.fillStyle = 'rgba(255,255,255,0.92)';
       c.font = '800 78px Inter, system-ui, sans-serif';
       c.fillText('Can you beat me?', card.width / 2, 1760);
-      c.fillStyle = 'rgba(255,255,255,0.56)';
-      c.font = '600 50px Inter, system-ui, sans-serif';
-      c.fillText('atlasai2007-code.github.io/tap-escape', card.width / 2, 1860);
       const blob = await new Promise(resolve => card.toBlob(resolve, 'image/png'));
       const file = blob ? new File([blob], 'tap-escape-high-score.png', { type: 'image/png' }) : null;
       try {
