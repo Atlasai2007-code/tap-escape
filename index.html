@@ -780,6 +780,7 @@
     let resumePending = false;
     let autoPausedPendingResume = false;
     let resumeSlowmo = 0;
+    let resumeTimeScale = 1;
     let tutorialSeen = localStorage.getItem(TUTORIAL_DONE_KEY) === '1';
     let tutorialActive = false;
     let tutorialPhase = 'off';
@@ -1283,6 +1284,7 @@
       resumeCountdownPop = 0;
       resumeCountdownShown = 0;
       resumeSlowmo = 0;
+      resumeTimeScale = 1;
       resumeCountdown.classList.remove('show');
       startGrace = START_GRACE;
     }
@@ -1573,7 +1575,7 @@
         if (resumeCountdownLeft <= 0) {
           resumePending = false;
           autoPausedPendingResume = false;
-          resumeSlowmo = 1;
+          resumeSlowmo = 1.05;
           paused = false;
           resumeCountdown.classList.remove('show');
           resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
@@ -2051,10 +2053,15 @@
       if (!lastTime) lastTime = ts;
       const rawDt = Math.min(0.032, (ts - lastTime) / 1000);
       lastTime = ts;
+      let targetResumeScale = 1;
       if (resumeSlowmo > 0) {
         resumeSlowmo = Math.max(0, resumeSlowmo - rawDt);
+        const t = 1 - (resumeSlowmo / 1.05);
+        const eased = t * t * (3 - 2 * t);
+        targetResumeScale = 0.38 + (1 - 0.38) * eased;
       }
-      const dt = rawDt * (resumeSlowmo > 0 ? 0.38 : 1);
+      resumeTimeScale += (targetResumeScale - resumeTimeScale) * Math.min(1, rawDt * 7.5);
+      const dt = rawDt * resumeTimeScale;
       update(dt);
       draw();
       requestAnimationFrame(loop);
