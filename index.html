@@ -1999,6 +1999,14 @@
       ctx.save();
       ctx.translate(sx, sy);
 
+      const activeThemeWavePreview = bgWaveFx.reduce((best, fx) => {
+        if (fx.level < targetBgThemeLevel) return best;
+        if (!best || fx.r > best.r) return fx;
+        return best;
+      }, null);
+      if (targetBgThemeLevel !== currentBgThemeLevel && !activeThemeWavePreview) {
+        currentBgThemeLevel = targetBgThemeLevel;
+      }
       const currentTheme = backgroundThemeForLevel(currentBgThemeLevel);
       const targetTheme = backgroundThemeForLevel(targetBgThemeLevel);
       const bg = ctx.createLinearGradient(0, 0, 0, H);
@@ -2013,11 +2021,7 @@
       ctx.fillStyle = tint;
       ctx.fillRect(0, 0, W, H);
 
-      const activeThemeWave = bgWaveFx.reduce((best, fx) => {
-        if (fx.level < targetBgThemeLevel) return best;
-        if (!best || fx.r > best.r) return fx;
-        return best;
-      }, null);
+      const activeThemeWave = activeThemeWavePreview;
       if (activeThemeWave && targetBgThemeLevel !== currentBgThemeLevel) {
         ctx.save();
         ctx.beginPath();
@@ -2041,8 +2045,6 @@
         ctx.beginPath();
         ctx.arc(activeThemeWave.x, activeThemeWave.y, activeThemeWave.r - 0.55, 0, Math.PI * 2);
         ctx.stroke();
-      } else if (targetBgThemeLevel !== currentBgThemeLevel && bgWaveFx.length === 0) {
-        currentBgThemeLevel = targetBgThemeLevel;
       }
 
       bgWaveFx = bgWaveFx.filter(fx => {
