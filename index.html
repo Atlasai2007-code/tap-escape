@@ -734,6 +734,7 @@
     let score = 0;
     let best = normalizeBest(localStorage.getItem(BEST_KEY));
     let maxMultiplier = Math.max(1, normalizeBest(localStorage.getItem(MAX_MULTIPLIER_KEY) || 1));
+    let lastRunWasNewBest = false;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -1146,10 +1147,13 @@
     }
 
     function updateBest() {
-      best = Math.max(normalizeBest(best), normalizeBest(score));
+      const prevBest = normalizeBest(best);
+      best = Math.max(prevBest, normalizeBest(score));
       localStorage.setItem(BEST_KEY, String(best));
       hudBest.textContent = String(best);
       gameBest.textContent = String(best);
+      lastRunWasNewBest = normalizeBest(score) > prevBest;
+      return lastRunWasNewBest;
     }
 
     function updateMaxMultiplier() {
@@ -1223,6 +1227,81 @@
       renderPauseIcon();
     }
 
+    async function shareNewBestCard() {
+      const scoreValue = normalizeBest(score);
+      const multValue = Math.max(1, normalizeBest(maxMultiplier));
+      const shareText = `I just hit a new Tap Escape high score: ${scoreValue}. Best multiplier: x${multValue}. Can you beat me?`;
+      const shareUrl = 'https://atlasai2007-code.github.io/tap-escape/';
+      const card = document.createElement('canvas');
+      card.width = 1200;
+      card.height = 2200;
+      const c = card.getContext('2d');
+      const bg = c.createLinearGradient(0, 0, 0, card.height);
+      bg.addColorStop(0, '#0a1230');
+      bg.addColorStop(1, '#050816');
+      c.fillStyle = bg;
+      c.fillRect(0, 0, card.width, card.height);
+      const glow = c.createRadialGradient(card.width * 0.5, card.height * 0.34, 40, card.width * 0.5, card.height * 0.34, 520);
+      glow.addColorStop(0, 'rgba(143,124,255,0.55)');
+      glow.addColorStop(0.45, 'rgba(87,240,255,0.18)');
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = glow;
+      c.fillRect(0, 0, card.width, card.height);
+      c.strokeStyle = 'rgba(255,255,255,0.08)';
+      c.lineWidth = 3;
+      c.strokeRect(46, 46, card.width - 92, card.height - 92);
+      c.textAlign = 'center';
+      c.fillStyle = 'rgba(255,255,255,0.76)';
+      c.font = '700 56px Inter, system-ui, sans-serif';
+      c.fillText('NEW HIGH SCORE', card.width / 2, 220);
+      c.fillStyle = '#ffffff';
+      c.font = '900 128px Inter, system-ui, sans-serif';
+      c.fillText('Tap Escape', card.width / 2, 360);
+      c.font = '900 360px Inter, system-ui, sans-serif';
+      c.fillText(String(scoreValue), card.width / 2, 920);
+      c.fillStyle = 'rgba(255,255,255,0.7)';
+      c.font = '700 72px Inter, system-ui, sans-serif';
+      c.fillText(`Best multiplier  x${multValue}`, card.width / 2, 1060);
+      c.strokeStyle = 'rgba(255,255,255,0.18)';
+      c.lineWidth = 18;
+      c.beginPath();
+      c.arc(card.width / 2, 1380, 112, 0, Math.PI * 2);
+      c.stroke();
+      const orb = c.createRadialGradient(card.width / 2 - 26, 1380 - 26, 10, card.width / 2, 1380, 160);
+      orb.addColorStop(0, '#ffffff');
+      orb.addColorStop(0.25, '#8f7cff');
+      orb.addColorStop(0.7, '#57f0ff');
+      orb.addColorStop(1, 'rgba(87,240,255,0.04)');
+      c.fillStyle = orb;
+      c.beginPath();
+      c.arc(card.width / 2, 1380, 72, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.92)';
+      c.font = '800 78px Inter, system-ui, sans-serif';
+      c.fillText('Can you beat me?', card.width / 2, 1760);
+      c.fillStyle = 'rgba(255,255,255,0.56)';
+      c.font = '600 50px Inter, system-ui, sans-serif';
+      c.fillText('atlasai2007-code.github.io/tap-escape', card.width / 2, 1860);
+      const blob = await new Promise(resolve => card.toBlob(resolve, 'image/png'));
+      const file = blob ? new File([blob], 'tap-escape-high-score.png', { type: 'image/png' }) : null;
+      try {
+        if (navigator.share && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: 'Tap Escape', text: shareText, url: shareUrl, files: [file] });
+          return;
+        }
+        if (navigator.share) {
+          await navigator.share({ title: 'Tap Escape', text: shareText, url: shareUrl });
+          return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+          alert('Share text copied.');
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+    }
+
     function showPause() {
       overlay.classList.remove('hidden');
       overlayPanel.className = 'panel';
@@ -1242,15 +1321,20 @@
       overlay.classList.remove('hidden');
       overlayPanel.className = 'panel';
       overlayPanel.innerHTML = `
-        <h2>Game Over</h2>
+        <h2>${lastRunWasNewBest ? 'New High Score' : 'Game Over'}</h2>
         <div class="big-score">${Math.floor(score)}</div>
-        <p>One hit. That’s it. Go again.</p>
+        <p>${lastRunWasNewBest ? 'That run set a new best. Share it.' : 'One hit. That’s it. Go again.'}</p>
         <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></span></div>
         <div class="row">
+          ${lastRunWasNewBest ? '<button class="btn btn-primary" id="shareBestBtn">Share</button>' : ''}
           <button class="btn btn-primary" id="restartBtn">Restart</button>
           <button class="btn btn-secondary" id="menuBtn">Menu</button>
         </div>
       `;
+      if (lastRunWasNewBest) {
+        const shareBestBtn = document.getElementById('shareBestBtn');
+        if (shareBestBtn) shareBestBtn.onclick = () => shareNewBestCard();
+      }
       document.getElementById('restartBtn').onclick = startGame;
       document.getElementById('menuBtn').onclick = () => { resumeFromHome = false; resetGame(); showStart(); };
     }
@@ -1258,6 +1342,7 @@
     function resetGame() {
       score = 0;
       elapsed = 0;
+      lastRunWasNewBest = false;
       spawnTimer = 0;
       shake = 0;
       momentum = 0;
