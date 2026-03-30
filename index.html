@@ -1321,7 +1321,7 @@
       overlay.classList.remove('hidden');
       overlayPanel.className = 'panel';
       overlayPanel.innerHTML = `
-        <h2>${lastRunWasNewBest ? 'New High Score' : 'Game Over'}</h2>
+        <h2>${lastRunWasNewBest ? 'New Best!' : 'Game Over'}</h2>
         <div class="big-score">${Math.floor(score)}</div>
         <p>${lastRunWasNewBest ? 'That run set a new best. Share it.' : 'One hit. That’s it. Go again.'}</p>
         <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></span></div>
