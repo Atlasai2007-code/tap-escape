@@ -2297,6 +2297,9 @@
     function drawPlayer() {
       if (!playerVisible) return;
       if (!running && confetti.length > 0) return;
+      const ghostAlpha = reviveInvuln > 0 ? (0.44 + 0.56 * (0.5 + 0.5 * Math.sin((2.4 - reviveInvuln) * 24))) : 1;
+      ctx.save();
+      ctx.globalAlpha *= ghostAlpha;
       const beatFreq = dashBeatMode >= 2 ? 4.8 : 2.8;
       const beatPulse = dashBeat > 0 ? Math.max(0, Math.sin(player.pulse * beatFreq)) * 0.16 * dashBeat : 0;
       const heartbeatWave = resumePending ? (0.5 + 0.5 * Math.sin(resumeHeartbeat)) : 0;
@@ -2328,6 +2331,7 @@
       ctx.beginPath();
       ctx.arc(player.x - 8, player.y - 8, 8, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
 
     }
 
