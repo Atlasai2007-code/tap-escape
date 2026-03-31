@@ -1733,18 +1733,12 @@
             </svg>
           </button>
           <h2>New Best!</h2>
-          <button class="share-icon-btn" id="shareBestBtn" aria-label="Share to friends">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 16V5"></path>
-              <path d="M8.5 8.5L12 5l3.5 3.5"></path>
-              <path d="M7 11.5H6.8a2.8 2.8 0 0 0-2.8 2.8v2.9A2.8 2.8 0 0 0 6.8 20h10.4a2.8 2.8 0 0 0 2.8-2.8v-2.9a2.8 2.8 0 0 0-2.8-2.8H17"></path>
-            </svg>
-          </button>
         </div>
         <div class="big-score" id="newBestScoreValue">0</div>
         <div class="new-best-sub">${lastNewBestLine}</div>
         <div class="panel-meta"><span>Best <strong>${normalizeBest(best)}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
+          <button class="btn btn-primary" id="shareBestBtn">Share it!</button>
           <button class="btn btn-primary" id="restartBtn">Restart</button>
         </div>
       ` : `
