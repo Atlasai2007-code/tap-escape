@@ -1532,6 +1532,12 @@
 
     function performRevive() {
       reviveCount += 1;
+      player.dashT = 1;
+      player.fromX = player.x;
+      player.fromY = player.y;
+      player.toX = player.x;
+      player.toY = player.y;
+      player.cooldown = DASH_COOLDOWN;
       running = true;
       paused = false;
       resumePending = false;
