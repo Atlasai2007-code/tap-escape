@@ -1309,7 +1309,7 @@
     async function shareNewBestCard() {
       const scoreValue = normalizeBest(score);
       const multValue = Math.max(1, normalizeBest(runMaxMultiplier));
-      const shareText = `I just hit a new Tap Escape high score: ${scoreValue}. Best multiplier: x${multValue}. Can you beat me?`;
+      const shareText = 'Can you beat me?';
       const shareUrl = 'https://atlasai2007-code.github.io/tap-escape/';
       const card = document.createElement('canvas');
       card.width = 1200;
@@ -1346,9 +1346,13 @@
       c.font = '900 142px Inter, system-ui, sans-serif';
       c.fillText('Tap Escape', card.width / 2, 250);
 
-      c.fillStyle = 'rgba(255,255,255,0.72)';
+      c.fillStyle = 'rgba(255,255,255,0.78)';
       c.font = '800 46px Inter, system-ui, sans-serif';
       c.fillText('NEW BEST', card.width / 2, 330);
+
+      c.fillStyle = 'rgba(87,240,255,0.92)';
+      c.font = '900 64px Inter, system-ui, sans-serif';
+      c.fillText('Beat this.', card.width / 2, 440);
 
       c.fillStyle = '#ffffff';
       c.font = '900 390px Inter, system-ui, sans-serif';
@@ -1357,6 +1361,9 @@
       c.fillStyle = 'rgba(255,255,255,0.74)';
       c.font = '700 64px Inter, system-ui, sans-serif';
       c.fillText(`Max multiplier x${multValue}`, card.width / 2, 1135);
+
+      c.fillStyle = 'rgba(255,255,255,0.16)';
+      c.fillRect(210, 1190, 780, 2);
 
       const orbY = 1450;
       const ringGrad = c.createRadialGradient(card.width / 2, orbY, 70, card.width / 2, orbY, 180);
@@ -1393,11 +1400,11 @@
 
       c.fillStyle = '#ffffff';
       c.font = '900 92px Inter, system-ui, sans-serif';
-      c.fillText('Can you beat me?', card.width / 2, 1835);
+      c.fillText('Can you beat me?', card.width / 2, 1810);
 
-      c.fillStyle = 'rgba(255,255,255,0.52)';
-      c.font = '700 38px Inter, system-ui, sans-serif';
-      c.fillText('Tap. Survive. Don’t break the chain.', card.width / 2, 1920);
+      c.fillStyle = 'rgba(255,255,255,0.62)';
+      c.font = '800 46px Inter, system-ui, sans-serif';
+      c.fillText('Tap fast. Think faster.', card.width / 2, 1890);
 
       const blob = await new Promise(resolve => card.toBlob(resolve, 'image/png'));
       const file = blob ? new File([blob], 'tap-escape-high-score.png', { type: 'image/png' }) : null;
