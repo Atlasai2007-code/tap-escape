@@ -812,6 +812,7 @@
     let runMaxMultiplier = 1;
     let lastRunWasNewBest = false;
     let lastNewBestLine = 'What a run!';
+    let lastGameOverLine = 'Go again!';
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -1405,6 +1406,17 @@
       return options[Math.floor(Math.random() * options.length)];
     }
 
+    function randomGameOverLine() {
+      const options = [
+        'Go again!',
+        'Almost!',
+        'One more!',
+        'Run it back!',
+        'You’re close!'
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
     function showGameOver() {
       overlay.classList.remove('hidden');
       overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
@@ -1429,7 +1441,7 @@
       ` : `
         <h2>Game Over</h2>
         <div class="big-score">${Math.floor(score)}</div>
-        <p>One hit. That’s it. Go again.</p>
+        <p>${lastGameOverLine}</p>
         <div class="panel-meta"><span>Best ${normalizeBest(best)}</span><span>Max <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
@@ -1796,7 +1808,11 @@
       vibe([25, 20, 25]);
       updateBest();
       lastRunWasNewBest = gotNewBest;
-      if (lastRunWasNewBest) lastNewBestLine = randomNewBestLine();
+      if (lastRunWasNewBest) {
+        lastNewBestLine = randomNewBestLine();
+      } else {
+        lastGameOverLine = randomGameOverLine();
+      }
       showGameOver();
     }
 
