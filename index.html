@@ -600,6 +600,19 @@
       border: 1px solid rgba(255,255,255,0.08);
     }
 
+    .revive-btn-content {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .revive-btn-content svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
     .controls, .touch-pill, .footnote {
       display: none;
     }
@@ -1551,7 +1564,7 @@
         <div class="new-best-sub">Watch an ad to keep this run alive.</div>
         <div class="panel-meta"><span>Revives <strong>${reviveCount}/${MAX_REVIVES_PER_RUN}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
-          <button class="btn btn-primary" id="reviveBtn">Watch ad to revive</button>
+          <button class="btn btn-primary" id="reviveBtn"><span class="revive-btn-content"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 6.5v11c0 .8.86 1.3 1.56.9l8.5-5.5a1.06 1.06 0 0 0 0-1.8l-8.5-5.5A1.03 1.03 0 0 0 8 6.5Z"></path></svg><span>Revive</span></span></button>
           <button class="btn btn-secondary" id="skipReviveBtn">No thanks</button>
         </div>
       `;
