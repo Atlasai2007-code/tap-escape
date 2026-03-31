@@ -1556,7 +1556,9 @@
       setTimeout(() => {
         if (running && !paused) hideTutorialText(false, true);
       }, 900);
-      beginResumeCountdown();
+      resumeSlowmo = 1.05;
+      resumeTimeScale = 0.38;
+      renderPauseIcon();
     }
 
     function showRevivePrompt() {
