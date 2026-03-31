@@ -636,6 +636,28 @@
       font-weight: 800;
     }
 
+    .home-icon-btn {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.9);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    }
+
+    .home-icon-btn svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
     .revive-cta {
       position: relative;
       overflow: hidden;
@@ -1704,6 +1726,12 @@
       overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
       overlayPanel.innerHTML = lastRunWasNewBest ? `
         <div class="new-best-topbar">
+          <button class="home-icon-btn" id="homeBtn" aria-label="Home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3.5 10.5 12 4l8.5 6.5"></path>
+              <path d="M6.5 9.5V20h11V9.5"></path>
+            </svg>
+          </button>
           <h2>New Best!</h2>
           <button class="share-icon-btn" id="shareBestBtn" aria-label="Share to friends">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1718,16 +1746,22 @@
         <div class="panel-meta"><span>Best <strong>${normalizeBest(best)}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
-          <button class="btn btn-secondary" id="menuBtn">Menu</button>
         </div>
       ` : `
-        <h2>Game Over</h2>
+        <div class="new-best-topbar">
+          <button class="home-icon-btn" id="homeBtn" aria-label="Home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3.5 10.5 12 4l8.5 6.5"></path>
+              <path d="M6.5 9.5V20h11V9.5"></path>
+            </svg>
+          </button>
+          <h2>Game Over</h2>
+        </div>
         <div class="big-score">${Math.floor(score)}</div>
         <p>${lastGameOverLine}</p>
         <div class="panel-meta"><span>Best <strong>${normalizeBest(best)}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(maxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="restartBtn">Restart</button>
-          <button class="btn btn-secondary" id="menuBtn">Menu</button>
         </div>
       `;
       if (lastRunWasNewBest) {
@@ -1736,7 +1770,7 @@
         animateNewBestScore(Math.floor(score));
       }
       document.getElementById('restartBtn').onclick = startGame;
-      document.getElementById('menuBtn').onclick = () => { resumeFromHome = false; resetGame(); showStart(); };
+      document.getElementById('homeBtn').onclick = () => { resumeFromHome = false; resetGame(); showStart(); };
     }
 
     function resetGame() {
