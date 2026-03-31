@@ -1708,7 +1708,7 @@
       if (tutorialActive && (tutorialPhase === 'dash-threat' || tutorialPhase === 'dash-prompt') && !forceSide) return;
       const level = difficultyProgress();
       const tutorialEase = tutorialActive ? ((tutorialPhase === 'build' || tutorialPhase === 'risk') ? 0.66 : 0.74) : 1;
-      const speed = (rand(164, 223) + level * 192 + Math.min(25, Math.max(0, elapsed - 36) * 0.44)) * tutorialEase;
+      const speed = (rand(164, 223) + level * 196 + Math.min(28, Math.max(0, elapsed - 34) * 0.46)) * tutorialEase;
       const size = rand(18, 34);
       const sides = ['top', 'bottom', 'left', 'right'];
       let side = forceSide || sides[Math.floor(Math.random() * sides.length)];
