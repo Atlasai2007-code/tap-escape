@@ -1465,6 +1465,40 @@
       return options[Math.floor(Math.random() * options.length)];
     }
 
+    function randomStartHint() {
+      const options = [
+        'Stillness levels you up.',
+        'Don’t panic dash.',
+        'Fast taps break your chain.',
+        'Patience beats panic.',
+        'Move only when it matters.',
+        'Wait for the lane.',
+        'Greed gets you hit.',
+        'Control the rhythm.',
+        'One clean dash.',
+        'Stay calm.',
+        'Don’t waste movement.',
+        'Hold your nerve.',
+        'Let the gap come to you.',
+        'Watch before you move.',
+        'Calm hands win.',
+        'You don’t need every opening.',
+        'Late is better than wild.',
+        'Don’t break the flow.',
+        'Survival is a skill.',
+        'Think, then dash.'
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
+    function showStartHint() {
+      if (tutorialActive) return;
+      showTutorialText(randomStartHint());
+      setTimeout(() => {
+        if (!tutorialActive && running && !paused) hideTutorialText();
+      }, 1500);
+    }
+
     function animateNewBestScore(targetScore) {
       const el = document.getElementById('newBestScoreValue');
       if (!el) return;
@@ -1613,6 +1647,7 @@
       arenaWrap.classList.add('game-enter');
       setTimeout(() => arenaWrap.classList.remove('game-enter'), 560);
       overlay.classList.add('hidden');
+      showStartHint();
     }
 
     function startGameFromHomeAnimation(homeOrb) {
@@ -1633,6 +1668,7 @@
       if (!homeOrb) {
         running = true;
         overlay.classList.add('hidden');
+        showStartHint();
         return;
       }
 
@@ -1664,6 +1700,7 @@
         running = true;
         overlay.classList.remove('revealing');
         overlay.classList.add('hidden');
+        showStartHint();
       }, 530);
     }
 
