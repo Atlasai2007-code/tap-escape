@@ -1465,6 +1465,21 @@
       return options[Math.floor(Math.random() * options.length)];
     }
 
+    function animateNewBestScore(targetScore) {
+      const el = document.getElementById('newBestScoreValue');
+      if (!el) return;
+      const start = performance.now();
+      const duration = 2000;
+      el.textContent = '0';
+      function tick(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = String(Math.round(targetScore * eased));
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
     function showGameOver() {
       overlay.classList.remove('hidden');
       overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
@@ -1479,7 +1494,7 @@
             </svg>
           </button>
         </div>
-        <div class="big-score">${Math.floor(score)}</div>
+        <div class="big-score" id="newBestScoreValue">0</div>
         <div class="new-best-sub">${lastNewBestLine}</div>
         <div class="panel-meta"><span>Best <strong>${normalizeBest(best)}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
@@ -1499,6 +1514,7 @@
       if (lastRunWasNewBest) {
         const shareBestBtn = document.getElementById('shareBestBtn');
         if (shareBestBtn) shareBestBtn.onclick = () => shareNewBestCard();
+        animateNewBestScore(Math.floor(score));
       }
       document.getElementById('restartBtn').onclick = startGame;
       document.getElementById('menuBtn').onclick = () => { resumeFromHome = false; resetGame(); showStart(); };
