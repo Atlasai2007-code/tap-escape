@@ -1495,7 +1495,7 @@
       if (tutorialActive) return;
       showTutorialText(randomStartHint());
       setTimeout(() => {
-        if (!tutorialActive && running && !paused) hideTutorialText();
+        if (!tutorialActive && running && !paused) hideTutorialText(false, true);
       }, 1500);
     }
 
