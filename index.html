@@ -646,12 +646,11 @@
     .revive-cta-progress {
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, rgba(255,255,255,0.32), rgba(255,255,255,0.14));
-      transform-origin: right center;
+      background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+      transform-origin: left center;
       z-index: 0;
       pointer-events: none;
       transition: transform 80ms linear, opacity 120ms linear;
-      mix-blend-mode: screen;
     }
 
     @keyframes revivePulse {
@@ -1679,14 +1678,10 @@
       if (!fill || !btn) return;
       const pct = clamp(revivePromptTimer / REVIVE_PROMPT_DURATION, 0, 1);
       fill.style.transform = `scaleX(${pct})`;
-      fill.style.opacity = String(0.18 + pct * 0.82);
-      btn.style.filter = `saturate(${0.55 + pct * 0.45}) brightness(${0.62 + pct * 0.38})`;
-      btn.style.transform = `scale(${0.94 + pct * 0.06})`;
-      btn.style.boxShadow = pct > 0.55
-        ? '0 18px 36px rgba(87,240,255,0.26), 0 0 26px rgba(255,99,203,0.16)'
-        : pct > 0.25
-          ? '0 12px 24px rgba(87,240,255,0.16), 0 0 14px rgba(255,99,203,0.08)'
-          : '0 8px 14px rgba(0,0,0,0.18)';
+      fill.style.opacity = String(0.28 + pct * 0.55);
+      btn.style.filter = `saturate(${0.78 + pct * 0.22}) brightness(${0.84 + pct * 0.16})`;
+      btn.style.transform = 'scale(1)';
+      btn.style.boxShadow = '0 12px 24px rgba(87,240,255,0.18), 0 0 14px rgba(255,99,203,0.08)';
     }
 
     function showGameOver() {
