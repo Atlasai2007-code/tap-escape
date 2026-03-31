@@ -1576,7 +1576,7 @@
         </div>
         <div class="big-score">${shownScore}</div>
         <div class="new-best-sub">${reviveLine}</div>
-        <div class="panel-meta"><span>Revives <strong>${reviveCount}/${MAX_REVIVES_PER_RUN}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
+        <div class="panel-meta"><span>Best <strong>${normalizeBest(best)}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="reviveBtn"><span class="revive-btn-content"><span>Revive</span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 6.5v11c0 .8.86 1.3 1.56.9l8.5-5.5a1.06 1.06 0 0 0 0-1.8l-8.5-5.5A1.03 1.03 0 0 0 8 6.5Z"></path></svg></span></button>
           <button class="btn btn-secondary" id="skipReviveBtn">No thanks</button>
