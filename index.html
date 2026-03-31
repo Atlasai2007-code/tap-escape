@@ -813,6 +813,9 @@
     let lastRunWasNewBest = false;
     let lastNewBestLine = 'What a run!';
     let lastGameOverLine = 'Go again!';
+    let reviveCount = 0;
+    let reviveInvuln = 0;
+    const MAX_REVIVES_PER_RUN = 2;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -1514,6 +1517,65 @@
       requestAnimationFrame(tick);
     }
 
+    function performRevive() {
+      reviveCount += 1;
+      running = true;
+      paused = false;
+      resumePending = false;
+      autoPausedPendingResume = false;
+      reviveInvuln = 2.4;
+      startGrace = Math.max(startGrace, 1.25);
+      shake = 0;
+      overlay.classList.add('hidden');
+      overlayPanel.className = 'panel';
+      obstacles = obstacles.filter(ob => dist(ob.x, ob.y, player.x, player.y) > 220);
+      playerPop = Math.max(playerPop, 1.3);
+      resetPop = Math.max(resetPop, 0.45);
+      tutorialCue.textContent = 'Revived';
+      tutorialCue.classList.remove('pop-out', 'dashboard-point');
+      tutorialCue.classList.add('show');
+      setTimeout(() => {
+        if (running && !paused) hideTutorialText(false, true);
+      }, 900);
+      beginResumeCountdown();
+    }
+
+    function showRevivePrompt() {
+      overlay.classList.remove('hidden');
+      overlayPanel.className = 'panel new-best';
+      overlayPanel.innerHTML = `
+        <div class="new-best-topbar">
+          <h2>Revive?</h2>
+        </div>
+        <div class="big-score">${Math.floor(score)}</div>
+        <div class="new-best-sub">Watch an ad to keep this run alive.</div>
+        <div class="panel-meta"><span>Revives <strong>${reviveCount}/${MAX_REVIVES_PER_RUN}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
+        <div class="row">
+          <button class="btn btn-primary" id="reviveBtn">Watch ad to revive</button>
+          <button class="btn btn-secondary" id="skipReviveBtn">No thanks</button>
+        </div>
+      `;
+      const reviveBtn = document.getElementById('reviveBtn');
+      const skipBtn = document.getElementById('skipReviveBtn');
+      if (reviveBtn) reviveBtn.onclick = () => performRevive();
+      if (skipBtn) skipBtn.onclick = () => finalizeDeath();
+    }
+
+    function finalizeDeath() {
+      running = false;
+      deathSound();
+      vibe([25, 20, 25]);
+      const gotNewBest = normalizeBest(score) >= normalizeBest(best);
+      updateBest();
+      lastRunWasNewBest = gotNewBest;
+      if (lastRunWasNewBest) {
+        lastNewBestLine = randomNewBestLine();
+      } else {
+        lastGameOverLine = randomGameOverLine();
+      }
+      showGameOver();
+    }
+
     function showGameOver() {
       overlay.classList.remove('hidden');
       overlayPanel.className = lastRunWasNewBest ? 'panel new-best' : 'panel';
@@ -1559,6 +1621,8 @@
       elapsed = 0;
       runMaxMultiplier = 1;
       lastRunWasNewBest = false;
+      reviveCount = 0;
+      reviveInvuln = 0;
       spawnTimer = 0;
       shake = 0;
       momentum = 0;
@@ -1893,7 +1957,6 @@
     }
 
     function die() {
-      const gotNewBest = normalizeBest(score) >= normalizeBest(best);
       running = false;
       shake = 18;
       momentum = 0;
@@ -1905,16 +1968,11 @@
       resetPop = 0;
       resetMultiplierProgress(false);
       spawnConfetti(player.x, player.y);
-      deathSound();
-      vibe([25, 20, 25]);
-      updateBest();
-      lastRunWasNewBest = gotNewBest;
-      if (lastRunWasNewBest) {
-        lastNewBestLine = randomNewBestLine();
-      } else {
-        lastGameOverLine = randomGameOverLine();
+      if (reviveCount < MAX_REVIVES_PER_RUN) {
+        showRevivePrompt();
+        return;
       }
-      showGameOver();
+      finalizeDeath();
     }
 
     function update(dt) {
@@ -1942,6 +2000,7 @@
       }
       if (!paused) {
         if (running) {
+          reviveInvuln = Math.max(0, reviveInvuln - dt);
           elapsed += dt;
           if (tutorialActive) {
             tutorialPhaseTimer -= dt;
@@ -2142,7 +2201,7 @@
               tutorialCue.textContent = '';
               hideTutorialText();
             }
-            if (startGrace <= 0 && !tutorialActive && (d < collisionRadius || pathD < collisionRadius)) die();
+            if (startGrace <= 0 && reviveInvuln <= 0 && !tutorialActive && (d < collisionRadius || pathD < collisionRadius)) die();
             return ob.x > -100 && ob.x < W + 100 && ob.y > -100 && ob.y < H + 100;
           });
 
