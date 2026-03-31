@@ -594,6 +594,11 @@
       color: #08111f;
     }
 
+    .btn-share {
+      background: linear-gradient(135deg, #8f7cff, #57f0ff);
+      color: #08111f;
+    }
+
     .btn-secondary {
       background: rgba(255,255,255,0.08);
       color: var(--text);
@@ -1738,7 +1743,7 @@
         <div class="new-best-sub">${lastNewBestLine}</div>
         <div class="panel-meta"><span>Best <strong>${normalizeBest(best)}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
-          <button class="btn btn-primary" id="shareBestBtn">Share it!</button>
+          <button class="btn btn-share" id="shareBestBtn">Share it!</button>
           <button class="btn btn-primary" id="restartBtn">Restart</button>
         </div>
       ` : `
