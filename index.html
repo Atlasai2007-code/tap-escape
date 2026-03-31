@@ -1556,12 +1556,17 @@
     function showRevivePrompt() {
       overlay.classList.remove('hidden');
       overlayPanel.className = 'panel new-best';
+      const shownScore = Math.floor(score);
+      const bestGap = Math.max(0, normalizeBest(best) - shownScore);
+      const reviveLine = bestGap > 0
+        ? `You are ${bestGap} away from best score.`
+        : 'Continue your best run yet!';
       overlayPanel.innerHTML = `
         <div class="new-best-topbar">
           <h2>Revive?</h2>
         </div>
-        <div class="big-score">${Math.floor(score)}</div>
-        <div class="new-best-sub">Watch an ad to keep this run alive.</div>
+        <div class="big-score">${shownScore}</div>
+        <div class="new-best-sub">${reviveLine}</div>
         <div class="panel-meta"><span>Revives <strong>${reviveCount}/${MAX_REVIVES_PER_RUN}</strong></span><span>Max <strong>x${Math.max(1, normalizeBest(runMaxMultiplier))}</strong></span></div>
         <div class="row">
           <button class="btn btn-primary" id="reviveBtn"><span class="revive-btn-content"><span>Revive</span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 6.5v11c0 .8.86 1.3 1.56.9l8.5-5.5a1.06 1.06 0 0 0 0-1.8l-8.5-5.5A1.03 1.03 0 0 0 8 6.5Z"></path></svg></span></button>
