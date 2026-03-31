@@ -1542,7 +1542,7 @@
       paused = false;
       resumePending = false;
       autoPausedPendingResume = false;
-      reviveInvuln = 2.4;
+      reviveInvuln = 3.1;
       startGrace = Math.max(startGrace, 1.25);
       shake = 0;
       overlay.classList.add('hidden');
@@ -2299,7 +2299,7 @@
     function drawPlayer() {
       if (!playerVisible) return;
       if (!running && confetti.length > 0) return;
-      const ghostAlpha = reviveInvuln > 0 ? (() => { const ghostT = 1 - reviveInvuln / 2.4; const ghostFreq = 8 + ghostT * 14; return 0.52 + 0.48 * (0.5 + 0.5 * Math.sin((2.4 - reviveInvuln) * ghostFreq)); })() : 1;
+      const ghostAlpha = reviveInvuln > 0 ? (() => { const ghostT = 1 - reviveInvuln / 3.1; const ghostFreq = 8 + ghostT * 14; return 0.52 + 0.48 * (0.5 + 0.5 * Math.sin((3.1 - reviveInvuln) * ghostFreq)); })() : 1;
       ctx.save();
       ctx.globalAlpha *= ghostAlpha;
       const beatFreq = dashBeatMode >= 2 ? 4.8 : 2.8;
