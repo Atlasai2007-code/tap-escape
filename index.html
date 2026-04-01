@@ -1010,6 +1010,7 @@
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
     const MAX_PAUSES_PER_RUN = 2;
+    const PAUSE_RESUME_SLOWMO_DURATION = 2;
 
     let running = false;
     let paused = false;
@@ -1538,16 +1539,27 @@
     }
 
     function beginResumeCountdown() {
-      paused = true;
       arenaWrap.classList.remove('paused-state');
       triggerPauseArenaFx('resume');
-      resumePending = true;
-      resumeCountdownLeft = 3;
-      resumeCountdownShown = 3;
-      resumeCountdownPop = 1.2;
-      resumeCountdown.textContent = '3';
-      resumeCountdown.classList.add('show');
+      resumePending = false;
+      autoPausedPendingResume = false;
+      paused = false;
+      resumeCountdownLeft = 0;
+      resumeCountdownShown = 0;
+      resumeCountdownPop = 0;
+      resumeCountdown.classList.remove('show');
+      resumeCountdown.textContent = '';
+      resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
+      resumeSlowmo = PAUSE_RESUME_SLOWMO_DURATION;
+      resumeTimeScale = 0.38;
+      resumeHeartbeat = 0;
       renderPauseIcon();
+      if (pendingTutorialHide) {
+        const pop = pendingTutorialHidePop;
+        pendingTutorialHide = false;
+        pendingTutorialHidePop = false;
+        hideTutorialText(false, pop);
+      }
     }
 
     function autoPauseGame() {
@@ -2251,32 +2263,7 @@
 
     function update(dt) {
       if (resumePending) {
-        resumeCountdownLeft = Math.max(0, resumeCountdownLeft - dt);
-        const shown = Math.max(1, Math.ceil(resumeCountdownLeft));
-        if (shown !== resumeCountdownShown) {
-          resumeCountdownShown = shown;
-          resumeCountdownPop = 1.2;
-        }
-        resumeCountdown.textContent = String(shown);
-        resumeCountdownPop = Math.max(0, resumeCountdownPop - dt * 2.8);
-        resumeHeartbeat += dt * 8.2;
-        resumeCountdown.style.transform = `translateX(-50%) scale(${1 + resumeCountdownPop * 0.32})`;
-        if (resumeCountdownLeft <= 0) {
-          resumePending = false;
-          autoPausedPendingResume = false;
-          resumeSlowmo = 1.05;
-          resumeHeartbeat = 0;
-          paused = false;
-          resumeCountdown.classList.remove('show');
-          resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
-          renderPauseIcon();
-          if (pendingTutorialHide) {
-            const pop = pendingTutorialHidePop;
-            pendingTutorialHide = false;
-            pendingTutorialHidePop = false;
-            hideTutorialText(false, pop);
-          }
-        }
+        resumePending = false;
       }
       if (revivePromptTimer > 0) {
         revivePromptTimer = Math.max(0, revivePromptTimer - dt);
