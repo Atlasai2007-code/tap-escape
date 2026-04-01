@@ -1269,7 +1269,7 @@
       pauseBtn.textContent = paused ? `Resume x${shownPauses}` : `Pause (${shownPauses}x)`;
       pauseBtn.disabled = !paused && pausesLeft <= 0;
       pauseBtn.style.opacity = (!paused && pausesLeft <= 0) ? '0.55' : '1';
-      arenaWrap.classList.toggle('paused-state', paused);
+      arenaWrap.classList.toggle('paused-state', paused && !resumePending);
     }
 
 
