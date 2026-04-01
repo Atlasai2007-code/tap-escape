@@ -1618,21 +1618,6 @@
       }
     }
 
-    function showPause() {
-      overlay.classList.remove('hidden');
-      overlayPanel.className = 'panel';
-      overlayPanel.innerHTML = `
-        <h2>Paused</h2>
-        <p>Resume whenever you’re ready.</p>
-        <div class="row">
-          <button class="btn btn-primary" id="resumeBtn">Resume</button>
-          <button class="btn btn-secondary" id="homeBtn">Home</button>
-        </div>
-      `;
-      document.getElementById('resumeBtn').onclick = () => { overlay.classList.add('hidden'); beginResumeCountdown(); };
-      document.getElementById('homeBtn').onclick = () => { resumeFromHome = true; paused = true; overlay.classList.add('hidden'); arenaWrap.classList.add('menu-mode'); showStart(); };
-    }
-
     function randomNewBestLine() {
       const options = [
         'Wow. New best!',
