@@ -123,11 +123,11 @@
     }
 
     .arena-wrap.pause-flash {
-      animation: pauseFlashIn 260ms cubic-bezier(.22,.9,.3,1);
+      animation: pauseFlashIn 160ms cubic-bezier(.22,.8,.3,1);
     }
 
     .arena-wrap.resume-flash {
-      animation: resumeFlashOut 260ms cubic-bezier(.2,.8,.2,1);
+      animation: resumeFlashOut 160ms cubic-bezier(.22,.8,.3,1);
     }
 
     .arena-wrap.paused-state canvas,
@@ -913,15 +913,15 @@
     }
 
     @keyframes pauseFlashIn {
-      0% { filter: saturate(1) brightness(1); box-shadow: 0 18px 40px rgba(0,0,0,0.26); }
-      45% { filter: saturate(1.02) brightness(1.06); box-shadow: 0 0 0 1px rgba(87,240,255,0.22), 0 0 36px rgba(87,240,255,0.16); }
-      100% { filter: saturate(0.82) brightness(0.8); box-shadow: 0 22px 46px rgba(0,0,0,0.34); }
+      0% { filter: saturate(1) brightness(1); }
+      35% { filter: saturate(0.96) brightness(0.94); }
+      100% { filter: saturate(0.82) brightness(0.8); }
     }
 
     @keyframes resumeFlashOut {
-      0% { filter: saturate(0.82) brightness(0.8); box-shadow: 0 22px 46px rgba(0,0,0,0.34); }
-      45% { filter: saturate(1.1) brightness(1.08); box-shadow: 0 0 0 1px rgba(255,99,203,0.18), 0 0 28px rgba(255,99,203,0.14); }
-      100% { filter: saturate(1) brightness(1); box-shadow: 0 18px 40px rgba(0,0,0,0.26); }
+      0% { filter: saturate(0.82) brightness(0.8); }
+      45% { filter: saturate(0.95) brightness(0.95); }
+      100% { filter: saturate(1) brightness(1); }
     }
   </style>
 </head>
