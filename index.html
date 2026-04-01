@@ -955,6 +955,7 @@
     const MAX_MULTIPLIER_KEY = 'tapEscapeMaxMultiplier_v1';
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
+    const MAX_PAUSES_PER_RUN = 2;
 
     let running = false;
     let paused = false;
@@ -968,6 +969,7 @@
     let reviveCount = 0;
     let reviveInvuln = 0;
     let revivePromptTimer = 0;
+    let pausesLeft = MAX_PAUSES_PER_RUN;
     const MAX_REVIVES_PER_RUN = 2;
     const REVIVE_PROMPT_DURATION = 5;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
@@ -1234,7 +1236,9 @@
     }
 
     function renderPauseIcon() {
-      pauseBtn.textContent = 'Pause';
+      pauseBtn.textContent = `Pause (${Math.max(0, pausesLeft)}x)`;
+      pauseBtn.disabled = !paused && pausesLeft <= 0;
+      pauseBtn.style.opacity = (!paused && pausesLeft <= 0) ? '0.55' : '1';
     }
 
 
@@ -1817,6 +1821,7 @@
       reviveCount = 0;
       reviveInvuln = 0;
       revivePromptTimer = 0;
+      pausesLeft = MAX_PAUSES_PER_RUN;
       spawnTimer = 0;
       shake = 0;
       momentum = 0;
@@ -2804,11 +2809,18 @@
     });
 
     pauseBtn.addEventListener('click', () => {
+      unlockAudio();
       if (!running) return;
+      if (!paused && pausesLeft <= 0) return;
+      if (!paused) pausesLeft = Math.max(0, pausesLeft - 1);
       paused = !paused;
+      if (!paused) {
+        showResumeCountdown();
+      } else {
+        resumeCountdown.classList.remove('show');
+        resumeCountdown.textContent = '';
+      }
       renderPauseIcon();
-      if (paused) showPause();
-      else overlay.classList.add('hidden');
     });
 
     document.addEventListener('visibilitychange', () => {
