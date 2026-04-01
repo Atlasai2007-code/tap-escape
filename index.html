@@ -1674,7 +1674,7 @@
       const shownScore = Math.floor(score);
       const bestGap = Math.max(0, normalizeBest(best) - shownScore);
       const reviveLine = bestGap > 0
-        ? `You are ${bestGap} away from best score.`
+        ? `You are <strong>${bestGap}</strong> away from best score.`
         : 'Continue your best run yet!';
       overlayPanel.innerHTML = `
         <div class="new-best-topbar">
