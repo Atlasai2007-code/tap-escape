@@ -119,6 +119,16 @@
 
     .arena-wrap.paused-state {
       filter: saturate(0.82) brightness(0.8);
+      transform: scale(0.986);
+      box-shadow: 0 22px 46px rgba(0,0,0,0.34);
+    }
+
+    .arena-wrap.pause-flash {
+      animation: pauseFlashIn 280ms cubic-bezier(.22,.9,.3,1);
+    }
+
+    .arena-wrap.resume-flash {
+      animation: resumeFlashOut 320ms cubic-bezier(.2,.8,.2,1);
     }
 
     .arena-wrap.paused-state canvas,
@@ -902,6 +912,18 @@
       60% { opacity: 1; transform: scale(1.01) translateY(0); filter: blur(0); }
       100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
     }
+
+    @keyframes pauseFlashIn {
+      0% { transform: scale(1); filter: saturate(1) brightness(1); }
+      45% { transform: scale(0.992); filter: saturate(0.92) brightness(0.9); }
+      100% { transform: scale(0.986); filter: saturate(0.82) brightness(0.8); }
+    }
+
+    @keyframes resumeFlashOut {
+      0% { transform: scale(0.986); filter: saturate(0.82) brightness(0.8); }
+      55% { transform: scale(1.01); filter: saturate(1.06) brightness(1.06); }
+      100% { transform: scale(1); filter: saturate(1) brightness(1); }
+    }
   </style>
 </head>
 <body>
@@ -1004,6 +1026,8 @@
     let pausesLeft = MAX_PAUSES_PER_RUN;
     let pendingTutorialHide = false;
     let pendingTutorialHidePop = false;
+    let pauseFx = 0;
+    let pauseFlash = 0;
     const MAX_REVIVES_PER_RUN = 2;
     const REVIVE_PROMPT_DURATION = 5;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
@@ -1269,6 +1293,12 @@
         : '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M4 10v4h3.4l4.3 3.6c.67.56 1.63.08 1.63-.8V7.2c0-.88-.96-1.36-1.63-.8L7.4 10H4Z"></path><path fill="#fff" d="M16 9.2a.95.95 0 0 1 1.34.1A4.18 4.18 0 0 1 18.4 12a4.18 4.18 0 0 1-1.06 2.7.95.95 0 1 1-1.44-1.24c.39-.45.6-.94.6-1.46s-.21-1.01-.6-1.46a.95.95 0 0 1 .1-1.34Z"></path><path fill="#fff" d="M17.95 6.95a.95.95 0 0 1 1.34.03A7.24 7.24 0 0 1 21.2 12a7.24 7.24 0 0 1-1.91 5.02.95.95 0 1 1-1.37-1.3A5.35 5.35 0 0 0 19.3 12a5.35 5.35 0 0 0-1.38-3.72.95.95 0 0 1 .03-1.33Z"></path></svg>';
     }
 
+    function triggerPauseArenaFx(type) {
+      arenaWrap.classList.remove('pause-flash', 'resume-flash');
+      void arenaWrap.offsetWidth;
+      arenaWrap.classList.add(type === 'pause' ? 'pause-flash' : 'resume-flash');
+    }
+
     function renderPauseIcon() {
       const shownPauses = Math.max(0, pausesLeft);
       const canResumeNow = paused && !resumePending;
@@ -1510,6 +1540,7 @@
     function beginResumeCountdown() {
       paused = true;
       arenaWrap.classList.remove('paused-state');
+      triggerPauseArenaFx('resume');
       resumePending = true;
       resumeCountdownLeft = 3;
       resumeCountdownShown = 3;
@@ -2877,6 +2908,7 @@
         resumeCountdown.classList.remove('show');
         resumeCountdown.textContent = '';
         if (!tutorialActive) clearTutorialVisuals();
+        triggerPauseArenaFx('pause');
         renderPauseIcon();
       }
     });
