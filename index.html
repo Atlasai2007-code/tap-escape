@@ -1488,6 +1488,7 @@
       resumeCountdownPop = 1.2;
       resumeCountdown.textContent = '3';
       resumeCountdown.classList.add('show');
+      renderPauseIcon();
     }
 
     function autoPauseGame() {
@@ -2829,16 +2830,23 @@
     pauseBtn.addEventListener('click', () => {
       unlockAudio();
       if (!running) return;
-      if (!paused && pausesLeft <= 0) return;
-      if (!paused) pausesLeft = Math.max(0, pausesLeft - 1);
-      paused = !paused;
+
+      if (paused && !resumePending) {
+        beginResumeCountdown();
+        renderPauseIcon();
+        return;
+      }
+
       if (!paused) {
-        showResumeCountdown();
-      } else {
+        if (pausesLeft <= 0) return;
+        pausesLeft = Math.max(0, pausesLeft - 1);
+        paused = true;
+        resumePending = false;
+        autoPausedPendingResume = false;
         resumeCountdown.classList.remove('show');
         resumeCountdown.textContent = '';
+        renderPauseIcon();
       }
-      renderPauseIcon();
     });
 
     document.addEventListener('visibilitychange', () => {
