@@ -1551,8 +1551,9 @@
       resumeCountdown.textContent = '';
       resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
       resumeSlowmo = PAUSE_RESUME_SLOWMO_DURATION;
-      resumeTimeScale = 0.24;
+      resumeTimeScale = 0.18;
       resumeHeartbeat = 0;
+      lastTime = performance.now();
       renderPauseIcon();
       if (pendingTutorialHide) {
         const pop = pendingTutorialHidePop;
@@ -2836,9 +2837,9 @@
       let targetResumeScale = 1;
       if (resumeSlowmo > 0) {
         resumeSlowmo = Math.max(0, resumeSlowmo - rawDt);
-        const t = 1 - (resumeSlowmo / 1.05);
+        const t = clamp(1 - (resumeSlowmo / PAUSE_RESUME_SLOWMO_DURATION), 0, 1);
         const eased = t * t * (3 - 2 * t);
-        targetResumeScale = 0.38 + (1 - 0.38) * eased;
+        targetResumeScale = 0.18 + (1 - 0.18) * eased;
       }
       resumeTimeScale += (targetResumeScale - resumeTimeScale) * Math.min(1, rawDt * 7.5);
       const dt = rawDt * resumeTimeScale;
