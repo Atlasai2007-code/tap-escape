@@ -999,6 +999,8 @@
     let reviveInvuln = 0;
     let revivePromptTimer = 0;
     let pausesLeft = MAX_PAUSES_PER_RUN;
+    let pendingTutorialHide = false;
+    let pendingTutorialHidePop = false;
     const MAX_REVIVES_PER_RUN = 2;
     const REVIVE_PROMPT_DURATION = 5;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
@@ -1308,6 +1310,17 @@
       tutorialCue.classList.remove('show', 'dashboard-point', 'pop-out');
     }
 
+    function hideTutorialTextWhenPlayable(pop = false, force = false) {
+      if (running && !paused && !resumePending) {
+        pendingTutorialHide = false;
+        pendingTutorialHidePop = false;
+        hideTutorialText(force, pop);
+        return;
+      }
+      pendingTutorialHide = true;
+      pendingTutorialHidePop = pop;
+    }
+
     function finishTutorial() {
       tutorialActive = false;
       tutorialPhase = 'done';
@@ -1327,7 +1340,7 @@
       tutorialTarget.classList.remove('show');
       tutorialPinnedMessage = '';
       showTutorialText('Don’t get hit');
-      setTimeout(() => hideTutorialText(true, true), 2600);
+      setTimeout(() => hideTutorialTextWhenPlayable(true, true), 2600);
     }
 
     function placeTutorialTarget() {
@@ -1673,7 +1686,7 @@
       if (tutorialActive) return;
       showTutorialText(randomStartHint());
       setTimeout(() => {
-        if (!tutorialActive && running && !paused) hideTutorialText(false, true);
+        if (!tutorialActive && running) hideTutorialTextWhenPlayable(true, false);
       }, 1500);
     }
 
@@ -1717,7 +1730,7 @@
       tutorialCue.classList.remove('pop-out', 'dashboard-point');
       tutorialCue.classList.add('show');
       setTimeout(() => {
-        if (running && !paused) hideTutorialText(false, true);
+        if (running) hideTutorialTextWhenPlayable(true, false);
       }, 900);
       resumeSlowmo = 1.25;
       resumeTimeScale = 0.38;
@@ -2214,6 +2227,12 @@
           resumeCountdown.classList.remove('show');
           resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
           renderPauseIcon();
+          if (pendingTutorialHide) {
+            const pop = pendingTutorialHidePop;
+            pendingTutorialHide = false;
+            pendingTutorialHidePop = false;
+            hideTutorialText(false, pop);
+          }
         }
       }
       if (revivePromptTimer > 0) {
