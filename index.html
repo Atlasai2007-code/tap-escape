@@ -158,11 +158,36 @@
 
     .bottom-controls {
       display: flex;
-      justify-content: flex-end;
+      justify-content: stretch;
       align-items: center;
-      padding: 4px 4px 0;
-      min-height: 52px;
+      padding: 6px 4px 0;
+      min-height: 58px;
       pointer-events: auto;
+    }
+
+    .pause-banner {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.92);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font: inherit;
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      backdrop-filter: blur(14px);
+    }
+
+    .pause-banner svg {
+      width: 18px;
+      height: 18px;
+      display: block;
     }
 
     .multiplier-top {
@@ -894,7 +919,7 @@
     </div>
 
     <div class="bottom-controls">
-      <button class="icon-btn" id="pauseBtn" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect fill="#fff" x="6.5" y="5" width="3.5" height="14" rx="1.2"></rect><rect fill="#fff" x="14" y="5" width="3.5" height="14" rx="1.2"></rect></svg></button>
+      <button class="pause-banner" id="pauseBtn" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect fill="currentColor" x="6.5" y="5" width="3.5" height="14" rx="1.2"></rect><rect fill="currentColor" x="14" y="5" width="3.5" height="14" rx="1.2"></rect></svg><span>Pause</span></button>
     </div>
   </div>
 
