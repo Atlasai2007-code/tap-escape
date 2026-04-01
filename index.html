@@ -2873,7 +2873,7 @@
         autoPausedPendingResume = false;
         resumeCountdown.classList.remove('show');
         resumeCountdown.textContent = '';
-        clearTutorialVisuals();
+        if (!tutorialActive) clearTutorialVisuals();
         renderPauseIcon();
       }
     });
