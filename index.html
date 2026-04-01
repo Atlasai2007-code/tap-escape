@@ -1321,6 +1321,18 @@
       pendingTutorialHidePop = pop;
     }
 
+    function clearTutorialVisuals() {
+      tutorialTargetPos = null;
+      tutorialForcedDashTarget = null;
+      tutorialTarget.innerHTML = '';
+      tutorialTarget.classList.remove('show');
+      tutorialCue.textContent = '';
+      tutorialCue.classList.remove('show', 'dashboard-point', 'pop-out');
+      pendingTutorialHide = false;
+      pendingTutorialHidePop = false;
+      tutorialPinnedMessage = '';
+    }
+
     function finishTutorial() {
       tutorialActive = false;
       tutorialPhase = 'done';
@@ -1899,12 +1911,9 @@
       tutorialX1BreakGlow = 0;
       tutorialX2Seen = false;
       tutorialCarryGlow = 0;
-      tutorialPinnedMessage = '';
       tutorialX2PointerShown = false;
       tutorialX1PointerShown = false;
-      tutorialCue.textContent = '';
-      tutorialCue.classList.remove('show');
-      tutorialTarget.classList.remove('show');
+      clearTutorialVisuals();
       openingBallPending = true;
       aimedBallTimer = 30;
       extraEarlyAimedPending = true;
@@ -2864,6 +2873,7 @@
         autoPausedPendingResume = false;
         resumeCountdown.classList.remove('show');
         resumeCountdown.textContent = '';
+        clearTutorialVisuals();
         renderPauseIcon();
       }
     });
