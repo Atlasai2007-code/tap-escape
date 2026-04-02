@@ -1691,10 +1691,15 @@
 
     function autoPauseGame() {
       if (!running || paused || resumePending) return;
-      paused = true;
-      autoPausedPendingResume = true;
-      overlay.classList.add('hidden');
-      renderPauseIcon();
+      if (pausesLeft > 0) {
+        pausesLeft = Math.max(0, pausesLeft - 1);
+        paused = true;
+        autoPausedPendingResume = true;
+        overlay.classList.add('hidden');
+        renderPauseIcon();
+        return;
+      }
+      autoPausedPendingResume = false;
     }
 
     async function shareNewBestCard() {
