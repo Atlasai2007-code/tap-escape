@@ -1025,7 +1025,6 @@
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
     const MAX_PAUSES_PER_RUN = 1;
-    const BONUS_PAUSE_SCORE = 1000;
     const PAUSE_RESUME_SLOWMO_DURATION = 2;
 
     let running = false;
@@ -1041,8 +1040,7 @@
     let reviveInvuln = 0;
     let revivePromptTimer = 0;
     let pausesLeft = MAX_PAUSES_PER_RUN;
-    let bonusPauseGranted = false;
-    let pauseButtonCelebrating = false;
+    let bonusPausesAwarded = 0;
     let pendingTutorialHide = false;
     let pendingTutorialHidePop = false;
     let pauseFx = 0;
@@ -1310,6 +1308,17 @@
       muteBtn.innerHTML = muted
         ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M4 10v4h3.4l4.3 3.6c.67.56 1.63.08 1.63-.8V7.2c0-.88-.96-1.36-1.63-.8L7.4 10H4Z"></path><path fill="#fff" d="M16.2 9.05 18.15 11l1.95-1.95 1.4 1.4L19.55 12l1.95 1.95-1.4 1.4L18.15 13.4l-1.95 1.95-1.4-1.4L16.75 12 14.8 10.45l1.4-1.4Z"></path></svg>'
         : '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M4 10v4h3.4l4.3 3.6c.67.56 1.63.08 1.63-.8V7.2c0-.88-.96-1.36-1.63-.8L7.4 10H4Z"></path><path fill="#fff" d="M16 9.2a.95.95 0 0 1 1.34.1A4.18 4.18 0 0 1 18.4 12a4.18 4.18 0 0 1-1.06 2.7.95.95 0 1 1-1.44-1.24c.39-.45.6-.94.6-1.46s-.21-1.01-.6-1.46a.95.95 0 0 1 .1-1.34Z"></path><path fill="#fff" d="M17.95 6.95a.95.95 0 0 1 1.34.03A7.24 7.24 0 0 1 21.2 12a7.24 7.24 0 0 1-1.91 5.02.95.95 0 1 1-1.37-1.3A5.35 5.35 0 0 0 19.3 12a5.35 5.35 0 0 0-1.38-3.72.95.95 0 0 1 .03-1.33Z"></path></svg>';
+    }
+
+    function pauseBonusCountForScore(scoreValue) {
+      const scoreInt = Math.floor(scoreValue);
+      let count = 0;
+      if (scoreInt >= 1000) count += 1;
+      if (scoreInt >= 2500) count += 1;
+      if (scoreInt >= 4500) count += 1;
+      if (scoreInt >= 7000) count += 1;
+      if (scoreInt >= 12000) count += 1 + Math.floor((scoreInt - 12000) / 5000);
+      return count;
     }
 
     function triggerPauseArenaFx(type) {
@@ -1938,8 +1947,7 @@
       reviveInvuln = 0;
       revivePromptTimer = 0;
       pausesLeft = MAX_PAUSES_PER_RUN;
-      bonusPauseGranted = false;
-      pauseButtonCelebrating = false;
+      bonusPausesAwarded = 0;
       spawnTimer = 0;
       shake = 0;
       momentum = 0;
@@ -2305,9 +2313,10 @@
         if (running) {
           reviveInvuln = Math.max(0, reviveInvuln - dt);
           elapsed += dt;
-          if (!bonusPauseGranted && score >= BONUS_PAUSE_SCORE) {
-            bonusPauseGranted = true;
-            pausesLeft += 1;
+          const bonusPauseTarget = pauseBonusCountForScore(score);
+          if (bonusPauseTarget > bonusPausesAwarded) {
+            pausesLeft += (bonusPauseTarget - bonusPausesAwarded);
+            bonusPausesAwarded = bonusPauseTarget;
             renderPauseIcon();
             triggerPauseBonusFx();
           }
