@@ -119,8 +119,14 @@
     }
 
     .arena-wrap.paused-state {
-      filter: saturate(0.82) brightness(0.8);
-      box-shadow: 0 22px 46px rgba(0,0,0,0.34);
+      filter: saturate(0.7) brightness(0.68) blur(0.6px);
+      box-shadow: 0 22px 46px rgba(0,0,0,0.34), 0 0 0 1px rgba(255,255,255,0.04), 0 0 34px rgba(255,216,106,0.12);
+      transform: scale(0.988);
+    }
+
+    .arena-wrap.reward-paused {
+      filter: saturate(0.86) brightness(0.74) blur(0.4px);
+      box-shadow: 0 26px 56px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05), 0 0 46px rgba(255,216,106,0.22), 0 0 72px rgba(143,124,255,0.12);
     }
 
     .arena-wrap.pause-flash {
@@ -152,10 +158,42 @@
       font-weight: 900;
       letter-spacing: -0.03em;
       color: rgba(255,255,255,0.88);
-      background: rgba(4, 9, 22, 0.18);
-      backdrop-filter: blur(3px);
+      background: rgba(4, 9, 22, 0.22);
+      backdrop-filter: blur(5px);
       pointer-events: none;
       z-index: 2;
+    }
+
+    .arena-wrap.reward-paused::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,216,106,0.26), rgba(255,216,106,0.08) 24%, rgba(143,124,255,0.08) 42%, rgba(0,0,0,0) 62%),
+        radial-gradient(circle at 50% 22%, rgba(255,255,255,0.16), rgba(255,255,255,0) 32%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 2;
+      animation: rewardPauseGlow 900ms cubic-bezier(.2,.9,.22,1) forwards;
+    }
+
+    .arena-wrap.reward-paused::after {
+      content: 'Rewarded Pause';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.24rem;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      color: rgba(255,248,222,0.98);
+      text-shadow: 0 0 14px rgba(255,216,106,0.34), 0 0 34px rgba(143,124,255,0.2);
+      background: rgba(6, 10, 24, 0.16);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+      z-index: 3;
+      animation: rewardPauseLabel 900ms cubic-bezier(.2,.9,.22,1) forwards;
     }
 
     .arena-wrap.menu-mode canvas,
@@ -230,7 +268,12 @@
     }
 
     .pause-banner.bonus-pop {
-      animation: pauseBonusPop 680ms cubic-bezier(.2,.9,.22,1);
+      animation: pauseBonusPop 820ms cubic-bezier(.2,.9,.22,1);
+    }
+
+    .pause-banner.reward-spotlight {
+      animation: rewardButtonPulse 900ms cubic-bezier(.2,.9,.22,1);
+      box-shadow: 0 0 0 rgba(255,216,106,0), 0 0 0 rgba(143,124,255,0);
     }
 
     .pause-banner svg {
@@ -503,7 +546,7 @@
       position: absolute;
       top: 20px;
       left: 50%;
-      transform: translateX(-50%) scale(0.82);
+      transform: translateX(-50%) scale(0.76);
       z-index: 10;
       min-width: 64px;
       color: #ffffff;
@@ -519,9 +562,30 @@
       will-change: transform, opacity;
     }
 
+    .resume-countdown::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      background: radial-gradient(circle, rgba(255,216,106,0.3), rgba(143,124,255,0.16) 45%, rgba(87,240,255,0.08) 65%, rgba(0,0,0,0) 76%);
+      opacity: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
     .resume-countdown.show {
       opacity: 1;
       transform: translateX(-50%) scale(1);
+      animation: rewardCountdownPop 420ms cubic-bezier(.18,.9,.2,1);
+    }
+
+    .resume-countdown.show::before {
+      opacity: 1;
+      animation: rewardCountdownHalo 620ms cubic-bezier(.18,.9,.2,1);
     }
 
     @keyframes tutorialTargetPulse {
@@ -923,9 +987,43 @@
 
     @keyframes pauseBonusPop {
       0% { transform: scale(1); filter: brightness(1); }
-      22% { transform: scale(1.06); filter: brightness(1.12); }
-      48% { transform: scale(0.98); filter: brightness(1.04); }
+      16% { transform: scale(1.08); filter: brightness(1.16); }
+      34% { transform: scale(0.97); filter: brightness(1.08); }
+      54% { transform: scale(1.04); filter: brightness(1.12); }
       100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @keyframes rewardPauseGlow {
+      0% { opacity: 0; transform: scale(0.9); }
+      18% { opacity: 1; transform: scale(1.04); }
+      100% { opacity: 0.92; transform: scale(1); }
+    }
+
+    @keyframes rewardPauseLabel {
+      0% { opacity: 0; transform: scale(0.84); letter-spacing: -0.08em; }
+      26% { opacity: 1; transform: scale(1.08); letter-spacing: -0.03em; }
+      100% { opacity: 1; transform: scale(1); letter-spacing: -0.035em; }
+    }
+
+    @keyframes rewardButtonPulse {
+      0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 0 rgba(255,216,106,0), 0 0 0 rgba(143,124,255,0); }
+      20% { transform: scale(1.08); filter: brightness(1.18); box-shadow: 0 0 0 10px rgba(255,216,106,0.18), 0 0 28px rgba(143,124,255,0.22); }
+      42% { transform: scale(0.97); filter: brightness(1.08); }
+      64% { transform: scale(1.04); filter: brightness(1.12); box-shadow: 0 0 0 18px rgba(255,216,106,0.08), 0 0 42px rgba(143,124,255,0.18); }
+      100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 0 28px rgba(255,216,106,0), 0 0 0 rgba(143,124,255,0); }
+    }
+
+    @keyframes rewardCountdownPop {
+      0% { transform: translateX(-50%) scale(0.72); filter: brightness(1); }
+      34% { transform: translateX(-50%) scale(1.14); filter: brightness(1.2); }
+      56% { transform: translateX(-50%) scale(0.94); filter: brightness(1.08); }
+      100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+    }
+
+    @keyframes rewardCountdownHalo {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+      100% { opacity: 0.72; transform: translate(-50%, -50%) scale(1); }
     }
 
     @keyframes pauseFlashIn {
@@ -1328,10 +1426,16 @@
     }
 
     function triggerPauseBonusFx() {
-      pauseBtn.classList.remove('bonus-pop');
+      pauseBtn.classList.remove('bonus-pop', 'reward-spotlight');
+      arenaWrap.classList.remove('reward-paused');
       void pauseBtn.offsetWidth;
-      pauseBtn.classList.add('bonus-pop');
-      setTimeout(() => pauseBtn.classList.remove('bonus-pop'), 720);
+      void arenaWrap.offsetWidth;
+      pauseBtn.classList.add('bonus-pop', 'reward-spotlight');
+      arenaWrap.classList.add('reward-paused');
+      setTimeout(() => {
+        pauseBtn.classList.remove('bonus-pop', 'reward-spotlight');
+        arenaWrap.classList.remove('reward-paused');
+      }, 980);
     }
 
     function renderPauseIcon() {
@@ -1583,7 +1687,7 @@
       resumeCountdownPop = 0;
       resumeCountdown.classList.remove('show');
       resumeCountdown.textContent = '';
-      resumeCountdown.style.transform = 'translateX(-50%) scale(0.82)';
+      resumeCountdown.style.transform = 'translateX(-50%) scale(0.76)';
       resumeSlowmo = PAUSE_RESUME_SLOWMO_DURATION;
       resumeTimeScale = 0.18;
       resumeHeartbeat = 0;
