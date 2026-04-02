@@ -1700,6 +1700,7 @@
         return;
       }
       autoPausedPendingResume = false;
+      lastTime = performance.now();
     }
 
     async function shareNewBestCard() {
