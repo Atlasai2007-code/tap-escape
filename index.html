@@ -1555,7 +1555,7 @@
     function renderPauseIcon() {
       const shownPauses = Math.max(0, pausesLeft);
       const canResumeNow = paused && !resumePending;
-      pauseBtn.textContent = canResumeNow ? `Resume x${shownPauses}` : `Pause (${shownPauses}x)`;
+      pauseBtn.textContent = canResumeNow ? `Resume (${shownPauses}x)` : `Pause (${shownPauses}x)`;
       pauseBtn.disabled = !paused && pausesLeft <= 0;
       pauseBtn.style.opacity = (!paused && pausesLeft <= 0) ? '0.55' : '1';
       arenaWrap.classList.toggle('paused-state', paused && !resumePending);
