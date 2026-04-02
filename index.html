@@ -301,20 +301,20 @@
       content: '+1';
       position: absolute;
       left: 50%;
-      bottom: calc(100% - 2px);
-      transform: translateX(-50%) translateY(6px) scale(0.82);
-      padding: 6px 12px;
+      bottom: calc(100% + 2px);
+      transform: translateX(-50%) translateY(0) scale(0.94);
+      padding: 5px 11px;
       border-radius: 999px;
-      background: linear-gradient(135deg, rgba(255,216,106,0.98), rgba(255,255,255,0.96));
+      background: linear-gradient(135deg, rgba(255,216,106,0.96), rgba(255,255,255,0.94));
       color: #08111f;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 1000;
-      letter-spacing: -0.03em;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22), 0 0 18px rgba(255,216,106,0.24);
+      letter-spacing: -0.025em;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18), 0 0 14px rgba(255,216,106,0.18);
       opacity: 0;
       pointer-events: none;
       z-index: 2;
-      animation: rewardPlusOnePop 900ms cubic-bezier(.18,.9,.2,1);
+      animation: rewardPlusOneFloat 820ms cubic-bezier(.22,.61,.36,1);
     }
 
     .pause-banner.reward-spotlight::after {
@@ -1067,11 +1067,11 @@
       100% { opacity: 0.72; transform: translate(-50%, -50%) scale(1); }
     }
 
-    @keyframes rewardPlusOnePop {
-      0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.76); }
-      18% { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1.08); }
-      56% { opacity: 1; transform: translateX(-50%) translateY(-22px) scale(1); }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-34px) scale(0.96); }
+    @keyframes rewardPlusOneFloat {
+      0% { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.9); }
+      20% { opacity: 1; transform: translateX(-50%) translateY(-2px) scale(1); }
+      68% { opacity: 1; transform: translateX(-50%) translateY(-12px) scale(1); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-18px) scale(0.98); }
     }
 
     @keyframes rewardButtonFlashOverlay {
