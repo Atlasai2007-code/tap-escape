@@ -1196,7 +1196,7 @@
     const MAX_MULTIPLIER_KEY = 'tapEscapeMaxMultiplier_v1';
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
-    const MAX_PAUSES_PER_RUN = 1;
+    const MAX_PAUSES_PER_RUN = 0;
     const PAUSE_RESUME_SLOWMO_DURATION = 2;
 
     let running = false;
@@ -1485,11 +1485,10 @@
     function pauseBonusCountForScore(scoreValue) {
       const scoreInt = Math.floor(scoreValue);
       let count = 0;
-      if (scoreInt >= 1000) count += 1;
-      if (scoreInt >= 2500) count += 1;
-      if (scoreInt >= 4500) count += 1;
-      if (scoreInt >= 7000) count += 1;
-      if (scoreInt >= 12000) count += 1 + Math.floor((scoreInt - 12000) / 5000);
+      if (scoreInt >= 200) count += 1;
+      if (scoreInt >= 1500) count += 1;
+      if (scoreInt >= 3500) count += 1;
+      if (scoreInt >= 6000) count += 1 + Math.floor((scoreInt - 6000) / 2500);
       return count;
     }
 
