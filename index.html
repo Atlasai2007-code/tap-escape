@@ -2116,7 +2116,6 @@
     function finalizeDeath() {
       revivePromptTimer = 0;
       running = false;
-      deathSound();
       vibe([25, 20, 25]);
       const gotNewBest = normalizeBest(score) >= normalizeBest(best);
       updateBest();
@@ -2536,6 +2535,7 @@
 
     function die() {
       running = false;
+      deathSound();
       shake = 18;
       momentum = 0;
       dashSpamPenalty = 0;
