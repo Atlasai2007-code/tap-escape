@@ -1152,7 +1152,7 @@
   </div>
 
   <script>
-    (function applyStandaloneModeFlag() {
+    (async function applyStandaloneModeFlag() {
       const root = document.documentElement;
       const body = document.body;
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -1189,6 +1189,12 @@
           clampStandaloneSafeArea();
         });
       }
+
+      try {
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('portrait');
+        }
+      } catch (_) {}
 
       setStableAppHeight();
       clampStandaloneSafeArea();
@@ -1514,6 +1520,12 @@
       setTimeout(() => beep('triangle', 860, 0.06, 0.026), 45);
     }
 
+    function pauseRewardSound() {
+      beep('sine', 740, 0.06, 0.024);
+      setTimeout(() => beep('triangle', 980, 0.07, 0.028), 55);
+      setTimeout(() => beep('sine', 1240, 0.08, 0.024), 115);
+    }
+
     function multiplierUpgradeSound(level) {
       const base = level === 1 ? 980 : level === 2 ? 1120 : 1320;
       beep('sine', base, 0.07, 0.028);
@@ -1548,6 +1560,7 @@
     }
 
     function triggerPauseBonusFx() {
+      pauseRewardSound();
       pauseBtn.classList.remove('bonus-pop', 'reward-spotlight');
       void pauseBtn.offsetWidth;
       pauseBtn.classList.add('bonus-pop', 'reward-spotlight');
