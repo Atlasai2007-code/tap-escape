@@ -3043,8 +3043,6 @@
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         autoPauseGame();
-      } else if (autoPausedPendingResume && running && paused && !resumePending) {
-        beginResumeCountdown();
       }
     });
 
@@ -3054,7 +3052,7 @@
 
     window.addEventListener('focus', () => {
       if (autoPausedPendingResume && running && paused && !resumePending) {
-        beginResumeCountdown();
+        renderPauseIcon();
       }
     });
 
