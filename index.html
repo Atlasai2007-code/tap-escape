@@ -1264,6 +1264,10 @@
     let pauseFlash = 0;
     const MAX_REVIVES_PER_RUN = 2;
     const REVIVE_PROMPT_DURATION = 5;
+    const FIRST_REVIVE_MIN_SCORE = 250;
+    const FIRST_REVIVE_BEST_RATIO = 0.35;
+    const SECOND_REVIVE_MIN_SCORE = 900;
+    const SECOND_REVIVE_BEST_RATIO = 0.75;
     let muted = localStorage.getItem(MUTE_KEY) === '1';
     let elapsed = 0;
     let lastTime = 0;
@@ -2054,6 +2058,20 @@
       renderPauseIcon();
     }
 
+    function canOfferRevive() {
+      const personalBest = normalizeBest(best);
+      const shownScore = Math.floor(score);
+      if (personalBest <= 0) return false;
+      if (reviveCount >= MAX_REVIVES_PER_RUN) return false;
+      if (reviveCount === 0) {
+        return shownScore >= Math.max(FIRST_REVIVE_MIN_SCORE, Math.ceil(personalBest * FIRST_REVIVE_BEST_RATIO));
+      }
+      if (reviveCount === 1) {
+        return shownScore >= Math.max(SECOND_REVIVE_MIN_SCORE, Math.ceil(personalBest * SECOND_REVIVE_BEST_RATIO));
+      }
+      return false;
+    }
+
     function showRevivePrompt() {
       overlay.classList.remove('hidden');
       overlayPanel.className = 'panel new-best';
@@ -2514,7 +2532,7 @@
       resetPop = 0;
       resetMultiplierProgress(false);
       spawnConfetti(player.x, player.y);
-      if (reviveCount < MAX_REVIVES_PER_RUN) {
+      if (canOfferRevive()) {
         showRevivePrompt();
         return;
       }
