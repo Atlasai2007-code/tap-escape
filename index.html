@@ -1826,7 +1826,7 @@
         return;
       }
       autoPausedPendingResume = false;
-      lastTime = performance.now();
+      finalizeDeath();
     }
 
     async function shareNewBestCard() {
