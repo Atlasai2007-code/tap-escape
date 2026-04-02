@@ -25,6 +25,7 @@
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
       --app-height: 100dvh;
+      --standalone-safe-bottom: var(--safe-bottom);
     }
 
     * { box-sizing: border-box; }
@@ -86,6 +87,10 @@
         gap: 0;
       }
 
+      html.standalone-mode .app {
+        padding-bottom: 0 !important;
+      }
+
       .top-ui {
         padding: 8px 10px;
         border-radius: 14px;
@@ -113,7 +118,7 @@
       .bottom-controls {
         left: calc(2px + var(--safe-left));
         right: calc(2px + var(--safe-right));
-        bottom: calc(-12px + var(--safe-bottom));
+        bottom: calc(-12px + var(--standalone-safe-bottom));
       }
 
       .pause-banner {
@@ -1149,21 +1154,59 @@
   <script>
     (function applyStandaloneModeFlag() {
       const root = document.documentElement;
+      const body = document.body;
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
       if (isStandalone) root.classList.add('standalone-mode');
 
       function setStableAppHeight() {
         const vh = window.innerHeight || document.documentElement.clientHeight || screen.height || 0;
-        if (vh > 0) root.style.setProperty('--app-height', `${vh}px`);
+        if (vh > 0) {
+          root.style.setProperty('--app-height', `${vh}px`);
+          body.style.height = `${vh}px`;
+          body.style.minHeight = `${vh}px`;
+        }
+      }
+
+      function clampStandaloneSafeArea() {
+        if (!root.classList.contains('standalone-mode')) return;
+        const vv = window.visualViewport;
+        const viewportHeight = vv && vv.height ? vv.height : (window.innerHeight || 0);
+        const inner = window.innerHeight || 0;
+        const delta = Math.max(0, inner - viewportHeight);
+        const clamped = Math.min(delta, 12);
+        root.style.setProperty('--standalone-safe-bottom', `${clamped}px`);
+      }
+
+      function forceStandaloneLayoutRefresh() {
+        setStableAppHeight();
+        clampStandaloneSafeArea();
+        if (!root.classList.contains('standalone-mode')) return;
+        body.style.transform = 'translateZ(0)';
+        void body.offsetHeight;
+        requestAnimationFrame(() => {
+          body.style.transform = '';
+          setStableAppHeight();
+          clampStandaloneSafeArea();
+        });
       }
 
       setStableAppHeight();
-      window.addEventListener('resize', setStableAppHeight, { passive: true });
-      window.addEventListener('orientationchange', setStableAppHeight, { passive: true });
-      window.addEventListener('pageshow', setStableAppHeight, { passive: true });
-      setTimeout(setStableAppHeight, 0);
-      setTimeout(setStableAppHeight, 250);
-      setTimeout(setStableAppHeight, 900);
+      clampStandaloneSafeArea();
+      forceStandaloneLayoutRefresh();
+      window.addEventListener('resize', forceStandaloneLayoutRefresh, { passive: true });
+      window.addEventListener('orientationchange', forceStandaloneLayoutRefresh, { passive: true });
+      window.addEventListener('pageshow', forceStandaloneLayoutRefresh, { passive: true });
+      window.addEventListener('focus', forceStandaloneLayoutRefresh, { passive: true });
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) forceStandaloneLayoutRefresh();
+      }, { passive: true });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', forceStandaloneLayoutRefresh, { passive: true });
+      }
+      setTimeout(forceStandaloneLayoutRefresh, 0);
+      setTimeout(forceStandaloneLayoutRefresh, 120);
+      setTimeout(forceStandaloneLayoutRefresh, 400);
+      setTimeout(forceStandaloneLayoutRefresh, 1000);
     })();
 
     const canvas = document.getElementById('game');
