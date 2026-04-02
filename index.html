@@ -229,6 +229,10 @@
       box-shadow: none;
     }
 
+    .pause-banner.bonus-pop {
+      animation: pauseBonusPop 680ms cubic-bezier(.2,.9,.22,1);
+    }
+
     .pause-banner svg {
       width: 18px;
       height: 18px;
@@ -917,6 +921,13 @@
       100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
     }
 
+    @keyframes pauseBonusPop {
+      0% { transform: scale(1); filter: brightness(1); }
+      22% { transform: scale(1.06); filter: brightness(1.12); }
+      48% { transform: scale(0.98); filter: brightness(1.04); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
     @keyframes pauseFlashIn {
       0% { filter: saturate(1) brightness(1); }
       35% { filter: saturate(0.96) brightness(0.94); }
@@ -1014,6 +1025,7 @@
     const MUTE_KEY = 'tapEscapeMute';
     const TUTORIAL_DONE_KEY = 'tapEscapeTutorialDone_v2';
     const MAX_PAUSES_PER_RUN = 1;
+    const BONUS_PAUSE_SCORE = 1000;
     const PAUSE_RESUME_SLOWMO_DURATION = 2;
 
     let running = false;
@@ -1029,6 +1041,8 @@
     let reviveInvuln = 0;
     let revivePromptTimer = 0;
     let pausesLeft = MAX_PAUSES_PER_RUN;
+    let bonusPauseGranted = false;
+    let pauseButtonCelebrating = false;
     let pendingTutorialHide = false;
     let pendingTutorialHidePop = false;
     let pauseFx = 0;
@@ -1302,6 +1316,13 @@
       arenaWrap.classList.remove('pause-flash', 'resume-flash');
       void arenaWrap.offsetWidth;
       arenaWrap.classList.add(type === 'pause' ? 'pause-flash' : 'resume-flash');
+    }
+
+    function triggerPauseBonusFx() {
+      pauseBtn.classList.remove('bonus-pop');
+      void pauseBtn.offsetWidth;
+      pauseBtn.classList.add('bonus-pop');
+      setTimeout(() => pauseBtn.classList.remove('bonus-pop'), 720);
     }
 
     function renderPauseIcon() {
@@ -1917,6 +1938,8 @@
       reviveInvuln = 0;
       revivePromptTimer = 0;
       pausesLeft = MAX_PAUSES_PER_RUN;
+      bonusPauseGranted = false;
+      pauseButtonCelebrating = false;
       spawnTimer = 0;
       shake = 0;
       momentum = 0;
@@ -2282,6 +2305,12 @@
         if (running) {
           reviveInvuln = Math.max(0, reviveInvuln - dt);
           elapsed += dt;
+          if (!bonusPauseGranted && score >= BONUS_PAUSE_SCORE) {
+            bonusPauseGranted = true;
+            pausesLeft += 1;
+            renderPauseIcon();
+            triggerPauseBonusFx();
+          }
           if (tutorialActive) {
             tutorialPhaseTimer -= dt;
             if (tutorialPhase === 'dash-setup' && tutorialPhaseTimer <= 0) {
